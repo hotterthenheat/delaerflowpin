@@ -8,7 +8,6 @@ import { AssetInfo } from './types';
 import { SkyVisionView } from './components/SkyVisionView';
 import { PinpointAIView } from './components/PinpointAIView';
 import { QuantAuditView } from './components/QuantAuditView';
-import { DiscoveryView } from './components/DiscoveryView';
 import { DealerFlowView } from './components/DealerFlowView';
 import SlayerIntro from './components/SlayerIntro';
 import { SkyseyeAlertHub } from './components/SkyseyeAlertHub';

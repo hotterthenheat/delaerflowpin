@@ -27,7 +27,6 @@ import {
   getUnifiedCandles
 } from './src/lib/providerAbstraction';
 import { buildGexProfile, computeDealerFlowGauge } from './src/lib/gexEngine';
-import { computeDisplacementIntelligence } from './src/lib/displacementEngine';
 import { getLastTradierError } from './src/lib/tradierProvider';
 
 const app = express();
@@ -1380,7 +1379,15 @@ const constructPayload = (params: {
 
 import crypto from 'crypto';
 
-const COOKIE_SECRET = process.env.COOKIE_SECRET || 'institutional-slayer-grade-core-key-random-noise-99882';
+const COOKIE_SECRET =
+  process.env.COOKIE_SECRET ||
+  (() => {
+    console.warn(
+      '[security] COOKIE_SECRET is not set — generating an ephemeral random secret. ' +
+        'Sessions will be invalidated on restart. Set COOKIE_SECRET in production.',
+    );
+    return crypto.randomBytes(32).toString('hex');
+  })();
 
 function signCookieValue(value: string): string {
   const hmac = crypto.createHmac('sha256', COOKIE_SECRET).update(value).digest('base64url');
@@ -1474,9 +1481,11 @@ usersDb.set('slayer@trade.com', {
 function setSessionCookie(res: any, userSession: any, req: any) {
   const serializedSession = JSON.stringify(userSession);
   const signedSession = signCookieValue(serializedSession);
-  const encodedSession = encodeURIComponent(signedSession);
-  
-  res.cookie('slayer_session', encodedSession, {
+
+  // NOTE: do not encodeURIComponent here — Express's res.cookie() already
+  // URL-encodes the value, and getSessionFromCookies() decodes exactly once.
+  // Encoding manually would double-encode the cookie and break HMAC validation.
+  res.cookie('slayer_session', signedSession, {
     httpOnly: true,
     secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
     sameSite: 'lax',
