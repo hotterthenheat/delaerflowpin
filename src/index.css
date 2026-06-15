@@ -1,0 +1,865 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght=0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:ital,wght=0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-rubik: "Rubik", sans-serif;
+
+  /* High Density Theme Custom Color Mappings */
+  --color-black: #050506;
+  --color-zinc-950: #0a0a0c;
+  --color-zinc-900: #121215;
+  --color-zinc-850: #1e1e24;
+  --color-zinc-800: #1e1e24;
+  --color-zinc-750: #2a2a32;
+  --color-zinc-700: #2a2a32;
+  --color-zinc-650: #4a4a55;
+  --color-zinc-600: #5c5c68;
+  --color-zinc-550: #71717e;
+  --color-zinc-500: #8e8e93;
+  --color-zinc-400: #aeaeb2;
+  --color-zinc-305: #c7c7cc;
+  --color-zinc-300: #d1d1d6;
+  --color-zinc-200: #e5e5ea;
+  --color-zinc-150: #f2f2f7;
+  --color-zinc-100: #f4f4f4;
+
+  /* Accents */
+  --color-emerald-500: #34c759;
+  --color-emerald-400: #30d158;
+  --color-emerald-450: #30d158;
+  --color-emerald-950: #042409;
+  --color-emerald-900: #1c7c2e;
+
+  --color-rose-500: #ff3b30;
+  --color-rose-450: #ff453a;
+  --color-rose-400: #ff453a;
+  --color-rose-950: #2c0806;
+  --color-rose-900: #af1f18;
+
+  --color-amber-500: #ff9500;
+  --color-amber-450: #ff9f0a;
+  --color-amber-400: #ff9f0a;
+  --color-amber-950: #321c00;
+  --color-amber-900: #b26500;
+
+  /* Radial dotted grid from the theme mockup */
+  --color-grid-dot: #16161a;
+
+  /* Smooth Apple Liquid Radii Defaults */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-full: 9999px;
+}
+
+/* Custom UI glass class */
+@keyframes border-rotate {
+  from {
+    --border-angle: 0turn;
+  }
+  to {
+    --border-angle: 1turn;
+  }
+}
+
+@property --border-angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0turn;
+}
+
+.animated-border-box,
+.apple-glass,
+.apple-glass-bright,
+.apple-glass-dark {
+  position: relative;
+}
+
+.animated-border-box::before,
+div.apple-glass::before,
+div.apple-glass-bright::before,
+div.apple-glass-dark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--border-angle), transparent 75%, rgba(255, 255, 255, 0.8) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: border-rotate 5s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Pause the border rotation animation on hover */
+.animated-border-box:hover::before,
+div.apple-glass:hover::before,
+div.apple-glass-bright:hover::before,
+div.apple-glass-dark:hover::before {
+  animation-play-state: paused;
+}
+
+/* SVG stroke rotation animation */
+@keyframes svg-stroke-rotate {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+.animated-svg-border-rect {
+  animation: svg-stroke-rotate 5s linear infinite;
+}
+
+/* Pause the SVG border stroke animation on hover of any parent cards or container */
+.apple-glass:hover .animated-svg-border-rect,
+.apple-glass-bright:hover .animated-svg-border-rect,
+.apple-glass-dark:hover .animated-svg-border-rect,
+.animated-border-box:hover .animated-svg-border-rect,
+div:hover > svg > .animated-svg-border-rect {
+  animation-play-state: paused;
+}
+
+
+.apple-glass {
+  background: rgba(10, 10, 12, 0.65);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Force hardware acceleration & decouple scroll painters */
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform, backdrop-filter;
+}
+
+.apple-glass-bright {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(28px) saturate(210%);
+  -webkit-backdrop-filter: blur(28px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  /* Force hardware acceleration & decouple scroll painters */
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform, backdrop-filter;
+}
+
+.apple-glass-dark {
+  background: rgba(5, 5, 6, 0.85);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  /* Force hardware acceleration & decouple scroll painters */
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform, backdrop-filter;
+}
+
+/* Fluid key animation for the glass-like blob container */
+@keyframes fluid-blob {
+  0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+  33% { transform: translate(40px, -50px) scale(1.15) rotate(120deg); }
+  66% { transform: translate(-30px, 30px) scale(0.9) rotate(240deg); }
+  100% { transform: translate(0px, 0px) scale(1) rotate(360deg); }
+}
+
+.animate-fluid-blob-1 {
+  animation: fluid-blob 18s infinite alternate ease-in-out;
+}
+
+.animate-fluid-blob-2 {
+  animation: fluid-blob 24s infinite alternate-reverse ease-in-out;
+}
+
+.animate-fluid-blob-3 {
+  animation: fluid-blob 20s infinite alternate ease-in-out;
+}
+
+/* ============================================================
+   MOTION SYSTEM — Apple-grade easing + entrance choreography
+   ============================================================ */
+
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.22, 1.2, 0.36, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Entrance: fade + rise. Used app-wide via .animate-fadeIn */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.992);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.65s var(--ease-out-expo) both;
+}
+
+/* Staggered children reveal — drop .stagger-children on any container */
+.stagger-children > * {
+  animation: fadeIn 0.6s var(--ease-out-expo) both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0.03s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.13s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.18s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.23s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.28s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.33s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.38s; }
+
+/* View-level transition for tab switches */
+@keyframes viewEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.view-enter {
+  animation: viewEnter 0.55s var(--ease-out-expo) both;
+}
+
+/* Card micro-interactions: glass panels lift + glow on hover */
+.apple-glass,
+.apple-glass-bright,
+.apple-glass-dark,
+.animated-border-box {
+  transition:
+    transform 0.45s var(--ease-spring),
+    box-shadow 0.45s var(--ease-smooth),
+    border-color 0.3s var(--ease-smooth),
+    background-color 0.3s var(--ease-smooth);
+  will-change: transform;
+}
+
+.apple-glass:hover,
+.apple-glass-bright:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px -12px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 0 32px -8px rgba(48, 209, 88, 0.06);
+}
+
+/* Universal interactive feedback: buttons + links get press physics */
+button, a, [role="button"] {
+  transition:
+    transform 0.25s var(--ease-spring),
+    background-color 0.2s var(--ease-smooth),
+    border-color 0.2s var(--ease-smooth),
+    color 0.2s var(--ease-smooth),
+    box-shadow 0.3s var(--ease-smooth),
+    opacity 0.2s var(--ease-smooth);
+}
+
+button:active, a:active, [role="button"]:active {
+  transform: scale(0.97);
+  transition-duration: 0.08s;
+}
+
+/* Live data shimmer — apply .live-shimmer to streaming values */
+@keyframes liveShimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.live-shimmer {
+  background: linear-gradient(
+    100deg,
+    currentColor 40%,
+    rgba(255, 255, 255, 0.95) 50%,
+    currentColor 60%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: liveShimmer 3.5s linear infinite;
+}
+
+/* Soft breathing glow for live indicators */
+@keyframes breatheGlow {
+  0%, 100% { box-shadow: 0 0 6px 0 rgba(48, 209, 88, 0.35); opacity: 1; }
+  50% { box-shadow: 0 0 14px 3px rgba(48, 209, 88, 0.55); opacity: 0.85; }
+}
+
+.animate-breathe {
+  animation: breatheGlow 2.4s var(--ease-smooth) infinite;
+}
+
+/* Number/price tick flash — green/red pulse on update */
+@keyframes tickUp {
+  0% { color: #30d158; text-shadow: 0 0 12px rgba(48, 209, 88, 0.6); }
+  100% { color: inherit; text-shadow: none; }
+}
+@keyframes tickDown {
+  0% { color: #ff453a; text-shadow: 0 0 12px rgba(255, 69, 58, 0.6); }
+  100% { color: inherit; text-shadow: none; }
+}
+.tick-up { animation: tickUp 0.8s var(--ease-smooth) both; }
+.tick-down { animation: tickDown 0.8s var(--ease-smooth) both; }
+
+/* Slow ambient float for hero/branding elements */
+@keyframes ambientFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: ambientFloat 6s ease-in-out infinite;
+}
+
+/* Scanline sweep for "system active" panels */
+@keyframes scanline {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(400%); opacity: 0; }
+}
+.scanline-overlay {
+  position: relative;
+  overflow: hidden;
+}
+.scanline-overlay::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 25%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(48, 209, 88, 0.04),
+    transparent
+  );
+  animation: scanline 7s var(--ease-smooth) infinite;
+  pointer-events: none;
+}
+
+/* Accessibility: respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Custom global overrides for specialized High Density look and feel */
+html {
+  height: 100%;
+}
+
+html.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #050506;
+  color: #F3F3F5;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Refined focus rings for keyboard navigation */
+:focus-visible {
+  outline: 2px solid rgba(48, 209, 88, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: rgba(48, 209, 88, 0.25);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050506;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a32;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a4a55;
+}
+
+/* Continuous breathing & momentary blinking animations for live Call and Put contracts */
+@keyframes breathe-call {
+  0%, 100% {
+    border-color: rgba(48, 209, 88, 0.1);
+    background-color: #030303;
+    box-shadow: none;
+  }
+  50% {
+    border-color: rgba(48, 209, 88, 0.45);
+    background-color: rgba(48, 209, 88, 0.04);
+    box-shadow: 0 0 8px rgba(48, 209, 88, 0.15);
+  }
+}
+
+@keyframes breathe-put {
+  0%, 100% {
+    border-color: rgba(255, 69, 58, 0.1);
+    background-color: #030303;
+    box-shadow: none;
+  }
+  50% {
+    border-color: rgba(255, 69, 58, 0.45);
+    background-color: rgba(255, 69, 58, 0.04);
+    box-shadow: 0 0 8px rgba(255, 69, 58, 0.15);
+  }
+}
+
+@keyframes blink-call-fast {
+  0% {
+    background-color: rgba(48, 209, 88, 0.4);
+    border-color: rgba(48, 209, 88, 0.9);
+    box-shadow: 0 0 20px rgba(48, 209, 88, 0.5);
+  }
+  100% {
+    background-color: #030303;
+    border-color: rgba(48, 209, 88, 0.1);
+    box-shadow: none;
+  }
+}
+
+@keyframes blink-put-fast {
+  0% {
+    background-color: rgba(255, 69, 58, 0.45);
+    border-color: rgba(255, 69, 58, 0.9);
+    box-shadow: 0 0 20px rgba(255, 69, 58, 0.5);
+  }
+  100% {
+    background-color: #030303;
+    border-color: rgba(255, 69, 58, 0.1);
+    box-shadow: none;
+  }
+}
+
+.animate-breathe-call {
+  animation: breathe-call 2.5s ease-in-out infinite;
+}
+
+.animate-breathe-put {
+  animation: breathe-put 2.5s ease-in-out infinite;
+}
+
+.animate-blink-call {
+  animation: blink-call-fast 0.6s ease-out;
+}
+
+.animate-blink-put {
+  animation: blink-put-fast 0.6s ease-out;
+}
+
+/* Custom continuous scrolling Nasdaq-style ticker tape keyframes */
+@keyframes ticker-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-ticker-marquee {
+  display: flex;
+  width: max-content;
+  animation: ticker-marquee 38s linear infinite;
+}
+
+.animate-ticker-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ============================================================
+   LIGHT THEME OVERRIDES
+   ============================================================ */
+body.light-theme {
+  background-color: #f4f5f8 !important;
+  color: #1a1d20 !important;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px) !important;
+}
+
+body.light-theme ::-webkit-scrollbar-track {
+  background: #f4f5f8;
+}
+
+body.light-theme ::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+
+body.light-theme ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.light-theme {
+  /* Redefine Tailwind's custom theme variables for light mode */
+  --color-black: #ffffff;
+  --color-zinc-950: #ffffff;
+  --color-zinc-900: #f4f5f8;
+  --color-zinc-850: rgba(0, 0, 0, 0.05);
+  --color-zinc-800: rgba(0, 0, 0, 0.07);
+  --color-zinc-750: rgba(0, 0, 0, 0.09);
+  --color-zinc-700: rgba(0, 0, 0, 0.11);
+  --color-zinc-650: #6b7280;
+  --color-zinc-600: #4b5563;
+  --color-zinc-550: #374151;
+  --color-zinc-500: #1f2937;
+  --color-zinc-400: #111827;
+  --color-zinc-305: #111827;
+  --color-zinc-300: #111827;
+  --color-zinc-200: #1f2937;
+  --color-zinc-150: #374151;
+  --color-zinc-100: #111827;
+
+  /* Accent tweaks for light mode - high contrast & dark */
+  --color-emerald-950: #e6fcf0;
+  --color-emerald-900: #166534;
+  --color-emerald-500: #15803d;
+  --color-emerald-450: #166534;
+  --color-emerald-400: #166534;
+  --color-rose-950: #fdf2f2;
+  --color-rose-900: #991b1b;
+  --color-rose-500: #b91c1c;
+  --color-rose-450: #991b1b;
+  --color-rose-400: #991b1b;
+  --color-amber-950: #fffbeb;
+  --color-amber-900: #b45309;
+  --color-amber-500: #d97706;
+  --color-amber-450: #b45309;
+  --color-amber-400: #b45309;
+  --color-yellow-400: #b45309;
+  --color-cyan-400: #1d4ed8;
+  --color-purple-400: #6b21a8;
+  --color-purple-500: #7e22ce;
+  --color-purple-600: #7e22ce;
+
+  /* Custom overrides for specific hardcoded classes in HTML */
+  .bg-\[\#050506\], 
+  .bg-\[\#0d0d0f\], 
+  .bg-\[\#050505\], 
+  .bg-\[\#030303\], 
+  .bg-\[\#030303\]\/90,
+  .bg-\[\#030303\]\/95,
+  .bg-\[\#09090b\], 
+  .bg-\[\#0b0b0c\], 
+  .bg-\[\#0c0c0d\], 
+  .bg-\[\#0a0a0b\], 
+  .bg-\[\#121214\],
+  .bg-\[\#141416\],
+  .bg-\[\#09090b\],
+  .bg-\[\#1c1c1e\],
+  .bg-\[\#0B0B0C\],
+  .bg-\[\#08080c\],
+  .bg-\[\#040406\],
+  .bg-\[\#07070a\],
+  .bg-\[\#070709\],
+  .bg-\[\#070709\]\/90,
+  .bg-black {
+    background-color: #ffffff !important;
+  }
+
+  .bg-\[\#070709\]\/90,
+  .bg-\[\#070709\],
+  .bg-\[\#0b0b0e\],
+  .bg-\[\#101015\],
+  .bg-\[\#020202\]\/50,
+  .bg-\[\#060607\]\/80,
+  .bg-\[\#060608\]\/95,
+  .bg-\[\#17171A\]\/60,
+  .bg-\[\#0C0C0D\]\/20,
+  .bg-\[\#141416\]\/50,
+  .bg-zinc-950,
+  .bg-zinc-900,
+  .bg-black\/50,
+  .bg-black\/40,
+  .bg-black\/30,
+  .bg-black\/35 {
+    background-color: rgba(0, 0, 0, 0.024) !important;
+  }
+
+  .bg-white\/\[0\.03\],
+  .bg-zinc-950\/80,
+  .bg-zinc-950\/60,
+  .bg-white\/10 {
+    background-color: #ffffff !important;
+  }
+
+  /* Specific green/red light alert zones */
+  .bg-\[\#040906\]\/95 {
+    background-color: #e6fcf0 !important;
+  }
+  .bg-\[\#090505\]\/95 {
+    background-color: #fdf2f2 !important;
+  }
+
+  .bg-emerald-950\/\[0\.08\] {
+    background-color: #e6fcf0 !important;
+    border-color: rgba(16, 185, 129, 0.2) !important;
+  }
+  .bg-rose-950\/\[0\.08\] {
+    background-color: #fdf2f2 !important;
+    border-color: rgba(244, 63, 94, 0.2) !important;
+  }
+
+  .bg-rose-500\/10,
+  .bg-\[\#140203\]\/80 {
+    background-color: #fdf2f2 !important;
+    color: #991b1b !important;
+  }
+  .bg-emerald-500\/10,
+  .bg-\[\#011409\]\/80 {
+    background-color: #e6fcf0 !important;
+    color: #166534 !important;
+  }
+
+  .bg-\[\#101015\] {
+    background-color: #f3f4f6 !important;
+    border-color: rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .bg-\[\#050506\]\/35 {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+  }
+
+  /* Broad Text Colors Overrides for Dark-on-Light contrast */
+  .text-white,
+  .text-\[\#f4f4f5\],
+  .text-\[\#FFFFFF\],
+  .text-\[\#E0E0E0\] {
+    color: #111827 !important;
+  }
+
+  .text-zinc-50,
+  .text-zinc-100,
+  .text-zinc-150,
+  .text-zinc-200,
+  .text-zinc-300,
+  .text-zinc-305,
+  .text-zinc-400,
+  .text-zinc-450,
+  .text-\[\#A1A1AA\],
+  .text-\[\#888888\] {
+    color: #1f2937 !important;
+  }
+
+  .text-zinc-500,
+  .text-zinc-550,
+  .text-zinc-600,
+  .text-zinc-650,
+  .text-zinc-655,
+  .text-zinc-700,
+  .text-\[\#71717A\],
+  .text-\[\#66666A\] {
+    color: #4b5563 !important;
+  }
+
+  .text-\[\#00ff88\] {
+    color: #166534 !important;
+  }
+  .text-\[\#ff453a\] {
+    color: #991b1b !important;
+  }
+  .text-\[\#ffced1\] {
+    color: #991b1b !important;
+  }
+  .text-\[\#4f8cff\] {
+    color: #1d4ed8 !important;
+  }
+  .text-\[\#00F0FF\] {
+    color: #1d4ed8 !important;
+  }
+
+  /* Subscription cards light mode text color overrides: remove gray text, use pure black */
+  #pricing-matrices .text-zinc-500,
+  #pricing-matrices .text-zinc-650,
+  #pricing-matrices .text-zinc-450,
+  #pricing-matrices .text-\[\#A1A1AA\],
+  #pricing-matrices .text-\[\#71717A\],
+  #pricing-matrices .text-white,
+  #pricing-matrices ul li span,
+  #pricing-matrices h2,
+  #pricing-matrices span,
+  #pricing-matrices p,
+  #pricing-matrices button,
+  #pricing-matrices li {
+    color: #000000 !important;
+  }
+
+  /* Exclude white text on buttons and colored backgrounds */
+  [class*="bg-emerald"] .text-white,
+  [class*="bg-rose"] .text-white,
+  [class*="bg-amber"] .text-white,
+  [class*="bg-indigo"] .text-white,
+  [class*="bg-blue"] .text-white,
+  [class*="bg-emerald-600"] .text-white,
+  [class*="bg-rose-600"] .text-white,
+  [class*="bg-\[\#00ff88\]"] .text-white,
+  [class*="bg-\[\#30d158\]"] .text-white,
+  [class*="bg-\[\#ff453a\]"] .text-white,
+  [class*="bg-red"] .text-white,
+  .animate-ticker-marquee .text-white,
+  .animate-ticker-marquee span:not(.text-emerald-400):not(.text-rose-400),
+  button .text-white,
+  button span,
+  button,
+  .btn,
+  [class*="bg-\[\#30d158\]"] span,
+  [class*="bg-\[\#30d158\]"] p,
+  [class*="bg-rose"] span,
+  [class*="bg-rose"] p,
+  [class*="bg-emerald"] span,
+  [class*="bg-emerald"] p {
+    color: inherit !important;
+  }
+
+  .animate-ticker-marquee span.text-white {
+    color: #111827 !important;
+  }
+
+  .animate-ticker-marquee span.text-zinc-500 {
+    color: #6b7280 !important;
+  }
+
+  /* Specific borders overrides - make them cohesive and light gray */
+  .border-zinc-900,
+  .border-zinc-900\/60,
+  .border-zinc-900\/50,
+  .border-zinc-850,
+  .border-zinc-800,
+  .border-white\/10,
+  .border-white\/20,
+  .border-\[\#121214\],
+  .border-\[\#2A2A2D\],
+  .border-\[\#1F1F21\],
+  .border-\[\#1A1A1D\],
+  .border-\[\#0f0f12\],
+  .border-zinc-800\/80 {
+    border-color: rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .border-white {
+    border-color: #111827 !important;
+  }
+
+  /* Glass overlays overrides */
+  .apple-glass {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .apple-glass-bright {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .apple-glass-dark {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .apple-glass:hover,
+  .apple-glass-bright:hover {
+    box-shadow:
+      0 12px 40px -12px rgba(0, 0, 0, 0.08),
+      0 0 0 1px rgba(0, 0, 0, 0.03),
+      0 0 32px -8px rgba(48, 209, 88, 0.05) !important;
+  }
+
+  /* Interactive items active state shadow */
+  .shadow-2xl {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  /* Option cards specific details */
+  .bg-\[\#030303\] {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .bg-\[\#030303\]:hover {
+    background-color: #f9fafb !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .bg-\[\#050505\] {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .hover\:bg-\[\#0b0b0e\]:hover,
+  .hover\:bg-zinc-900:hover,
+  .hover\:text-white:hover {
+    background-color: #f3f4f6 !important;
+    color: #111827 !important;
+  }
+
+  /* Evaluation Matrix indicators */
+  .border-zinc-950\/20 {
+    border-color: rgba(0, 0, 0, 0.06) !important;
+  }
+
+  /* Input fields */
+  input[type="text"],
+  textarea,
+  select {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+  }
+  
+  /* Translucent sticky header */
+  header.sticky {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+  }
+}
+
+/* ============================================================
+   PRISM GLOBAL COMMAND MENU STATE LOCKING (MANDATE 2)
+   ============================================================ */
+body.prism-locked {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
