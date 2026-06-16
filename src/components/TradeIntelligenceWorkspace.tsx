@@ -5,7 +5,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import {
-  TrendingUp,
   Activity,
   CheckCircle,
   XCircle,
@@ -282,8 +281,8 @@ export function TradeIntelligenceWorkspace({
         <div className="bg-zinc-950/50 border border-zinc-850 p-4 rounded-sm flex flex-col justify-between">
           <span className="text-[9.5px] font-mono text-[#888888] uppercase tracking-widest flex justify-between items-center">
             SYSTEM CONFIDENCE 
-            {lastConfidenceChange === 'UP' && <span className="text-emerald-400 text-[10px]">↑</span>}
-            {lastConfidenceChange === 'DOWN' && <span className="text-rose-400 text-[10px]">↓</span>}
+            {lastConfidenceChange === 'UP' && <span className="text-emerald-400 text-[9px] uppercase font-black">holding</span>}
+            {lastConfidenceChange === 'DOWN' && <span className="text-rose-400 text-[9px] uppercase font-black">failing</span>}
           </span>
           <div className="my-2 flex items-baseline gap-1.5 font-mono">
             <span className="text-3xl font-bold font-mono text-zinc-100">{liveConfidence}%</span>
@@ -434,13 +433,13 @@ export function TradeIntelligenceWorkspace({
                 onClick={injectBuy}
                 className="px-2 py-2 rounded-sm border border-emerald-950 bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-400 font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3"
               >
-                ↑ Buy Block
+                Buy Block
               </button>
               <button
                 onClick={injectSell}
-                className="px-2 py-2 rounded-sm border border-rose-950 bg-rose-950/20 hover:bg-rose-950/40 text-rose-400 font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3"
+                className="px-2 py-2 rounded-sm border border-rose-950 bg-rose-950/20 hover:bg-rose-950/40 text-rose-405 font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3"
               >
-                ↓ Sell Block
+                Sell Block
               </button>
               <button
                 onClick={injectStopHunt}

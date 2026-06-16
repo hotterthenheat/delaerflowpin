@@ -1,206 +1,118 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- *
- * Gamma-exposure (GEX) engine.
- *
- * Builds a dealer-positioning profile from an option chain (per-strike GEX/DEX/VEX,
- * call/put walls, gamma flip, magnet, expected move) and derives a dealer-flow
- * pressure gauge from that profile.
- */
+import { LiveOptionContract } from './marketDataProvider';
+import { stdNormalPDF } from './v11Math';
 
-import { ChainContract } from './v11Math';
-import { GexProfileData, GexStrikeDetail, DealerFlowData, DealerComponent } from '../types';
-
-const CONTRACT_MULTIPLIER = 100;
-
-function contractGex(c: ChainContract, spot: number): number {
-  const sign = c.type === 'call' ? 1 : -1;
-  return c.gamma * c.openInterest * CONTRACT_MULTIPLIER * (spot * spot) * 0.01 * sign;
+export interface GexStrikeRow {
+  strike: number; callGex: number; putGex: number; netGex: number;
+  callOi: number; putOi: number; callVolume: number; putVolume: number;
 }
-function contractDex(c: ChainContract, spot: number): number {
-  const sign = c.type === 'call' ? 1 : -1;
-  return c.delta * c.openInterest * CONTRACT_MULTIPLIER * spot * sign;
-}
-function contractVex(c: ChainContract): number {
-  const sign = c.type === 'call' ? 1 : -1;
-  return c.vega * c.openInterest * CONTRACT_MULTIPLIER * sign;
+export interface GexProfile {
+  spot: number; strikes: GexStrikeRow[]; netGex: number; netGexBn: number;
+  callWall: number; putWall: number; gammaFlip: number; magnet: number;
+  totalCallOi: number; totalPutOi: number; callPutOiRatio: number;
+  expectedMovePct: number; dealerBias: 'LONG GAMMA' | 'SHORT GAMMA'; aboveFlip: boolean;
 }
 
-/**
- * Aggregates a chain into a GEX profile.
- * @param contracts full option chain
- * @param spot      underlying spot price
- * @param _t        time to expiry in years (reserved for live recalibration)
- * @param _r        risk-free rate (reserved for live recalibration)
- */
+function bsGamma(S: number, K: number, tauYears: number, iv: number, r = 0.05): number {
+  const T = Math.max(0.0001, tauYears);
+  const sigma = Math.max(0.01, iv);
+  const d1 = (Math.log(S / K) + (r + (sigma * sigma) / 2) * T) / (sigma * Math.sqrt(T));
+  return stdNormalPDF(d1) / (S * sigma * Math.sqrt(T));
+}
+
+function totalGexAtSpot(S: number, chain: LiveOptionContract[], tauYears: number): number {
+  let sum = 0;
+  for (const c of chain) {
+    const sign = c.type === 'C' ? 1 : -1;
+    sum += bsGamma(S, c.strike, tauYears, c.impliedVolatility) * c.oi * 100 * S * S * 0.01 * sign;
+  }
+  return sum;
+}
+
 export function buildGexProfile(
-  contracts: ChainContract[],
-  spot: number,
-  _t: number = 1 / 365,
-  _r: number = 0.06,
-): GexProfileData | null {
-  if (!contracts || contracts.length === 0 || !spot) return null;
+  chain: LiveOptionContract[], spot: number, tauYears: number, windowPct = 0.06
+): GexProfile | null {
+  if (!chain || chain.length === 0 || !(spot > 0)) return null;
+  const byStrike = new Map<number, GexStrikeRow>();
+  let netGex = 0, totalCallOi = 0, totalPutOi = 0;
 
-  const byStrike = new Map<number, GexStrikeDetail>();
-  let netGex = 0;
-  let netDex = 0;
-  let netVex = 0;
-  let totalCallOi = 0;
-  let totalPutOi = 0;
-
-  for (const c of contracts) {
-    const gex = contractGex(c, spot);
-    const dex = contractDex(c, spot);
-    const vex = contractVex(c);
+  for (const c of chain) {
+    const sign = c.type === 'C' ? 1 : -1;
+    const gex = (c.greeks?.gamma || 0) * c.oi * 100 * spot * spot * 0.01 * sign;
     netGex += gex;
-    netDex += dex;
-    netVex += vex;
-
     let row = byStrike.get(c.strike);
     if (!row) {
-      row = {
-        strike: c.strike,
-        callGex: 0, putGex: 0, netGex: 0,
-        callOi: 0, putOi: 0,
-        callVolume: 0, putVolume: 0,
-        callDex: 0, putDex: 0, netDex: 0,
-        callVex: 0, putVex: 0, netVex: 0,
-      };
+      row = { strike: c.strike, callGex: 0, putGex: 0, netGex: 0, callOi: 0, putOi: 0, callVolume: 0, putVolume: 0 };
       byStrike.set(c.strike, row);
     }
-
-    if (c.type === 'call') {
-      row.callGex += gex;
-      row.callOi += c.openInterest;
-      row.callVolume += Math.round(c.openInterest * 0.35);
-      row.callDex = (row.callDex || 0) + dex;
-      row.callVex = (row.callVex || 0) + vex;
-      totalCallOi += c.openInterest;
-    } else {
-      row.putGex += gex;
-      row.putOi += c.openInterest;
-      row.putVolume += Math.round(c.openInterest * 0.35);
-      row.putDex = (row.putDex || 0) + dex;
-      row.putVex = (row.putVex || 0) + vex;
-      totalPutOi += c.openInterest;
-    }
+    if (c.type === 'C') { row.callGex += gex; row.callOi += c.oi; row.callVolume += c.volume; totalCallOi += c.oi; }
+    else { row.putGex += gex; row.putOi += c.oi; row.putVolume += c.volume; totalPutOi += c.oi; }
     row.netGex = row.callGex + row.putGex;
-    row.netDex = (row.callDex || 0) + (row.putDex || 0);
-    row.netVex = (row.callVex || 0) + (row.putVex || 0);
   }
 
-  const strikes = Array.from(byStrike.values()).sort((a, b) => a.strike - b.strike);
-
-  // Walls & magnet
-  let callWall = spot;
-  let putWall = spot;
-  let magnet = spot;
-  let maxCall = -Infinity;
-  let maxPut = -Infinity;
-  let maxAbsNet = -Infinity;
-  for (const s of strikes) {
-    if (s.callGex > maxCall) { maxCall = s.callGex; callWall = s.strike; }
-    if (Math.abs(s.putGex) > maxPut) { maxPut = Math.abs(s.putGex); putWall = s.strike; }
-    const absNet = Math.abs(s.netGex);
-    if (absNet > maxAbsNet) { maxAbsNet = absNet; magnet = s.strike; }
+  const allRows = [...byStrike.values()].sort((a, b) => a.strike - b.strike);
+  let callWall = spot, putWall = spot, maxCall = -1, maxPut = -1;
+  for (const r of allRows) {
+    if (Math.abs(r.callGex) > maxCall) { maxCall = Math.abs(r.callGex); callWall = r.strike; }
+    if (Math.abs(r.putGex) > maxPut) { maxPut = Math.abs(r.putGex); putWall = r.strike; }
   }
+  const nearSpot = allRows.filter(r => Math.abs(r.strike - spot) / spot <= 0.03);
+  const pool = nearSpot.length ? nearSpot : allRows;
+  const magnet = pool.reduce((b, r) => Math.abs(r.netGex) > Math.abs(b.netGex) ? r : b, pool[0]).strike;
 
-  // Gamma flip: first strike where cumulative net GEX crosses zero
-  let gammaFlip = spot;
-  let cum = 0;
-  let prev = 0;
-  for (const s of strikes) {
-    prev = cum;
-    cum += s.netGex;
-    if ((prev <= 0 && cum > 0) || (prev >= 0 && cum < 0)) {
-      gammaFlip = s.strike;
-      break;
+  // Gamma flip: grid + linear interpolation at the sign change. Never invented.
+  let gammaFlip = spot, found = false;
+  const minS = spot * 0.9, maxS = spot * 1.1, steps = 60;
+  let prevS = minS, prevG = totalGexAtSpot(minS, chain, tauYears);
+  for (let i = 1; i <= steps; i++) {
+    const S = minS + ((maxS - minS) * i) / steps;
+    const g = totalGexAtSpot(S, chain, tauYears);
+    if (!found && prevG !== 0 && Math.sign(g) !== Math.sign(prevG)) {
+      gammaFlip = prevS + (-prevG / (g - prevG)) * (S - prevS);
+      found = true;
     }
+    prevS = S; prevG = g;
   }
+  if (!found) gammaFlip = netGex >= 0 ? putWall : callWall; // bounded fallback, labeled by aboveFlip semantics
 
-  const expectedMovePct = Number(
-    Math.min(8, Math.max(0.2, Math.abs(netVex) / (spot * 1e6) + 0.6)).toFixed(2),
-  );
+  const atm = chain.reduce((b, c) => Math.abs(c.strike - spot) < Math.abs(b.strike - spot) ? c : b, chain[0]);
+  const expectedMovePct = Math.max(0.0005, atm.impliedVolatility * Math.sqrt(Math.max(tauYears, 0.0001)));
+  const windowRows = allRows.filter(r => Math.abs(r.strike - spot) / spot <= windowPct);
 
   return {
-    spot,
-    netGex,
-    netDex,
-    netVex,
-    callWall,
-    putWall,
-    gammaFlip,
-    magnet,
-    totalCallOi,
-    totalPutOi,
-    callPutOiRatio: totalPutOi > 0 ? (totalCallOi / totalPutOi).toFixed(2) : 'n/a',
-    expectedMovePct,
-    feed: 'DERIVED_MODEL',
-    strikes,
+    spot, strikes: (windowRows.length >= 5 ? windowRows : allRows).slice(0, 80),
+    netGex, netGexBn: Number((netGex / 1e9).toFixed(3)),
+    callWall, putWall, gammaFlip: Number(gammaFlip.toFixed(2)), magnet,
+    totalCallOi, totalPutOi,
+    callPutOiRatio: totalPutOi > 0 ? Number((totalCallOi / totalPutOi).toFixed(2)) : 0,
+    expectedMovePct, dealerBias: netGex >= 0 ? 'LONG GAMMA' : 'SHORT GAMMA',
+    aboveFlip: spot >= gammaFlip,
   };
 }
 
-/**
- * Derives a dealer-flow pressure gauge (0-100) and regime bias from a GEX profile
- * plus net charm and net delta exposure.
- */
-export function computeDealerFlowGauge(
-  profile: GexProfileData,
-  netCharm = 0,
-  netDex = 0,
-): DealerFlowData {
-  const netGex = profile?.netGex || 0;
-  const longGamma = netGex >= 0;
+// Dealer buying-pressure gauge (−100..+100) with full provenance per component.
+export function computeDealerFlowGauge(profile: GexProfile, netCharm: number, netDex: number) {
+  const { spot, gammaFlip, netGex, magnet, dealerBias } = profile;
+  const gammaRegime = Math.tanh(((spot - gammaFlip) / spot) * 120) * (netGex >= 0 ? 1 : 1.4);
+  const magnetPull = netGex >= 0 ? Math.tanh(((magnet - spot) / spot) * 150) : 0;
+  const charmNorm = Math.tanh(netCharm / 5e7);
+  const dexNorm = -Math.tanh(netDex / 5e10) * 0.5;
+  let cv = 0, pv = 0;
+  for (const r of profile.strikes) { cv += r.callVolume; pv += r.putVolume; }
+  const volImb = cv + pv > 0 ? (cv - pv) / (cv + pv) : 0;
 
-  const gexMag = Math.min(1, Math.abs(netGex) / 5e9);
-  const charmMag = Math.min(1, Math.abs(netCharm) / 1e8);
-  const dexMag = Math.min(1, Math.abs(netDex) / 5e9);
-  const pressure = Math.round(Math.min(99, gexMag * 45 + charmMag * 20 + dexMag * 20 + 10));
-
-  const spot = profile.spot || 0;
-  const magnet = profile.magnet ?? spot;
-  const magnetCloseness = spot
-    ? 1 - Math.min(1, Math.abs(magnet - spot) / (spot * 0.02))
-    : 0;
-
-  const bias = longGamma ? 'LONG GAMMA' : 'SHORT GAMMA';
-  const headline = longGamma
-    ? 'Dealers long gamma: mean-reverting regime, volatility suppressed near magnet.'
-    : 'Dealers short gamma: momentum-amplifying regime, hedging accelerates the trend.';
-
-  const components: DealerComponent[] = [
-    {
-      name: 'Gamma regime',
-      value: Number(gexMag.toFixed(2)),
-      weight: 0.35,
-      detail: longGamma ? 'positive net gamma (pinning)' : 'negative net gamma (chasing)',
-    },
-    {
-      name: 'Magnet pull',
-      value: Number(magnetCloseness.toFixed(2)),
-      weight: 0.15,
-      detail: `pin @ ${magnet || '—'}`,
-    },
-    {
-      name: 'Charm decay flow',
-      value: Number(charmMag.toFixed(2)),
-      weight: 0.2,
-      detail: netCharm >= 0 ? 'supportive charm drift' : 'decaying charm drift',
-    },
-    {
-      name: 'Delta inventory',
-      value: Number(dexMag.toFixed(2)),
-      weight: 0.1,
-      detail: netDex >= 0 ? 'net long delta inventory' : 'net short delta inventory',
-    },
-    {
-      name: 'Hedge-flow demand',
-      value: Number(gexMag.toFixed(2)),
-      weight: 0.2,
-      detail: 'modeled hedge volume',
-    },
+  const components = [
+    { name: 'Gamma regime', value: Number(gammaRegime.toFixed(3)), weight: 0.35, detail: `spot ${spot.toFixed(2)} vs flip ${gammaFlip.toFixed(2)} (${dealerBias})` },
+    { name: 'Magnet pull', value: Number(magnetPull.toFixed(3)), weight: 0.15, detail: `pin magnet ${magnet.toFixed(2)}` },
+    { name: 'Charm decay flow', value: Number(charmNorm.toFixed(3)), weight: 0.20, detail: `net charm ${(netCharm / 1e6).toFixed(1)}M/day` },
+    { name: 'Delta inventory', value: Number(dexNorm.toFixed(3)), weight: 0.10, detail: `net DEX ${(netDex / 1e9).toFixed(2)}B` },
+    { name: 'Hedge-flow demand', value: Number(volImb.toFixed(3)), weight: 0.20, detail: `call vol ${cv.toLocaleString()} vs put vol ${pv.toLocaleString()}` },
   ];
-
-  return { pressure, bias, headline, components };
+  const raw = components.reduce((a, c) => a + c.value * c.weight, 0);
+  const pressure = Math.round(Math.max(-1, Math.min(1, raw)) * 100);
+  const headline = pressure >= 35
+    ? `Dealers are net BUYERS: ${dealerBias} book with supportive hedging below ${gammaFlip.toFixed(0)}.`
+    : pressure <= -35
+      ? `Dealers are net SELLERS: hedging pressure dominates ${spot < gammaFlip ? 'below the gamma flip' : 'into rallies'}.`
+      : `Dealer flows balanced: ${dealerBias} book pinning toward ${magnet.toFixed(0)}.`;
+  return { pressure, bias: dealerBias, components, headline };
 }

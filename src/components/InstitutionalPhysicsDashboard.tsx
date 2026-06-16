@@ -13,7 +13,6 @@ import {
   Activity, 
   Terminal,
   ChevronRight,
-  TrendingDown,
   Percent,
   Crosshair,
   GitCommit,
@@ -999,7 +998,7 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
             {/* CARD 3: VANNA COVARIANCE */}
             <div className="greek-card">
               <label>
-                <TrendingDown className="w-3.5 h-3.5 text-rose-455 icon-small" /> 
+                <Percent className="w-3.5 h-3.5 text-rose-450 icon-small" /> 
                 VANNA COVARIANCE (∂Δ/∂Σ)
               </label>
               <span>

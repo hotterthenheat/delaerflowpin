@@ -8,6 +8,7 @@ import { AssetInfo } from './types';
 import { SkyVisionView } from './components/SkyVisionView';
 import { PinpointAIView } from './components/PinpointAIView';
 import { QuantAuditView } from './components/QuantAuditView';
+import { DiscoveryView } from './components/DiscoveryView';
 import { DealerFlowView } from './components/DealerFlowView';
 import SlayerIntro from './components/SlayerIntro';
 import { SkyseyeAlertHub } from './components/SkyseyeAlertHub';
@@ -15,7 +16,9 @@ import ArborCapital from './components/ArborCapital';
 import TierGuard from './components/TierGuard';
 import { ClerkGate } from './components/ClerkGate';
 import { SettingsPanel } from './components/SettingsPanel';
+import { SubscriptionPricing } from './components/SubscriptionPricing';
 import { CelebrationOverlay } from './components/CelebrationOverlay';
+import { AdminOverseerPanel } from './components/AdminOverseerPanel';
 
 import {
   Sparkles,
@@ -35,7 +38,8 @@ import {
   SlidersHorizontal,
   GraduationCap,
   Search,
-  ChevronRight
+  ChevronRight,
+  Calculator
 } from 'lucide-react';
 
 const TickerTape = memo(() => {
@@ -91,27 +95,6 @@ export default function App() {
   const setActiveTab = useContractStore(s => s.setActiveTab);
 
   const handleSelectTab = (tab: any) => {
-    // Gating un-authenticated sessions safely using our secure modal gate
-    if (!session || !session.authenticated) {
-      if (tab !== 'home') {
-        alert("CLEARANCE REQUIRED: Please log in or register your secure workstation credentials first to unlock secondary platform suites.");
-        setShowAuthModal(true);
-        return;
-      }
-    }
-
-    // Paywall block gating un-activated guest accounts inside secondary pages
-    if (session?.authenticated && session.access_tier === 'guest' && tab !== 'home' && tab !== 'settings') {
-      alert("CLEARANCE ACTIVE REQ DETECTED: Account credentials has clearance level 'guest' which is insufficient to access quantitative secondary platforms. Complete check-out matrix at the landing base to proceed.");
-      setActiveTab('home');
-      setTimeout(() => {
-        const pEl = document.getElementById('pricing-matrices');
-        if (pEl) {
-          pEl.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 150);
-      return;
-    }
     setActiveTab(tab);
   };
 
@@ -138,6 +121,7 @@ export default function App() {
 
   const smoothScroll = useContractStore(s => s.smoothScroll);
   const toggleSmoothScroll = useContractStore(s => s.toggleSmoothScroll);
+  const keybinds = useContractStore(s => s.keybinds);
 
   useEffect(() => {
     if (isLight) {
@@ -164,11 +148,12 @@ export default function App() {
     provider?: string; 
     avatar?: string;
     access_tier?: 'guest' | 'discord' | 'intraday' | 'quant' | 'enterprise' | 'lifetime';
+    is_super_admin?: boolean;
     referral_tokens_pool?: number;
     custom_referral_code?: string;
     selected_font_scale?: 'STANDARD' | 'ENHANCED';
     compact_view_enabled?: boolean;
-    selected_theme?: 'SLAYER PURE DARK' | 'DEALER FLOW SLATE' | 'VOLATILITY RADAR' | 'CARBON MONITOR MATTE';
+    selected_theme?: 'SLAYER PURE DARK' | 'DEALER FLOW SLATE' | 'VOLATILITY RADAR' | 'CARBON MONITOR MATTE' | 'FOREST ALGORITHM' | 'CRIMSON TAPE' | 'MIDNIGHT OCEAN' | string;
     no_refund_policy_logged?: boolean;
   } | null>(null);
 
@@ -176,6 +161,73 @@ export default function App() {
   const [showWelcomeCelebration, setShowWelcomeCelebration] = useState(false);
   const [welcomeCelebrationTier, setWelcomeCelebrationTier] = useState(1);
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // INJECT: VIEWPORT SIMULATION STATE
+  const [originalAdminSession, setOriginalAdminSession] = useState<any | null>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+
+  const handleSimulateTier = (targetTier: string, targetTierNum: number) => {
+    // Save the real admin session in the background before overriding
+    if (!isSimulating) setOriginalAdminSession(session);
+    
+    setIsSimulating(true);
+    
+    // Spoof the session object to downgrade clearance
+    setSession((prev: any) => ({ 
+      ...prev, 
+      access_tier: targetTier, 
+      is_super_admin: false 
+    })); 
+    
+    // Override the global Zustand store to trigger the UI changes
+    useContractStore.getState().setPurchasedTier(targetTierNum);
+    
+    // Route to home so the admin can test the routing locks natively
+    setActiveTab('home');
+  };
+
+  const handleExitSimulation = () => {
+    // Instantly restore God-Mode clearance
+    setSession(originalAdminSession);
+    setIsSimulating(false);
+    useContractStore.getState().setPurchasedTier(5); // Restores Lifetime/Admin tier visually
+    setOriginalAdminSession(null);
+  };
+
+  // Apply Text Size Scaling and Compact View to DOM
+  useEffect(() => {
+    if (!session) return;
+    
+    // Font Scaling
+    const html = document.documentElement;
+    if ((session.selected_font_scale as any) === 'ENHANCED') {
+      html.style.fontSize = '18px';
+    } else if ((session.selected_font_scale as any) === 'ENHANCED_XL') {
+      html.style.fontSize = '20px';
+    } else {
+      html.style.fontSize = '16px';
+    }
+
+    // Compact View Mode
+    if (session.compact_view_enabled) {
+      html.style.setProperty('--grid-gap', '0.25rem');
+      html.style.setProperty('--card-padding', '0.5rem');
+      html.classList.add('compact-mode');
+    } else {
+      html.style.setProperty('--grid-gap', '1rem');
+      html.style.setProperty('--card-padding', '1.5rem');
+      html.classList.remove('compact-mode');
+    }
+  }, [session?.selected_font_scale, session?.compact_view_enabled]);
+
+  // Prevent background scrolling when auth modal is active
+  useEffect(() => {
+    if (showAuthModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [showAuthModal]);
 
   // Subscription tier calculations and click-to-upgrade behavior
   const tierInfo = useMemo(() => {
@@ -225,13 +277,20 @@ export default function App() {
   }, [purchasedTier]);
 
   const handleUpgradeClick = () => {
-    setActiveTab('home');
-    setTimeout(() => {
-      const el = document.getElementById('pricing-matrices');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (activeTab !== 'home') {
+      setActiveTab('home');
+      setTimeout(() => {
+        const element = document.getElementById('pricing-matrices');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+    } else {
+      const element = document.getElementById('pricing-matrices');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }, 120);
+    }
   };
 
   // Global Command Palette states (Prism Menu) backed by our Zustand store
@@ -241,60 +300,51 @@ export default function App() {
 
   const [globalSearchInput, setGlobalSearchInput] = useState('');
   const [globalSearchIndex, setGlobalSearchIndex] = useState(0);
+  const prismFilter = useContractStore(s => s.prismFilter);
+  const setPrismFilter = useContractStore(s => s.setPrismFilter);
   const globalSearchInputRef = useRef<HTMLInputElement>(null);
 
   const filterTickersList = useMemo(() => {
     const query = globalSearchInput.trim().toLowerCase();
 
-    // 1. Auditor ledger search context (pulling the original archive transactions and options)
-    if (activeTab === 'auditor') {
-      const staticContracts = [
-        { ticker: 'SPX', name: 'SPX 7650C Call Winning Transaction', contract: 'SPX 7650C', pnl: '+$4.20B', status: 'Success Target 3', id: 'stat-1', isContract: true },
-        { ticker: 'NDX', name: 'NDX 18200C Call Early Closed Transaction', contract: 'NDX 18200C', pnl: '+$2.50B', status: 'Success Target 2', id: 'stat-2', isContract: true },
-        { ticker: 'NDX', name: 'NDX 18200P Put Swing Trade', contract: 'NDX 18200P', pnl: '+$1.80B', status: 'Success Target 2', id: 'stat-sp1', isContract: true },
-        { ticker: 'SPY', name: 'SPY 448P Put Imbalance Washout', contract: 'SPY 448P', pnl: '+$240M', status: 'Success Target 3', id: 'stat-sp2', isContract: true },
-        { ticker: 'QQQ', name: 'QQQ 492P Volatility Expansion Swing', contract: 'QQQ 492P', pnl: '-$45M', status: 'Stop Loss Hit', id: 'stat-sp3', isContract: true },
-        { ticker: 'SPY', name: 'SPY 445P Put Short Cover Raid', contract: 'SPY 445P', pnl: '+$310M', status: 'Success Target 3', id: 'stat-sp4', isContract: true },
-      ];
+    // Contextual static items
+    const staticContracts = [
+      { ticker: 'SPX', name: 'SPX 7650C Call Winning Transaction', contract: 'SPX 7650C', pnl: '+$4.20B', status: 'Success Target 3', id: 'stat-1', isContract: true },
+      { ticker: 'NDX', name: 'NDX 18200C Call Early Closed Transaction', contract: 'NDX 18200C', pnl: '+$2.50B', status: 'Success Target 2', id: 'stat-2', isContract: true },
+      { ticker: 'NDX', name: 'NDX 18200P Put Swing Trade', contract: 'NDX 18200P', pnl: '+$1.80B', status: 'Success Target 2', id: 'stat-sp1', isContract: true },
+      { ticker: 'SPY', name: 'SPY 448P Put Imbalance Washout', contract: 'SPY 448P', pnl: '+$240M', status: 'Success Target 3', id: 'stat-sp2', isContract: true },
+      { ticker: 'QQQ', name: 'QQQ 492P Volatility Expansion Swing', contract: 'QQQ 492P', pnl: '-$45M', status: 'Stop Loss Hit', id: 'stat-sp3', isContract: true },
+      { ticker: 'SPY', name: 'SPY 445P Put Short Cover Raid', contract: 'SPY 445P', pnl: '+$310M', status: 'Success Target 3', id: 'stat-sp4', isContract: true },
+    ];
 
-      const convertedLive = trades.map(t => ({
-        ticker: t.underlying,
-        name: `${t.underlying} ${t.contract} ${t.direction === 'BULLISH' ? 'CALL' : 'PUT'} Execution`,
-        contract: t.contract,
-        pnl: t.maxGain > 0 ? `+${t.maxGain.toFixed(1)}%` : 'Active Tracker',
-        status: t.target3Hit ? 'Target 3 Clipped' : t.target2Hit ? 'Target 2 Clipped' : 'Staged/Live',
-        id: t.id,
-        isContract: true
-      }));
+    const convertedLive = trades.map(t => ({
+      ticker: t.underlying,
+      name: `${t.underlying} ${t.contract} ${t.direction === 'BULLISH' ? 'CALL' : 'PUT'} Execution`,
+      contract: t.contract,
+      pnl: t.maxGain > 0 ? `+${t.maxGain.toFixed(1)}%` : 'Active Tracker',
+      status: t.target3Hit ? 'Target 3 Clipped' : t.target2Hit ? 'Target 2 Clipped' : 'Staged/Live',
+      id: t.id,
+      isContract: true
+    }));
 
-      const mergedContracts = [...convertedLive, ...staticContracts];
+    const mergedContracts = [...convertedLive, ...staticContracts];
 
-      if (!query) return mergedContracts;
-      
-      return mergedContracts.filter(c => 
-        c.contract.toLowerCase().includes(query) || 
-        c.name.toLowerCase().includes(query) ||
-        c.status.toLowerCase().includes(query) ||
-        c.ticker.toLowerCase().includes(query)
-      );
-    }
+    const toolsItems = [
+      { ticker: 'SVI', name: 'SVI Volatility Solver', pnl: 'Physics Module', id: 'svi-solver', isTool: true },
+      { ticker: 'G3D', name: '3D Gamma Topography', pnl: 'Visualizer', id: 'gamma-surface', isTool: true },
+      { ticker: 'VPIN', name: 'Order Flow Toxicity', pnl: 'Microstructure', id: 'vpin-tracker', isTool: true }
+    ];
 
-    // 3. Tools search context (Physics module, Visualizers, Order Flow toxicity)
-    if (activeTab === 'arbor') {
-      const toolsItems = [
-        { ticker: 'SVI', name: 'SVI Volatility Solver', pnl: 'Physics Module', id: 'svi-solver', isTool: true },
-        { ticker: 'G3D', name: '3D Gamma Topography', pnl: 'Visualizer', id: 'gamma-surface', isTool: true },
-        { ticker: 'VPIN', name: 'Order Flow Toxicity', pnl: 'Microstructure', id: 'vpin-tracker', isTool: true }
-      ];
-      if (!query) return toolsItems;
-      return toolsItems.filter(item => 
-        item.name.toLowerCase().includes(query) || 
-        item.ticker.toLowerCase().includes(query) ||
-        item.pnl.toLowerCase().includes(query)
-      );
-    }
+    const navItems = [
+      { id: 'nav-home', name: 'Home Workspace', ticker: 'HOME', pnl: 'Workspace', isNav: true, targetTab: 'home' },
+      { id: 'nav-skyvision', name: 'SkyVision Cockpit', ticker: 'SKYV', pnl: 'Workspace', isNav: true, targetTab: 'skyvision' },
+      { id: 'nav-pinpoint', name: 'Pinpoint AI', ticker: 'PINP', pnl: 'Workspace', isNav: true, targetTab: 'pinpoint' },
+      { id: 'nav-auditor', name: 'Trust Archive & Registry', ticker: 'AUDIT', pnl: 'Workspace', isNav: true, targetTab: 'auditor' },
+      { id: 'nav-dealerflow', name: 'Dealer Flow', ticker: 'FLOW', pnl: 'Workspace', isNav: true, targetTab: 'dealerflow' },
+      { id: 'nav-arbor', name: 'Research & Community', ticker: 'ARBOR', pnl: 'Workspace', isNav: true, targetTab: 'arbor' },
+      { id: 'nav-settings', name: 'Settings & Preferences', ticker: 'SETT', pnl: 'System', isNav: true, targetTab: 'settings' }
+    ];
 
-    // 4. Default / Trading cockpit tickers list
     const defaultTickers = [
       { ticker: 'SPX', name: 'S&P 500 Index', price: 7623.00, change: '+0.88%', isUp: true, isContract: false },
       { ticker: 'NDX', name: 'Nasdaq 100 Index', price: 18250.00, change: '+1.42%', isUp: true, isContract: false },
@@ -302,21 +352,37 @@ export default function App() {
       { ticker: 'SPY', name: 'SPDR S&P 500 ETF', price: 512.30, change: '+0.65%', isUp: true, isContract: false },
       { ticker: 'RUT', name: 'Russell 2000 Index', price: 2025.00, change: '+0.92%', isUp: true, isContract: false },
     ];
-    if (!query) return defaultTickers;
-    
-    return defaultTickers
-      .filter(t => 
-        t.ticker.toLowerCase().includes(query) || 
-        t.name.toLowerCase().includes(query)
-      )
-      .sort((a, b) => {
-        const aStarts = a.ticker.toLowerCase().startsWith(query);
-        const bStarts = b.ticker.toLowerCase().startsWith(query);
-        if (aStarts && !bStarts) return -1;
-        if (!aStarts && bStarts) return 1;
-        return 0;
-      });
-  }, [globalSearchInput, activeTab, trades]);
+
+    let combinedSet = [];
+    if (prismFilter === 'All') {
+      combinedSet = [
+        ...defaultTickers,
+        ...toolsItems,
+        ...navItems,
+        ...(activeTab === 'auditor' ? mergedContracts : [])
+      ];
+    } else if (prismFilter === 'Assets') {
+      combinedSet = defaultTickers;
+    } else if (prismFilter === 'Tools') {
+      combinedSet = toolsItems;
+    } else if (prismFilter === 'Navigation') {
+      combinedSet = navItems;
+    }
+
+    if (!query) return combinedSet;
+
+    return combinedSet.filter(item => {
+      const pnlSearch = (item.pnl || '').toString().toLowerCase();
+      const statusSearch = (item.status || '').toString().toLowerCase();
+      const contractSearch = (item.contract || '').toString().toLowerCase();
+
+      return item.ticker.toLowerCase().includes(query) || 
+             item.name.toLowerCase().includes(query) ||
+             pnlSearch.includes(query) ||
+             statusSearch.includes(query) ||
+             contractSearch.includes(query);
+    });
+  }, [globalSearchInput, prismFilter, activeTab, trades]);
 
   useEffect(() => {
     if (isGlobalSearchOpen) {
@@ -335,14 +401,68 @@ export default function App() {
     }
   }, [isGlobalSearchOpen]);
 
+  // Global Keybind Event Listener
   useEffect(() => {
     const handleGlobalSearchKeys = (e: KeyboardEvent) => {
-      // CMD+K or Global Search Focus key
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      // Don't trigger if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        if (e.key === 'Escape') {
+          useContractStore.getState().setIsGlobalSearchOpen(false);
+        }
+        return;
+      }
+      
+      const parts = [];
+      if (e.metaKey || e.ctrlKey) parts.push('cmd');
+      if (e.shiftKey) parts.push('shift');
+      if (e.altKey) parts.push('alt');
+      parts.push(e.key.toLowerCase());
+      const pressedCombo = parts.join('+');
+
+      const state = useContractStore.getState();
+      const binds = state.keybinds;
+      const disabled = state.disabledKeybinds || {};
+      const globalEnabled = state.globalKeybindsEnabled;
+
+      // Handle escape independently of the configurable keybinds
+      if (e.key === 'Escape') {
+        useContractStore.getState().setIsGlobalSearchOpen(false);
+        return;
+      }
+
+      if (!globalEnabled) return;
+
+      if (pressedCombo === binds.prismMenu && !disabled.prismMenu) {
         e.preventDefault();
         const currentOpen = useContractStore.getState().isGlobalSearchOpen;
         useContractStore.getState().setIsGlobalSearchOpen(!currentOpen);
-      } else if (e.key === 'Escape') {
+      } else if (pressedCombo === binds.home && !disabled.home) {
+        e.preventDefault();
+        useContractStore.getState().setActiveTab('home');
+        useContractStore.getState().setIsGlobalSearchOpen(false);
+      } else if (pressedCombo === binds.skyvision && !disabled.skyvision) {
+        e.preventDefault();
+        useContractStore.getState().setActiveTab('skyvision');
+        useContractStore.getState().setIsGlobalSearchOpen(false);
+      } else if (pressedCombo === binds.pinpoint && !disabled.pinpoint) {
+        e.preventDefault();
+        useContractStore.getState().setActiveTab('pinpoint');
+        useContractStore.getState().setIsGlobalSearchOpen(false);
+      } else if (pressedCombo === binds.auditor && !disabled.auditor) {
+        e.preventDefault();
+        useContractStore.getState().setActiveTab('auditor');
+        useContractStore.getState().setIsGlobalSearchOpen(false);
+      } else if (pressedCombo === binds.dealerflow && !disabled.dealerflow) {
+        e.preventDefault();
+        useContractStore.getState().setActiveTab('dealerflow');
+        useContractStore.getState().setIsGlobalSearchOpen(false);
+      } else if (pressedCombo === binds.arbor && !disabled.arbor) {
+        e.preventDefault();
+        useContractStore.getState().setActiveTab('arbor');
+        useContractStore.getState().setIsGlobalSearchOpen(false);
+      } else if (pressedCombo === binds.settings && !disabled.settings) {
+        e.preventDefault();
+        useContractStore.getState().setActiveTab('settings');
         useContractStore.getState().setIsGlobalSearchOpen(false);
       }
     };
@@ -368,6 +488,12 @@ export default function App() {
             expandedAuditId: item.id
           });
 
+        } else if (item.isNav) {
+          useContractStore.setState({
+            activeTab: item.targetTab,
+            auditSearchQuery: '',
+            expandedAuditId: null
+          });
         } else if (item.isTool) {
           if (item.id === 'svi-solver') {
             useContractStore.setState({
@@ -412,14 +538,28 @@ export default function App() {
       const res = await fetch('/api/auth/session');
       if (res.ok) {
         const data = await res.json();
+        
+        // Restore avatar from local storage if server memory wiped it
+        if (data.authenticated) {
+          const localAvatar = localStorage.getItem('slayer_avatar');
+          if (localAvatar) {
+            data.avatar = localAvatar;
+          }
+          if (data.selected_theme) {
+            localStorage.setItem('slayer_theme', data.selected_theme);
+            document.documentElement.setAttribute('data-theme', data.selected_theme);
+          }
+        }
+        
         setSession(data);
         
         // Sync the Zustand store tier from session tier
         if (data.authenticated && data.access_tier) {
+          useContractStore.getState().setIsAuthenticated(true);
           const tierNum = data.access_tier === 'discord' ? 1
-            : data.access_tier === 'intraday' ? 2
-            : data.access_tier === 'quant' ? 3
-            : data.access_tier === 'enterprise' ? 4
+            : (data.access_tier === 'skyvision' || data.access_tier === 'intraday') ? 2
+            : (data.access_tier === 'pinpoint' || data.access_tier === 'quant') ? 3
+            : (data.access_tier === 'enterprise') ? 4
             : data.access_tier === 'lifetime' ? 5
             : 0;
           useContractStore.getState().setPurchasedTier(tierNum);
@@ -433,6 +573,16 @@ export default function App() {
   useEffect(() => {
     fetchSession();
     (window as any).refreshSlayerSession = fetchSession;
+    
+    // Check for referral link
+    if (window.location.pathname.startsWith('/join/')) {
+      // Just take them to the subscription page directly as requested
+      const timer = setTimeout(() => {
+        setActiveTab('subscription');
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+    
     return () => {
       delete (window as any).refreshSlayerSession;
     };
@@ -640,9 +790,15 @@ export default function App() {
   if (activeSlayerTheme === 'CARBON MONITOR MATTE') {
     bgClass += " bg-[#121212] text-zinc-100";
   } else if (activeSlayerTheme === 'VOLATILITY RADAR') {
-    bgClass += " bg-[#040c06] text-emerald-100";
+    bgClass += " bg-[#0b0416] text-purple-100";
   } else if (activeSlayerTheme === 'DEALER FLOW SLATE') {
-    bgClass += " bg-[#0b0f19] text-slate-100";
+    bgClass += " bg-[#0b0f19] text-blue-50";
+  } else if (activeSlayerTheme === 'FOREST ALGORITHM') {
+    bgClass += " bg-[#021008] text-emerald-50";
+  } else if (activeSlayerTheme === 'CRIMSON TAPE') {
+    bgClass += " bg-[#120303] text-rose-50";
+  } else if (activeSlayerTheme === 'MIDNIGHT OCEAN') {
+    bgClass += " bg-[#000a12] text-teal-50";
   } else {
     bgClass += " bg-[#050506] text-[#f4f4f5]";
   }
@@ -690,9 +846,11 @@ export default function App() {
           </>
         )}
       </div>
-      
-      {/* Upper ecosystem workstation cockpit core header */}
-      <header className="sticky top-0 z-50 bg-[#050506]/80 backdrop-blur-xl border-b border-zinc-900/60 px-6 py-3 flex flex-col sm:flex-row justify-between items-center select-none font-mono gap-4">
+
+      <div className="flex-1 flex flex-col w-full max-w-[1600px] mx-auto relative z-10">
+        {/* Upper ecosystem workstation cockpit core header */}
+        <header className="sticky top-0 z-50 bg-[#050506]/80 backdrop-blur-xl border-b border-zinc-900/60 px-6 py-3 flex flex-col sm:flex-row justify-between items-center select-none font-mono gap-4">
+
         <div className="flex flex-wrap items-center gap-3.5">
           <div 
             onClick={() => setActiveTab('home')}
@@ -956,8 +1114,12 @@ export default function App() {
             <SlayerIntro 
               onEnterApp={(targetTab) => {
                 const mappedTab = targetTab === 'quant' ? 'auditor' : (targetTab || 'skyvision');
-                setActiveTab(mappedTab as any);
+                handleSelectTab(mappedTab as any);
               }} 
+              onUpgradeComplete={(newTier) => {
+                setWelcomeCelebrationTier(newTier);
+                setShowWelcomeCelebration(true);
+              }}
               selectedAsset={selectedAsset}
               setSelectedAsset={setSelectedAsset}
               selectedTimeframe={selectedTimeframe}
@@ -974,6 +1136,20 @@ export default function App() {
               session={session}
               onRequestAuth={() => setShowAuthModal(true)}
             />
+          </div>
+        )}
+
+        {activeTab === 'subscription' && (
+          <div className="view-enter w-full mx-auto min-h-screen">
+             <SubscriptionPricing 
+               onUpgradeComplete={(newTier) => {
+                 setWelcomeCelebrationTier(newTier);
+                 setShowWelcomeCelebration(true);
+               }}
+               onEnterApp={() => setActiveTab('home')}
+               session={session}
+               onRequestAuth={() => setShowAuthModal(true)}
+             />
           </div>
         )}
 
@@ -1035,25 +1211,51 @@ export default function App() {
             <SettingsPanel session={session} onUpdateSession={fetchSession} />
           </div>
         )}
+
+        {/* TAB 8: ADMIN OVERSEER */}
+        {activeTab === 'admin' && (
+          <AdminOverseerPanel 
+            session={session} 
+            onSimulateTier={handleSimulateTier} 
+          />
+        )}
       </main>
 
       {/* Subscription Tier Upgrade Celebration Overlay */}
-      {showWelcomeCelebration && (
-        <CelebrationOverlay 
-          purchasedTier={welcomeCelebrationTier}
-          isOpen={showWelcomeCelebration}
-          onComplete={() => setShowWelcomeCelebration(false)}
-        />
+      <CelebrationOverlay 
+        purchasedTier={welcomeCelebrationTier}
+        isOpen={showWelcomeCelebration}
+        onComplete={() => {
+          setShowWelcomeCelebration(false);
+          useContractStore.getState().setActiveTab('home');
+        }}
+      />
+
+      {/* VIEWPORT SIMULATION ACTIVE BANNER */}
+      {isSimulating && (
+        <div className="fixed top-0 left-0 right-0 z-[9999] bg-rose-600 text-white px-4 py-1.5 flex justify-between items-center font-mono text-[10px] uppercase tracking-widest font-black shadow-[0_0_20px_rgba(225,29,72,0.4)]">
+          <div className="flex items-center gap-3">
+            <span className="w-2 h-2 bg-white rounded-full animate-ping" />
+            <span>SPOOFING ACTIVE: VIEWING PLATFORM AS [{session?.access_tier}]</span>
+          </div>
+          <button 
+            onClick={handleExitSimulation}
+            className="bg-black hover:bg-zinc-900 text-white px-4 py-1 transition-colors border border-rose-800"
+          >
+            TERMINATE SIMULATION & RESTORE MASTER CLEARANCE
+          </button>
+        </div>
       )}
 
       {/* Clerk Secure Gateway Modal */}
       {showAuthModal && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn">
           <ClerkGate 
+            referralCodeFromUrl={window.location.pathname.startsWith('/join/') ? window.location.pathname.replace('/join/', '') : undefined}
             onSuccess={(user) => {
               setSession(user);
               setShowAuthModal(false);
-              window.location.reload();
+              fetchSession();
             }}
             onClose={() => setShowAuthModal(false)}
           />
@@ -1078,13 +1280,18 @@ export default function App() {
           <span className="text-zinc-400 font-bold">SERVER LIVE FEED STREAMING</span>
         </div>
       </footer>
+      </div>
 
       {/* ============================================================
        PRISM GLOBAL COMMAND MENU PALETTE MODAL (CMD+K Gateway)
        ============================================================ */}
       <AnimatePresence>
         {isGlobalSearchOpen && (
-          <div 
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 setIsGlobalSearchOpen(false);
@@ -1094,41 +1301,59 @@ export default function App() {
             id="prism-menu"
           >
             <motion.div 
-              initial={{ scale: 0.98, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.98, opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              initial={{ scale: 0.95, y: 16, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 12, opacity: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1.2, 0.36, 1] }} // --ease-spring
               className="w-full max-w-lg bg-[#0e0e11] border border-zinc-850 rounded-lg shadow-2xl overflow-hidden text-left"
             >
-              <div className="p-4 border-b border-zinc-900/60 flex items-center gap-3">
-                <Search className="w-4 h-4 text-zinc-500 animate-pulse" />
-                <input 
-                  type="text"
-                  ref={globalSearchInputRef}
-                  value={globalSearchInput}
-                  onChange={(e) => {
-                    setGlobalSearchInput(e.target.value);
-                    setGlobalSearchIndex(0);
-                  }}
-                  onKeyDown={handleGlobalSearchKeyDown}
-                  placeholder="Type search keyword or select computing token..."
-                  className="w-full bg-zinc-950 border border-zinc-850 px-3.5 py-1.5 text-white text-xs placeholder-zinc-650 font-mono rounded-md focus:ring-1 focus:ring-emerald-500/80 focus:border-emerald-500/80 focus:outline-none text-[11px]"
-                />
-                <button 
-                  type="button"
-                  onClick={() => setIsGlobalSearchOpen(false)}
-                  className="text-zinc-500 hover:text-white text-[9px] uppercase font-black transition-colors focus:outline-none"
-                >
-                  ESC
-                </button>
+              <div className="p-4 border-b border-zinc-900/60 flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <Search className="w-4 h-4 text-zinc-500 animate-pulse" />
+                  <input 
+                    type="text"
+                    ref={globalSearchInputRef}
+                    value={globalSearchInput}
+                    onChange={(e) => {
+                      setGlobalSearchInput(e.target.value);
+                      setGlobalSearchIndex(0);
+                    }}
+                    onKeyDown={handleGlobalSearchKeyDown}
+                    placeholder="Type search keyword or select computing token..."
+                    className="w-full bg-zinc-950 border border-zinc-850 px-3.5 py-1.5 text-white text-xs placeholder-zinc-650 font-mono rounded-md focus:ring-1 focus:ring-emerald-500/80 focus:border-emerald-500/80 focus:outline-none text-[11px]"
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setIsGlobalSearchOpen(false)}
+                    className="text-zinc-500 hover:text-white text-[9px] uppercase font-black transition-colors focus:outline-none"
+                  >
+                    ESC
+                  </button>
+                </div>
+                <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar -mb-1 pb-1">
+                  {['All', 'Assets', 'Tools', 'Navigation'].map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => {
+                        setPrismFilter(filter as any);
+                        setGlobalSearchIndex(0);
+                      }}
+                      className={`px-3 py-1 rounded-sm text-[9px] uppercase font-bold transition-colors cursor-pointer ${
+                        prismFilter === filter ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                      }`}
+                    >
+                      {filter}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="p-3 max-h-[320px] overflow-y-auto">
-                <div className="text-[7.5px] text-[#5c5c68] font-extrabold uppercase px-3 py-1.5 tracking-wider">
-                  {activeTab === 'auditor' ? 'SEARCH ACCOUNTABILITY TRANSACTIONS & OPTIONS' : 'SELECT INDEX OR INSTITUTIONAL ASSET TO COMPUTE'}
+              <div className="p-3 max-h-[320px] overflow-y-auto hide-scrollbar">
+                <div className="text-[7.5px] text-[#5c5c68] font-extrabold uppercase px-3 py-1 tracking-wider mb-1">
+                  {prismFilter === 'All' ? 'GLOBAL REGISTRY' : prismFilter.toUpperCase()}
                 </div>
 
-                <div className="space-y-[1.5px] mt-1">
+                <div className="space-y-[1.5px]">
                   {filterTickersList.map((tickerItemRaw, idx) => {
                     const tickerItem = tickerItemRaw as any;
                     const isActive = idx === globalSearchIndex;
@@ -1136,7 +1361,7 @@ export default function App() {
                     
                     return (
                       <button
-                        key={tickerItem.isContract ? tickerItem.id : tickerItem.ticker || tickerItem.id}
+                        key={tickerItem.isContract || tickerItem.isNav || tickerItem.isTool ? tickerItem.id : tickerItem.ticker}
                         type="button"
                         onClick={() => {
                           if (tickerItem.isContract) {
@@ -1145,7 +1370,12 @@ export default function App() {
                               auditSearchQuery: tickerItem.contract,
                               expandedAuditId: tickerItem.id
                             });
-
+                          } else if (tickerItem.isNav) {
+                            useContractStore.setState({
+                              activeTab: tickerItem.targetTab,
+                              auditSearchQuery: '',
+                              expandedAuditId: null
+                            });
                           } else if (tickerItem.isTool) {
                             if (tickerItem.id === 'svi-solver') {
                               useContractStore.setState({
@@ -1195,7 +1425,7 @@ export default function App() {
                         </div>
                         <div className="flex items-center gap-2.5 shrink-0">
                           <span className="text-[10px] font-bold text-zinc-400 font-mono">
-                            {tickerItem.isContract || tickerItem.isTool ? tickerItem.pnl : `$${tickerItem.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                            {tickerItem.isContract || tickerItem.isTool || tickerItem.isNav ? tickerItem.pnl : `$${tickerItem.price?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                           </span>
                           <ChevronRight className={`w-3.5 h-3.5 transition-colors ${isActive ? 'text-white' : 'text-zinc-700'}`} />
                         </div>
@@ -1212,10 +1442,10 @@ export default function App() {
 
               <div className="bg-black/40 px-4 py-2 border-t border-zinc-900 flex justify-between items-center text-[7.5px] text-zinc-650 uppercase tracking-wider font-semibold font-mono">
                 <span>USE KEYBOARD ARROWS ↑↓ AND ENTER</span>
-                <span>CMD+K TO TOGGLE</span>
+                <span>{keybinds.prismMenu?.replace('cmd', typeof window !== 'undefined' && navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl').toUpperCase()} TO TOGGLE</span>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

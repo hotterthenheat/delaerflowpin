@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { create } from 'zustand';
 import { AssetInfo, Candle, V8TradeRecord, TimeframeVal, ServerStatePayload } from '../types';
 import { ASSET_LIST } from '../data';
@@ -31,10 +32,10 @@ interface MarketState {
   openIn: string;
 }
 
-interface ContractStore {
+export interface ContractStore {
   // Navigation & View Tabs
-  activeTab: 'home' | 'skyvision' | 'pinpoint' | 'auditor' | 'dealerflow' | 'arbor' | 'settings';
-  setActiveTab: (tab: 'home' | 'skyvision' | 'pinpoint' | 'auditor' | 'dealerflow' | 'arbor' | 'settings', keepContract?: boolean) => void;
+  activeTab: 'home' | 'skyvision' | 'pinpoint' | 'auditor' | 'dealerflow' | 'arbor' | 'settings' | 'admin' | 'subscription';
+  setActiveTab: (tab: 'home' | 'skyvision' | 'pinpoint' | 'auditor' | 'dealerflow' | 'arbor' | 'settings' | 'admin' | 'subscription', keepContract?: boolean) => void;
 
   // Theme settings
   themeMode: 'light' | 'dark';
@@ -53,6 +54,8 @@ interface ContractStore {
   isContractLocked: boolean;
   isDeepSkyseyeExpanded: boolean;
   isGlobalSearchOpen: boolean;
+  prismFilter: 'All' | 'Assets' | 'Tools' | 'Navigation';
+  setPrismFilter: (filter: 'All' | 'Assets' | 'Tools' | 'Navigation') => void;
 
   // State caches and broad items
   activeContract: ContractState | null;
@@ -80,12 +83,31 @@ interface ContractStore {
   expandedAuditId: string | null;
   setExpandedAuditId: (id: string | null) => void;
 
+  isAuthenticated: boolean;
+  setIsAuthenticated: (auth: boolean) => void;
+
   purchasedTier: number;
   setPurchasedTier: (tier: number) => void;
   
   checkoutPlan: string | null;
   setCheckoutPlan: (plan: string | null) => void;
   
+  // Keybind preferences
+  globalKeybindsEnabled: boolean;
+  setGlobalKeybindsEnabled: (enabled: boolean) => void;
+  disabledKeybinds: Record<string, boolean>;
+  setDisabledKeybinds: (binds: Partial<Record<keyof ContractStore['keybinds'], boolean>>) => void;
+  keybinds: {
+    home: string;
+    skyvision: string;
+    pinpoint: string;
+    auditor: string;
+    dealerflow: string;
+    arbor: string;
+    settings: string;
+    prismMenu: string;
+  };
+  setKeybinds: (binds: Partial<ContractStore['keybinds']>) => void;
   // High-latency prevention: selectContract set instantly!
   selectContract: (ticker: string, strike: number, isCall: boolean) => void;
   updateFromSSE: (payload: ServerStatePayload) => void;
@@ -171,6 +193,43 @@ function formatDuration(totalSeconds: number): string {
   ].join(':');
 }
 
+export function useTierValidation() {
+  const setPurchasedTier = useContractStore(s => s.setPurchasedTier);
+  const setIsAuthenticated = useContractStore(s => s.setIsAuthenticated);
+
+  // Strictly validate condition on mount and hydration
+  useEffect(() => {
+    // 1. Instantly force sync from local drift before network
+    if (typeof window !== 'undefined') {
+      const localSync = Number(localStorage.getItem('slayer_tier') || '1');
+      const authSync = localStorage.getItem('slayer_auth') === 'true';
+      setPurchasedTier(localSync);
+      setIsAuthenticated(authSync);
+    }
+
+    // 2. Perform definitive network validation
+    fetch('/api/auth/session', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.authenticated && data.access_tier) {
+          setIsAuthenticated(true);
+          localStorage.setItem('slayer_auth', 'true');
+          const tierNum = data.access_tier === 'discord' ? 1
+            : (data.access_tier === 'skyvision' || data.access_tier === 'intraday') ? 2
+            : (data.access_tier === 'pinpoint' || data.access_tier === 'quant') ? 3
+            : (data.access_tier === 'enterprise') ? 4
+            : data.access_tier === 'lifetime' ? 5
+            : 0;
+          setPurchasedTier(tierNum);
+        } else {
+          setIsAuthenticated(false);
+          localStorage.setItem('slayer_auth', 'false');
+        }
+      })
+      .catch(err => console.error("Tier sync failed", err));
+  }, [setPurchasedTier, setIsAuthenticated]);
+}
+
 export const useContractStore = create<ContractStore>((set, get) => ({
   activeTab: 'home',
   setActiveTab: (tab, keepContract = false) => {
@@ -209,11 +268,16 @@ export const useContractStore = create<ContractStore>((set, get) => ({
   isContractLocked: false,
   isDeepSkyseyeExpanded: false,
   isGlobalSearchOpen: false,
+  prismFilter: 'All',
+  setPrismFilter: (filter) => set({ prismFilter: filter }),
 
   auditSearchQuery: '',
   setAuditSearchQuery: (query) => set({ auditSearchQuery: query }),
   expandedAuditId: null,
   setExpandedAuditId: (id) => set({ expandedAuditId: id }),
+
+  isAuthenticated: false,
+  setIsAuthenticated: (auth) => set({ isAuthenticated: auth }),
 
   purchasedTier: typeof window !== 'undefined' ? Number(localStorage.getItem('slayer_tier') || '1') : 1,
   setPurchasedTier: (tier) => {
@@ -225,6 +289,45 @@ export const useContractStore = create<ContractStore>((set, get) => ({
 
   checkoutPlan: null,
   setCheckoutPlan: (plan) => set({ checkoutPlan: plan }),
+
+  globalKeybindsEnabled: typeof window !== 'undefined' ? localStorage.getItem('slayer_global_keybinds_enabled') !== 'false' : true,
+  setGlobalKeybindsEnabled: (enabled) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('slayer_global_keybinds_enabled', String(enabled));
+    }
+    set({ globalKeybindsEnabled: enabled });
+  },
+
+  disabledKeybinds: typeof window !== 'undefined' && localStorage.getItem('slayer_disabled_keybinds')
+    ? JSON.parse(localStorage.getItem('slayer_disabled_keybinds')!)
+    : {},
+  setDisabledKeybinds: (binds) => set((state) => {
+    const newDisabled = { ...state.disabledKeybinds, ...binds };
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('slayer_disabled_keybinds', JSON.stringify(newDisabled));
+    }
+    return { disabledKeybinds: newDisabled };
+  }),
+
+  keybinds: typeof window !== 'undefined' && localStorage.getItem('slayer_keybinds') 
+    ? JSON.parse(localStorage.getItem('slayer_keybinds')!) 
+    : {
+        home: 'shift+h',
+        skyvision: 'shift+s',
+        pinpoint: 'shift+p',
+        auditor: 'shift+a',
+        dealerflow: 'shift+d',
+        arbor: 'shift+r',
+        settings: 'shift+o',
+        prismMenu: 'cmd+k',
+      },
+  setKeybinds: (binds) => set((state) => {
+    const newBinds = { ...state.keybinds, ...binds };
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('slayer_keybinds', JSON.stringify(newBinds));
+    }
+    return { keybinds: newBinds };
+  }),
 
   activeContract: null,
   contractCache: {},
