@@ -13,7 +13,10 @@ import {
   reachMultiplier, mispricingMultiplier,
 } from '../src/lib/skyScore';
 import { SnapshotStore } from '../src/lib/snapshotStore';
-import { dealerStressIndex, dealerConvexity, computeDealerSignals } from '../src/lib/dealerSignals';
+import {
+  dealerStressIndex, dealerConvexity, computeDealerSignals,
+  modulateDecision, DEFAULT_DEALER_COUPLING, DealerSignals,
+} from '../src/lib/dealerSignals';
 import { calculateAnalyticGreeks, computeDealerInventory } from '../src/lib/v11Math';
 
 let passed = 0;
@@ -195,6 +198,55 @@ console.log('§3 Dealer engine — fallback abstention + DEX/VEX exposure + rout
   ok(sig.gammaFlipProximityConfident === false && sig.gammaFlipProximity === 0, 'flip-proximity ABSTAINS when not confident (no spot*0.995 value)');
   ok(sig.dealerTrapConfident === false && sig.dealerTrapScore === 50, 'trap ABSTAINS (neutral 50) when walls not confident');
   ok(isFinite(sig.dealerStressIndex) && isFinite(sig.dealerConvexity), 'stress + convexity finite even on the abstaining path');
+}
+
+// ---- V5.1 §3.5 prerequisite: gated decision/size coupling (DEFAULT OFF) ----
+console.log('§3.5 Dealer coupling — gated veto + stress sizing, off by default');
+{
+  const mkSig = (p: Partial<DealerSignals>): DealerSignals => ({
+    dealerTrapScore: 0, dealerTrapConfident: true,
+    gammaFlipProximity: 0, gammaFlipProximityConfident: true,
+    dealerStressIndex: 0, dealerConvexity: 0,
+    ...p,
+  });
+  const ON = { ...DEFAULT_DEALER_COUPLING, enabled: true };
+  const trapAndFlip = mkSig({ dealerTrapScore: 85, gammaFlipProximity: 0.9, dealerStressIndex: 100 });
+
+  // 1. Flag OFF (the shipped default) is a pure passthrough — no veto, no size cut.
+  ok(DEFAULT_DEALER_COUPLING.enabled === false, 'coupling ships DISABLED (default behavior unchanged)');
+  const off = modulateDecision({ decision: 'BUY', reason: 'base' }, trapAndFlip, DEFAULT_DEALER_COUPLING);
+  ok(off.decision === 'BUY' && off.sizeMultiplier === 1 && off.modulated === false,
+    'flag OFF → BUY passes through untouched, size 1, not modulated');
+
+  // 2. Flag ON: BUY + high trap + near flip (both confident) → downgraded to WAIT.
+  const veto = modulateDecision({ decision: 'BUY', reason: 'base' }, trapAndFlip, ON);
+  ok(veto.decision === 'WAIT' && veto.modulated === true, 'ON: caged + near-flip vetoes a fresh BUY → WAIT');
+  ok(veto.reason.includes('base') && veto.reason.includes('Dealer veto'), 'veto reason preserves the original gate reason and is auditable');
+
+  // 3. Veto requires BOTH conditions AND confidence — abstention is respected.
+  ok(modulateDecision({ decision: 'BUY', reason: 'b' }, mkSig({ dealerTrapScore: 85, gammaFlipProximity: 0.9, dealerTrapConfident: false }), ON).decision === 'BUY',
+    'no veto when the trap signal is not confident (fabricated walls)');
+  ok(modulateDecision({ decision: 'BUY', reason: 'b' }, mkSig({ dealerTrapScore: 85, gammaFlipProximity: 0.9, gammaFlipProximityConfident: false }), ON).decision === 'BUY',
+    'no veto when the flip signal is not confident (fabricated flip)');
+  ok(modulateDecision({ decision: 'BUY', reason: 'b' }, mkSig({ dealerTrapScore: 85, gammaFlipProximity: 0.2 }), ON).decision === 'BUY',
+    'no veto when high trap but NOT near the flip');
+
+  // 4. Only fresh BUYs are gated — existing-position states pass through.
+  ok(modulateDecision({ decision: 'HOLD', reason: 'h' }, trapAndFlip, ON).decision === 'HOLD',
+    'HOLD is never vetoed (only fresh BUY is gated)');
+
+  // 5. Size reduces monotonically with dealer stress, clamped to [sizeFloor, 1].
+  const sLow = modulateDecision({ decision: 'WAIT', reason: 'w' }, mkSig({ dealerStressIndex: 0 }), ON).sizeMultiplier;
+  const sMid = modulateDecision({ decision: 'WAIT', reason: 'w' }, mkSig({ dealerStressIndex: 50 }), ON).sizeMultiplier;
+  const sHigh = modulateDecision({ decision: 'WAIT', reason: 'w' }, mkSig({ dealerStressIndex: 100 }), ON).sizeMultiplier;
+  ok(sLow === 1, 'zero stress → full size (multiplier 1)');
+  ok(sMid < sLow && sHigh < sMid, 'higher dealer stress monotonically reduces size');
+  ok(sHigh >= ON.sizeFloor - 1e-9, 'size never trims below the configured floor');
+
+  // 6. Size multiplier can only ever trim (never amplifies above 1), even with an aggressive K.
+  const aggressive = { ...ON, stressSizeK: 5 };
+  const clamped = modulateDecision({ decision: 'BUY', reason: 'b' }, mkSig({ dealerStressIndex: 100 }), aggressive).sizeMultiplier;
+  ok(clamped >= aggressive.sizeFloor - 1e-9 && clamped <= 1, 'size multiplier stays inside [floor, 1] under an aggressive K');
 }
 
 console.log(`\n--- V5.1 SUITE PASSED: ${passed} assertions ---`);
