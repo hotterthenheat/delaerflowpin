@@ -4,6 +4,11 @@
  */
 
 import { AssetInfo, SystemScore, Candle } from '../types';
+import {
+  computeDealerSignals,
+  modulateDecision,
+  DEFAULT_DEALER_COUPLING,
+} from './dealerSignals';
 
 // ==========================================
 // TIER 0: SEEDED PRNG FOR DETERMINISTIC REPLICABILITY
@@ -520,8 +525,13 @@ export interface DealerPosEngineResult {
   callWall: number;
   putWall: number;
   gammaFlipPrice: number;
+  gammaFlipConfident: boolean;   // false when no GEX zero-crossing was found (fallback) — Phase 3 abstains
+  wallsConfident: boolean;       // false when no dominant wall was found (fallback) — Phase 3 abstains
+  grossGex: number;
   dealer01: number;
   gexStrikes: { strike: number; gex: number }[];
+  dexStrikes: { strike: number; dex: number }[];
+  vexStrikes: { strike: number; vex: number }[];
   expectedMovePct: number;
 }
 function quickGamma(S: number, K: number, dte: number, iv: number): number {
@@ -552,6 +562,8 @@ export function computeDealerInventory(
   dte = 1 // default 
 ): DealerPosEngineResult {
   const GEX_strike_list: { strike: number; gex: number }[] = [];
+  const DEX_strike_list: { strike: number; dex: number }[] = [];
+  const VEX_strike_list: { strike: number; vex: number }[] = [];
   let netGex = 0;
   let netDex = 0;
   let netVex = 0;
@@ -586,11 +598,14 @@ export function computeDealerInventory(
     grossVex += Math.abs(VEX_strike);
 
     GEX_strike_list.push({ strike: c.strike, gex: GEX_strike });
+    DEX_strike_list.push({ strike: c.strike, dex: DEX_strike });
+    VEX_strike_list.push({ strike: c.strike, vex: VEX_strike });
     gexPerStrike[c.strike] = (gexPerStrike[c.strike] || 0) + GEX_strike;
   });
 
   // Mathematically correct grid search solver for Gamma Flip (S*) crossing level
   let gammaFlip = spot * 0.995; // default fallback
+  let gammaFlipConfident = false;
   const gridPoints: { S: number; gex: number }[] = [];
   const minSpot = spot * 0.85;
   const maxSpot = spot * 1.15;
@@ -608,6 +623,7 @@ export function computeDealerInventory(
     if (Math.sign(ptA.gex) !== Math.sign(ptB.gex) && ptA.gex !== 0) {
       const t = -ptA.gex / (ptB.gex - ptA.gex);
       gammaFlip = ptA.S + t * (ptB.S - ptA.S);
+      gammaFlipConfident = true;
       break;
     }
   }
@@ -634,6 +650,9 @@ export function computeDealerInventory(
     }
   });
 
+  // A dominant wall on BOTH sides is required to trust wall-based Phase-3 metrics.
+  const wallsConfident = maxCallGexAbs > 0 && maxPutGexAbs > 0;
+
   // Normalization to [-1, +1]
   const e_GEX = Math.tanh((netGex / (grossGex || 1)) * 3);
   const e_DEX = Math.tanh((netDex / (grossDex || 1)) * 3);
@@ -656,8 +675,13 @@ export function computeDealerInventory(
     callWall,
     putWall,
     gammaFlipPrice: gammaFlip,
+    gammaFlipConfident,
+    wallsConfident,
+    grossGex,
     dealer01,
     gexStrikes: GEX_strike_list,
+    dexStrikes: DEX_strike_list,
+    vexStrikes: VEX_strike_list,
     expectedMovePct
   };
 }
@@ -1235,6 +1259,9 @@ export interface V11MathResult {
   liquidity: LiquidityResult;
   modelTrust: ModelTrustResult;
   thesisStability: number;
+  // V5.1 Phase 3 — under-the-hood position-size multiplier in [sizeFloor, 1].
+  // Defaults to 1 (no effect) unless the dealer coupling is enabled. Not displayed.
+  dealerSizeMultiplier: number;
 }
 
 export function calculateV11Metrics(
@@ -1341,7 +1368,7 @@ export function calculateV11Metrics(
 
   // Evaluate Decision Gate with complete spec rules §13.1
   const thesisStability = systemScore.total;
-  const decResult = evaluateDecisionGate(
+  let decResult = evaluateDecisionGate(
     false, // position open
     evSum,
     calibratedP,
@@ -1353,6 +1380,42 @@ export function calculateV11Metrics(
     dealerRes.dealer01,
     thesisStability
   );
+
+  // V5.1 Phase 3 — gated dealer coupling. DEFAULT OFF ⇒ live behavior is
+  // byte-identical: decResult is untouched and the size multiplier stays 1.
+  // None of these signals are displayed; they only feed the decision gate + size.
+  let dealerSizeMultiplier = 1;
+  if (DEFAULT_DEALER_COUPLING.enabled) {
+    // Wall magnitude = the largest-|GEX| contract sitting at the detected wall strike.
+    const gexAt = (strike: number) =>
+      dealerRes.gexStrikes
+        .filter((g) => g.strike === strike)
+        .reduce((mx, g) => (Math.abs(g.gex) > Math.abs(mx) ? g.gex : mx), 0);
+    const convexityChain = actualChain.map((c) => ({
+      gamma: c.gamma,
+      speed: calculateAnalyticGreeks(spotUsed, c.strike, 1, c.iv, c.type === 'call').speed,
+      vanna: c.vanna,
+      charm: c.charm,
+      oi: c.openInterest,
+    }));
+    const signals = computeDealerSignals({
+      spot: spotUsed,
+      callWall: dealerRes.callWall,
+      putWall: dealerRes.putWall,
+      gammaFlipPrice: dealerRes.gammaFlipPrice,
+      grossGex: dealerRes.grossGex,
+      expectedMovePct: dealerRes.expectedMovePct,
+      gexAtCallWall: gexAt(dealerRes.callWall),
+      gexAtPutWall: gexAt(dealerRes.putWall),
+      wallsConfident: dealerRes.wallsConfident,
+      gammaFlipConfident: dealerRes.gammaFlipConfident,
+      volExpansionNorm: 0.5,
+      convexityChain,
+    });
+    const mod = modulateDecision(decResult, signals, DEFAULT_DEALER_COUPLING);
+    decResult = { decision: mod.decision, reason: mod.reason };
+    dealerSizeMultiplier = mod.sizeMultiplier;
+  }
 
   const opportunityQuality = calculateOpportunityQuality(
     evSum,
@@ -1553,7 +1616,8 @@ export function calculateV11Metrics(
     tailRisk,
     liquidity,
     modelTrust,
-    thesisStability
+    thesisStability,
+    dealerSizeMultiplier
   };
 }
 
