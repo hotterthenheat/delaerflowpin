@@ -1614,6 +1614,7 @@ interface UserAccount {
   custom_referral_code: string;
   selected_font_scale: 'STANDARD' | 'ENHANCED';
   compact_view_enabled: boolean;
+  ultrawide_enabled?: boolean;
   selected_theme: 'SLAYER PURE DARK' | 'DEALER FLOW SLATE' | 'VOLATILITY RADAR' | 'CARBON MONITOR MATTE';
   no_refund_policy_logged: boolean;
   active_ip: string | null;
@@ -3154,7 +3155,7 @@ app.patch('/api/users/preferences', express.json({ limit: '50mb' }), (req, res) 
     return res.status(401).json({ error: 'Settings access denied. Unauthorized.' });
   }
 
-  const { selected_font_scale, compact_view_enabled, selected_theme, name, avatar, username, cover_photo, notification_preferences, profile_visibility, block_search_indexing } = req.body;
+  const { selected_font_scale, compact_view_enabled, ultrawide_enabled, selected_theme, name, avatar, username, cover_photo, notification_preferences, profile_visibility, block_search_indexing } = req.body;
   const userEmail = session.email.toLowerCase().trim();
   let user = usersDb.get(userEmail);
 
@@ -3183,6 +3184,7 @@ app.patch('/api/users/preferences', express.json({ limit: '50mb' }), (req, res) 
 
   if (selected_font_scale !== undefined) user.selected_font_scale = selected_font_scale;
   if (compact_view_enabled !== undefined) user.compact_view_enabled = !!compact_view_enabled;
+  if (ultrawide_enabled !== undefined) user.ultrawide_enabled = !!ultrawide_enabled;
   if (selected_theme !== undefined) user.selected_theme = selected_theme;
 
   if (name !== undefined) {

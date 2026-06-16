@@ -16,11 +16,14 @@ import {
   User,
   CreditCard,
   Lock,
-  RotateCcw
+  RotateCcw,
+  Monitor,
+  Check
 } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 import { TwoFactorFlow } from './TwoFactorFlow';
 import { useContractStore, ContractStore } from '../lib/store';
+import { THEMES, applyTheme, applyTextSize, applyCompact, applyUltrawide } from '../lib/displayPrefs';
 
 interface SettingsPanelProps {
   session: any;
@@ -91,6 +94,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
   
   const [selectedFont, setSelectedFont] = useState<'STANDARD' | 'ENHANCED' | 'ENHANCED_XL'>(session?.selected_font_scale || 'STANDARD');
   const [compactMode, setCompactMode] = useState<boolean>(!!session?.compact_view_enabled);
+  const [ultrawideMode, setUltrawideMode] = useState<boolean>(!!session?.ultrawide_enabled);
   const [activeTheme, setActiveTheme] = useState<string>(session?.selected_theme || 'SLAYER PURE DARK');
 
   const globalKeybindsEnabled = useContractStore(state => state.globalKeybindsEnabled);
@@ -201,6 +205,22 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
       showToast('Backend connection error.', 'error');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const saveUltrawide = async (on: boolean) => {
+    try {
+      const res = await fetch('/api/users/preferences', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ultrawide_enabled: on }),
+      });
+      if (res.ok) {
+        onUpdateSession();
+        showToast('Display preferences saved and synchronized.');
+      }
+    } catch (e) {
+      console.error('Failed to update ultrawide preference', e);
     }
   };
 
@@ -1079,6 +1099,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                     onChange={(e) => {
                       const newVal = e.target.value as 'STANDARD' | 'ENHANCED' | 'ENHANCED_XL';
                       setSelectedFont(newVal);
+                      applyTextSize(newVal);
                       handleSaveSettings(newVal, compactMode, activeTheme);
                     }}
                     className="w-full bg-black border border-zinc-900 text-white rounded-lg p-3 text-sm focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer appearance-none"
@@ -1105,6 +1126,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       onChange={(e) => {
                         const newVal = e.target.checked;
                         setCompactMode(newVal);
+                        applyCompact(newVal);
                         handleSaveSettings(selectedFont, newVal, activeTheme);
                       }}
                       className="sr-only peer"
@@ -1117,7 +1139,35 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                 </p>
               </div>
 
-              {/* Option C: Background Theme custom drop-down selection */}
+              {/* Option C: Ultrawide monitor optimization */}
+              <div className="pt-4 border-t border-zinc-900/60 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-bold text-white">
+                    <Monitor className="w-4 h-4 text-zinc-550 shrink-0" />
+                    <span>Ultrawide Monitor Optimization</span>
+                  </div>
+
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={ultrawideMode}
+                      onChange={(e) => {
+                        const newVal = e.target.checked;
+                        setUltrawideMode(newVal);
+                        applyUltrawide(newVal);
+                        saveUltrawide(newVal);
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-zinc-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-550 after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:bg-zinc-950 peer-checked:bg-indigo-600 peer-checked:after:bg-white" />
+                  </label>
+                </div>
+                <p className="text-xs text-[#8e8e93] leading-relaxed">
+                  Engineered for 34" / 49" super-ultrawide setups. Expands panels into multi-column layouts to use the full 21:9 / 32:9 width while capping text blocks at a readable 80ch.
+                </p>
+              </div>
+
+              {/* Option D: Background Theme custom swatch grid */}
               <div className="pt-4 border-t border-zinc-900/60 space-y-2">
                 <div className="flex items-center gap-2 text-sm font-bold text-white">
                   <Palette className="w-4 h-4 text-zinc-550 shrink-0" />
@@ -1127,39 +1177,36 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                   Alters background containment fields and surface panels colors.
                 </p>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-                  {[
-                    { id: 'dark', name: 'Dark Mode', color: '#18181b', border: '#27272a' },
-                    { id: 'mocha', name: 'Mocha', color: '#2B211E', border: '#5C4A42' },
-                    { id: 'purple', name: 'Deep Purple', color: '#1A0B2E', border: '#4A3076' },
-                    { id: 'pink', name: 'Soft Pink', color: '#FFF0F5', border: '#F0D0DF', text: '#4A2B3D' },
-                    { id: 'abyss', name: 'OLED Abyss', color: '#000000', border: '#27272A' },
-                    { id: 'slate', name: 'Midnight Slate', color: '#0B1120', border: '#334155' },
-                    { id: 'phantom', name: 'Phantom Radial', color: '#1C1C22', border: '#27272A' },
-                    { id: 'grid', name: 'Data Grid', color: '#09090B', border: '#27272A' }
-                  ].map(theme => (
-                    <div
-                      key={theme.id}
-                      onClick={() => {
-                        setActiveTheme(theme.id);
-                        localStorage.setItem('slayer_theme', theme.id);
-                        document.documentElement.setAttribute('data-theme', theme.id);
-                        handleSaveSettings(selectedFont, compactMode, theme.id);
-                      }}
-                      className={`relative p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                        activeTheme === theme.id ? 'border-indigo-500 transform scale-105 shadow-lg' : 'border-zinc-800/60 hover:border-zinc-700'
-                      }`}
-                      style={{ backgroundColor: theme.color, borderColor: activeTheme === theme.id ? undefined : theme.border }}
-                    >
-                      <div className="h-12 rounded bg-white/5 mb-2 border border-white/10" />
-                      <div 
-                        className="text-[10px] font-bold text-center uppercase tracking-widest whitespace-nowrap overflow-hidden text-ellipsis"
-                        style={{ color: theme.text || '#fff' }}
+                <div className="max-h-72 overflow-y-auto pr-1 -mr-1 mt-3">
+                  <div className="grid grid-cols-6 sm:grid-cols-8 gap-2.5">
+                    {THEMES.map(t => (
+                      <button
+                        key={t.id}
+                        title={t.name}
+                        type="button"
+                        onClick={() => {
+                          setActiveTheme(t.id);
+                          applyTheme(t.id);
+                          handleSaveSettings(selectedFont, compactMode, t.id);
+                        }}
+                        className={`group relative aspect-square rounded-lg border-2 transition-all ${
+                          activeTheme === t.id
+                            ? 'border-indigo-500 scale-110 shadow-lg z-10'
+                            : 'border-black/40 hover:border-zinc-500 hover:scale-105'
+                        }`}
+                        style={{ background: `linear-gradient(135deg, ${t.surface} 0%, ${t.surface} 50%, ${t.accent} 50%, ${t.accent} 100%)` }}
                       >
-                        {theme.name}
-                      </div>
-                    </div>
-                  ))}
+                        {activeTheme === t.id && (
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <Check className="w-4 h-4 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]" />
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-2 text-[10px] text-[#8e8e93] uppercase tracking-widest font-mono">
+                  Active: <span className="text-white font-bold">{THEMES.find(t => t.id === activeTheme)?.name || 'Default'}</span> · {THEMES.length} themes
                 </div>
               </div>
             </div>

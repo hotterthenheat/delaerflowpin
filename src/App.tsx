@@ -1,6 +1,7 @@
 import React, { useState, useEffect, memo, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useContractStore } from './lib/store';
+import { applyAllPreferences } from './lib/displayPrefs';
 import { ASSET_LIST } from './data';
 import { AssetInfo } from './types';
 
@@ -545,10 +546,12 @@ export default function App() {
           if (localAvatar) {
             data.avatar = localAvatar;
           }
-          if (data.selected_theme) {
-            localStorage.setItem('slayer_theme', data.selected_theme);
-            document.documentElement.setAttribute('data-theme', data.selected_theme);
-          }
+          applyAllPreferences({
+            selected_theme: data.selected_theme,
+            selected_font_scale: data.selected_font_scale,
+            compact_view_enabled: data.compact_view_enabled,
+            ultrawide_enabled: data.ultrawide_enabled,
+          });
         }
         
         setSession(data);
