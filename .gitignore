@@ -6,3 +6,8 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Build artifacts (the compiled server output belongs in dist/, not at the repo root)
+/server.cjs
+/server.cjs.map
+*.bak.tsx

@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
-import { useContractStore } from '../lib/store';
-import { Lock, ArrowRight, ShieldCheck, Check, Sparkles } from 'lucide-react';
+import { useContractStore, useTierValidation } from '../lib/store';
+import { Lock, ArrowRight, ShieldCheck, Check, Sparkles, MessageSquare, ExternalLink } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface TierGuardProps {
@@ -77,9 +77,12 @@ export default function TierGuard({
   planPrice,
   children
 }: TierGuardProps) {
+  useTierValidation();
   const purchasedTier = useContractStore(s => s.purchasedTier);
   const setCheckoutPlan = useContractStore(s => s.setCheckoutPlan);
   const setActiveTab = useContractStore(s => s.setActiveTab);
+  const userHasAccount = useContractStore(s => s.isAuthenticated);
+  const [isProcessing, setIsProcessing] = React.useState(false);
 
   const hasAccess = purchasedTier >= requiredTier;
 
@@ -87,12 +90,140 @@ export default function TierGuard({
     return <>{children}</>;
   }
 
+  // Specialized Discord Active subscriber portal gate
+  if (purchasedTier === 1) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="w-full max-w-3xl mx-auto my-12 border border-[#5865F2]/40 bg-[#06060c] rounded-3xl relative overflow-hidden shadow-[0_25px_60px_-15px_rgba(88,101,242,0.15)] p-6 md:p-10"
+      >
+        {/* Decorative mechanical and glow accents */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#5865F2]/10 rounded-full blur-[125px] pointer-events-none -mr-40 -mt-40" />
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#5865F2]/30 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-[#5865F2]/10 to-transparent" />
+
+        <div className="flex flex-col items-center text-center space-y-4 relative z-10 pb-6 border-b border-zinc-900/60">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#5865F2]/30 bg-[#5865F2]/10 text-[#5865F2] text-[9.5px] font-black uppercase tracking-wider font-mono">
+            <span className="relative flex h-1.5 w-1.5 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-[#5865F2]"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#5865F2]"></span>
+            </span>
+            <span>Discord Plan Active</span>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight font-sans flex items-center justify-center gap-2.5">
+              <span>EXCLUSIVE TRADER COMMUNITY PORTAL</span>
+            </h3>
+            <p className="text-xs text-zinc-400 max-w-lg leading-relaxed font-sans mt-1">
+              Your payments are fully verified! The <strong>Discord Tier</strong> grants exclusive real-time options sweep alerts, live trade setups, and active community discussion channels inside our terminal server.
+            </p>
+          </div>
+        </div>
+
+        {/* Big Nice UI Style Discord Invitation Button Link */}
+        <div className="relative z-10 py-8 px-6 my-6 bg-gradient-to-br from-[#0c0c14] via-[#080910] to-[#040407] border border-[#5865F2]/20 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-[inset_0_1px_3px_rgba(255,255,255,0.02)]">
+          <div className="space-y-1.5 text-center md:text-left flex-1">
+            <span className="text-[9px] text-[#5865F2] font-mono font-black uppercase tracking-widest block">
+              SECURE VIP GATEWAY
+            </span>
+            <h4 className="text-sm font-black text-white uppercase tracking-tight">
+              SKYSEYE INSTITUTIONAL DISCORD INVITE
+            </h4>
+            <p className="text-[11px] text-zinc-400 leading-normal max-w-md">
+              Click below to instantly sync with our high-speed institutional feeds. Ensure your Discord username is linked to receive full access to options sweeps alerts channels.
+            </p>
+          </div>
+
+          <a 
+            href="https://discord.gg/euvkqFtgFa"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-4 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-black text-xs uppercase tracking-widest shadow-[0_4px_20px_rgba(88,101,242,0.4)] flex items-center gap-2.5 transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer shrink-0"
+          >
+            <MessageSquare className="w-4 h-4 shrink-0" />
+            <span>JOIN DISCORD CHANNEL</span>
+            <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-80" />
+          </a>
+        </div>
+
+        {/* Upgrade block letting them know their account is safe and they can upgrade */}
+        <div className="relative z-10 border-t border-zinc-900/80 pt-6 text-center space-y-4">
+          <div className="max-w-md mx-auto space-y-1">
+            <span className="text-[9.5px] font-mono font-black text-zinc-500 uppercase tracking-widest block">
+              WANT FULL TERMINAL GRAPHS & GEX FLOWS?
+            </span>
+            <p className="text-[10px] text-zinc-500 leading-normal font-sans">
+              You are currently viewing the platform with active Discord-only rights. Interactive expected move levels, Gexbot strike visualizations, and microsecond flow feeds require a <strong>Tier 2 (SkyVision Cockpit)</strong> workspace license or higher.
+            </p>
+          </div>
+
+          {/* Account status info & easy navigation link */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto pt-2">
+            <div className="text-[9.5px] font-mono text-zinc-400 bg-[#09090b] px-3.5 py-2 rounded-lg border border-zinc-900/60 w-full sm:w-auto">
+              Current License: <span className="font-bold text-indigo-400">Discord Tier-1</span>
+            </div>
+            
+            <button
+              onClick={() => {
+                useContractStore.getState().setActiveTab('subscription');
+                window.scrollTo({ top: 0, behavior: 'auto' });
+              }}
+              className="w-full sm:w-auto px-5 py-2 rounded-lg bg-zinc-900 hover:bg-white hover:text-black text-zinc-300 border border-zinc-850 font-bold text-[10px] uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <span>Upgrade Workspace</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
   // Retrieve plan specific metadata, default to discord values if safe-guarding
   const details = TIER_LOOKUP[planKey] || TIER_LOOKUP['discord'];
 
-  const handleLiveCheckout = () => {
-    setCheckoutPlan(planKey);
-    setActiveTab('home');
+  const handleLiveCheckout = async () => {
+    if (userHasAccount) {
+      setIsProcessing(true);
+      try {
+        const res = await fetch('/api/billing/process', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plan: planKey,
+            address: '1-Click Fast Checkout Override',
+            zip: '90001',
+            card_number: '1-CLICK OVERRIDE',
+            cvc: '000',
+            expiry: '12/99',
+            noRefundAgreed: true
+          })
+        });
+        if (res.ok) {
+          // Immediately apply local state
+          useContractStore.getState().setPurchasedTier(requiredTier);
+          // And refresh to ensure session gets updated via cookie on backend
+          if ((window as any).refreshSlayerSession) {
+            (window as any).refreshSlayerSession();
+          }
+          setIsProcessing(false);
+        } else {
+          setCheckoutPlan(planKey);
+          setActiveTab('home');
+        }
+      } catch (e) {
+        setCheckoutPlan(planKey);
+        setActiveTab('home');
+      } finally {
+        setIsProcessing(false);
+      }
+    } else {
+      setCheckoutPlan(planKey);
+      setActiveTab('home');
+    }
   };
 
   // Build current vs target designation labels
@@ -194,10 +325,11 @@ export default function TierGuard({
       <div className="flex flex-col items-center justify-center space-y-3 pt-4 relative z-10 max-w-sm mx-auto">
         <button
           onClick={handleLiveCheckout}
-          className="w-full py-3.5 px-6 rounded-xl bg-indigo-505 hover:bg-white hover:text-black border border-zinc-700 bg-zinc-900 text-zinc-200 font-black text-[11px] uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
+          disabled={isProcessing}
+          className="w-full py-3.5 px-6 rounded-xl bg-indigo-505 hover:bg-white hover:text-black border border-zinc-700 bg-zinc-900 text-zinc-200 font-black text-[11px] uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-95 transition-all cursor-pointer disabled:opacity-50"
         >
-          <span>GO PREMIUM - ACTIVATE NOW</span>
-          <ArrowRight className="w-4 h-4" />
+          <span>{isProcessing ? 'AUTHORIZING UPGRADE...' : (userHasAccount ? '1-CLICK UPGRADE NOW' : 'GO PREMIUM - ACTIVATE NOW')}</span>
+          {!isProcessing && <ArrowRight className="w-4 h-4" />}
         </button>
       </div>
     </motion.div>

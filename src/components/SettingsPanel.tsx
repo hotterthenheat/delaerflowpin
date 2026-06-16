@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Settings, 
@@ -12,34 +12,176 @@ import {
   Receipt, 
   Calculator,
   ShieldAlert,
-  FolderSync
+  FolderSync,
+  User,
+  CreditCard,
+  Lock,
+  RotateCcw
 } from 'lucide-react';
+import { UserProfile } from './UserProfile';
+import { TwoFactorFlow } from './TwoFactorFlow';
+import { useContractStore, ContractStore } from '../lib/store';
 
 interface SettingsPanelProps {
   session: any;
   onUpdateSession: () => void;
 }
 
+function KeybindRow({ bindId, label }: { bindId: keyof ContractStore['keybinds'], label: string }) {
+  const keybinds = useContractStore(state => state.keybinds);
+  const setKeybinds = useContractStore(state => state.setKeybinds);
+  const disabledKeybinds = useContractStore(state => state.disabledKeybinds);
+  const setDisabledKeybinds = useContractStore(state => state.setDisabledKeybinds);
+  const [isRecording, setIsRecording] = useState(false);
+
+  const isDisabled = disabledKeybinds[bindId];
+
+  useEffect(() => {
+    if (!isRecording) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      let key = e.key.toLowerCase();
+      // Ignore bare modifiers
+      if (['control', 'meta', 'shift', 'alt'].includes(key)) return;
+      
+      const parts = [];
+      if (e.metaKey || e.ctrlKey) parts.push('cmd');
+      if (e.shiftKey) parts.push('shift');
+      if (e.altKey) parts.push('alt');
+      parts.push(key);
+      
+      setKeybinds({ [bindId]: parts.join('+') });
+      setIsRecording(false);
+    };
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [isRecording, bindId, setKeybinds]);
+
+  // Translate 'cmd' to standard display based on OS
+  const displayKey = (keybinds[bindId] || '').replace('cmd', typeof window !== 'undefined' && navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl');
+
+  return (
+    <div className={`flex items-center justify-between p-3 bg-zinc-900/40 border ${isDisabled ? 'border-zinc-800/50 opacity-50' : 'border-zinc-800'} rounded-lg transition-all`}>
+      <div className="flex items-center gap-3">
+        <button 
+          onClick={() => setDisabledKeybinds({ [bindId]: !isDisabled })}
+          className={`w-4 h-4 rounded flex items-center justify-center border ${isDisabled ? 'bg-transparent border-zinc-700' : 'bg-indigo-500 border-indigo-500 text-white'}`}
+        >
+          {!isDisabled && <svg viewBox="0 0 24 24" fill="none" className="w-3 h-3 stroke-current stroke-[3]"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+        </button>
+        <span className={`text-sm font-bold ${isDisabled ? 'text-zinc-500 line-through' : 'text-zinc-300'}`}>{label}</span>
+      </div>
+      <button
+        onClick={() => {
+          if (!isDisabled) setIsRecording(true);
+        }}
+        disabled={isDisabled}
+        className={`px-3 py-1.5 text-xs font-mono font-bold rounded flex items-center justify-center min-w-[80px] transition-all border
+          ${isDisabled ? 'bg-black text-zinc-600 border-zinc-800 cursor-not-allowed' : isRecording ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'bg-black text-zinc-400 border-zinc-700 hover:border-zinc-500 hover:text-white'}`}
+      >
+        {isRecording ? 'Listening...' : displayKey.toUpperCase()}
+      </button>
+    </div>
+  );
+}
+
 export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) {
-  const [selectedFont, setSelectedFont] = useState<'STANDARD' | 'ENHANCED'>(session?.selected_font_scale || 'STANDARD');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'privacy' | 'preferences' | 'keybinds' | 'referrals' | 'billing'>('profile');
+  
+  const [selectedFont, setSelectedFont] = useState<'STANDARD' | 'ENHANCED' | 'ENHANCED_XL'>(session?.selected_font_scale || 'STANDARD');
   const [compactMode, setCompactMode] = useState<boolean>(!!session?.compact_view_enabled);
   const [activeTheme, setActiveTheme] = useState<string>(session?.selected_theme || 'SLAYER PURE DARK');
-  
+
+  const globalKeybindsEnabled = useContractStore(state => state.globalKeybindsEnabled);
+  const setGlobalKeybindsEnabled = useContractStore(state => state.setGlobalKeybindsEnabled);
+
   const [isUpdating, setIsUpdating] = useState(false);
   const [isSimulatingInvoice, setIsSimulatingInvoice] = useState(false);
   const [invoiceLog, setInvoiceLog] = useState<any | null>(null);
   const [referralCopied, setReferralCopied] = useState(false);
 
+  // Security Vault & Compliance states
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [pwError, setPwError] = useState('');
+  const [pwSuccess, setPwSuccess] = useState('');
+  
+  const [newEmail, setNewEmail] = useState('');
+  const [emailOtp, setEmailOtp] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [emailSuccess, setEmailSuccess] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [simulatedOtp, setSimulatedOtp] = useState('');
+  
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  // Privacy Boundaries & Notification states
+  const [notifPreferences, setNotifPreferences] = useState({
+    email_enabled: true,
+    sms_enabled: true,
+    discord_enabled: true,
+    options_flow_alerts: true
+  });
+  const [profileVisibility, setProfileVisibility] = useState<'public' | 'private' | 'logged_in'>('public');
+  const [blockSearchIndexing, setBlockSearchIndexing] = useState(false);
+  const [isPatchingPrivacy, setIsPatchingPrivacy] = useState(false);
+
+  // GDPR Data Portability states
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [exportDownloadUrl, setExportDownloadUrl] = useState('');
+  const [exportExpiresAt, setExportExpiresAt] = useState<number | null>(null);
+  const [exportEmailLog, setExportEmailLog] = useState('');
+
+  const [toastText, setToastText] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  const showToast = (text: string, type: 'success' | 'error' = 'success') => {
+    setToastText(text);
+    setToastType(type);
+    setTimeout(() => {
+      setToastText(null);
+    }, 4000);
+  };
+
+  // Subscription Cancellation Flow attributes (Module 4)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
+
+  const handleCancelSubscription = async () => {
+    setIsCanceling(true);
+    try {
+      const res = await fetch('/api/billing/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(data.message || 'Subscription scheduled for cancellation.', 'success');
+        onUpdateSession();
+      } else {
+        showToast(data.error || 'Failed to cancel subscription.', 'error');
+      }
+    } catch (e) {
+      showToast('Network error during cancellation request.', 'error');
+    } finally {
+      setIsCanceling(false);
+      setShowCancelConfirm(false);
+    }
+  };
+
   // Link for copy
   const referralLink = typeof window !== 'undefined' 
-    ? `${window.location.origin}/?ref=${session?.custom_referral_code || 'SLAYERX'}` 
-    : `/?ref=${session?.custom_referral_code || 'SLAYERX'}`;
+    ? `${window.location.origin}/join/${session?.custom_referral_code || 'SLAYERX'}` 
+    : `/join/${session?.custom_referral_code || 'SLAYERX'}`;
 
-  const handleSaveSettings = async (font: 'STANDARD' | 'ENHANCED', compact: boolean, theme: string) => {
+  const handleSaveSettings = async (font: 'STANDARD' | 'ENHANCED' | 'ENHANCED_XL', compact: boolean, theme: string) => {
     setIsUpdating(true);
     try {
-      const res = await fetch('/api/settings/update', {
-        method: 'POST',
+      const res = await fetch('/api/users/preferences', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           selected_font_scale: font,
@@ -50,11 +192,290 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
 
       if (res.ok) {
         onUpdateSession();
+        showToast('Display preferences saved and synchronized.');
+      } else {
+        showToast('Failed to save display preferences.', 'error');
       }
     } catch (e) {
       console.error('Failed to update Settings parameters', e);
+      showToast('Backend connection error.', 'error');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  useEffect(() => {
+    if (session) {
+      if (session.notification_preferences) {
+        setNotifPreferences({
+          email_enabled: session.notification_preferences.email_enabled ?? true,
+          sms_enabled: session.notification_preferences.sms_enabled ?? true,
+          discord_enabled: session.notification_preferences.discord_enabled ?? true,
+          options_flow_alerts: session.notification_preferences.options_flow_alerts ?? true,
+        });
+      }
+      if (session.profile_visibility) {
+        setProfileVisibility(session.profile_visibility);
+      }
+      if (session.block_search_indexing !== undefined) {
+        setBlockSearchIndexing(session.block_search_indexing);
+      }
+    }
+  }, [session]);
+
+  // Dynamically inject/remove meta robots tags to block search engines
+  useEffect(() => {
+    let metaTag = document.querySelector('meta[name="robots"]');
+    if (blockSearchIndexing) {
+      if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.setAttribute('name', 'robots');
+        metaTag.setAttribute('content', 'noindex, nofollow');
+        document.head.appendChild(metaTag);
+        console.log('[SEO COMPLIANCE] Injected <meta name="robots" content="noindex, nofollow"> to block search indexing.');
+      }
+    } else {
+      if (metaTag) {
+        metaTag.remove();
+        console.log('[SEO COMPLIANCE] Restored search engine indexing.');
+      }
+    }
+  }, [blockSearchIndexing]);
+
+  const handleUpdatePrivacySettings = async (updates: {
+    notification_preferences?: typeof notifPreferences;
+    profile_visibility?: typeof profileVisibility;
+    block_search_indexing?: boolean;
+  }) => {
+    setIsPatchingPrivacy(true);
+    try {
+      const res = await fetch('/api/users/preferences', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (res.ok) {
+        onUpdateSession();
+        showToast('Privacy updates saved successfully.');
+      } else {
+        const d = await res.json();
+        showToast(d.error || 'Server rejected privacy updates.', 'error');
+      }
+    } catch (e) {
+      showToast('Error syncing privacy settings.', 'error');
+    } finally {
+      setIsPatchingPrivacy(false);
+    }
+  };
+
+  const triggerGdprExport = async () => {
+    setIsExporting(true);
+    setExportProgress(10);
+    setExportDownloadUrl('');
+    setExportExpiresAt(null);
+    setExportEmailLog('');
+
+    const interval = setInterval(() => {
+      setExportProgress((p) => {
+        if (p >= 90) {
+          clearInterval(interval);
+          return 90;
+        }
+        return p + 20;
+      });
+    }, 200);
+
+    try {
+      const res = await fetch('/api/users/export-data', { method: 'POST' });
+      clearInterval(interval);
+      setExportProgress(100);
+
+      const data = await res.json();
+      if (res.ok) {
+        setExportDownloadUrl(data.downloadUrl);
+        setExportExpiresAt(data.expiresAt);
+        setExportEmailLog(data.simulatedEmailLogs);
+        showToast('GDPR record archive built successfully.', 'success');
+      } else {
+        showToast(data.error || 'Failed to trigger GDPR export.', 'error');
+      }
+    } catch (err) {
+      clearInterval(interval);
+      showToast('Export compilation interrupted.', 'error');
+    } finally {
+      setTimeout(() => {
+        setIsExporting(false);
+        setExportProgress(0);
+      }, 800);
+    }
+  };
+
+  const fetchSessions = async () => {
+    try {
+      const res = await fetch('/api/auth/sessions');
+      if (res.ok) {
+        const data = await res.json();
+        setSessions(data.sessions || []);
+      }
+    } catch (e) {
+      console.error('Error fetching sessions list:', e);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'security') {
+      fetchSessions();
+    }
+  }, [activeTab]);
+
+  const handleRevokeAllSessions = async () => {
+    try {
+      const res = await fetch('/api/auth/revoke-sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (res.ok) {
+        showToast('All secondary sessions successfully terminated.');
+        await fetchSessions();
+        // Force hard reload as mandated for direct SSO JWT/cookie clearing sync
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
+      } else {
+        showToast('Encountered issue revoking secondary endpoints.', 'error');
+      }
+    } catch (e) {
+      showToast('Network timeout during session revocation.', 'error');
+    }
+  };
+
+  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwError('');
+    setPwSuccess('');
+    if (!currentPassword || !newPassword) {
+      setPwError('Please fill in both credential fields.');
+      return;
+    }
+    
+    // Front-end pre-validating password parameters
+    if (newPassword.length < 8) {
+      setPwError('Password must be at least 8 characters long.');
+      return;
+    }
+    if (!/[A-Z]/.test(newPassword)) {
+      setPwError('Password must contain at least one uppercase letter (A-Z).');
+      return;
+    }
+    if (!/[0-9]/.test(newPassword)) {
+      setPwError('Password must contain at least one digit (0-9).');
+      return;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+      setPwError('Password must contain at least one special character (!@#$%^&* etc.).');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPwError(data.error || 'Password update refused by server check.');
+      } else {
+        setPwSuccess('Vault security key updated and rehashed successfully.');
+        setCurrentPassword('');
+        setNewPassword('');
+        showToast('Password updated.');
+      }
+    } catch (err) {
+      setPwError('Server connection timeout. Please verify backend status.');
+    }
+  };
+
+  const handleEmailUpdateRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError('');
+    setEmailSuccess('');
+    if (!newEmail || !newEmail.includes('@')) {
+      setEmailError('Please specify a valid email syntax.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/auth/request-email-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newEmail })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setEmailError(data.error || 'Failed to dispatch email verification.');
+      } else {
+        setOtpSent(true);
+        if (data.otpCode) {
+          setSimulatedOtp(data.otpCode);
+        }
+        setEmailSuccess('Two-step Verification OTP dispatched successfully.');
+        showToast('OTP code issued.');
+      }
+    } catch (err) {
+      setEmailError('Communication error trying to request email transition.');
+    }
+  };
+
+  const handleEmailUpdateVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError('');
+    setEmailSuccess('');
+    if (!emailOtp) {
+      setEmailError('6-digit OTP code required.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/auth/verify-email-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: emailOtp })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setEmailError(data.error || 'OTP verification digit mismatch.');
+      } else {
+        setEmailSuccess('Primary account email updated successfully!');
+        setOtpSent(false);
+        setNewEmail('');
+        setEmailOtp('');
+        setSimulatedOtp('');
+        onUpdateSession();
+        showToast('Email verified and updated.');
+      }
+    } catch (err) {
+      setEmailError('Network error during primary security confirmation.');
+    }
+  };
+
+  const handleSoftDeleteAccount = async () => {
+    setDeleteError('');
+    try {
+      const res = await fetch('/api/users/delete-account', {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setDeleteError(data.error || 'Failed to trigger deactivation flow.');
+      } else {
+        showToast('Vault deactivated. Logging out...', 'success');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1500);
+      }
+    } catch (err) {
+      setDeleteError('Connection error attempting to request GDPR soft delete.');
     }
   };
 
@@ -86,239 +507,1008 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
     setTimeout(() => setReferralCopied(false), 2000);
   };
 
+  const tabs = [
+    { id: 'profile', label: 'Public Profile', icon: User },
+    { id: 'security', label: 'Account & Security', icon: Lock },
+    { id: 'privacy', label: 'Privacy & Alerts', icon: ShieldAlert },
+    { id: 'preferences', label: 'Preferences', icon: Settings },
+    { id: 'keybinds', label: 'Keyboard Shortcuts', icon: Type },
+    { id: 'referrals', label: 'Referrals', icon: Coins },
+    { id: 'billing', label: 'Billing', icon: Receipt },
+  ] as const;
+
   return (
-    <div id="slayer-settings-panel" className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 text-left font-mono">
+    <div id="slayer-settings-panel" className="w-full flex flex-col md:flex-row gap-8 text-left font-sans max-w-[800px] mx-auto">
       
-      {/* Col 1-7: Appearance settings */}
-      <div className="lg:col-span-7 space-y-6">
-        
-        {/* Module 6: Appearance customization option box */}
-        <div className="bg-[#0a0a0c] border border-zinc-900 rounded-xl p-6 space-y-5 relative">
-          <div className="absolute top-0 right-0 p-3 text-[8.5px] text-zinc-600 font-bold uppercase tracking-widest">
-            Module-06 Panel
-          </div>
+      {/* Sidebar Navigation */}
+      <div className="w-full md:w-56 shrink-0 space-y-1">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
+                isActive 
+                  ? 'bg-zinc-900 text-white border border-zinc-800' 
+                  : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50 border border-transparent'
+              }`}
+            >
+              <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-zinc-500'}`} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
-          <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
-            <Settings className="w-5 h-5 text-indigo-400" />
-            <h2 className="text-sm font-sans font-black tracking-tight text-white uppercase">
-              Terminal Workstation Personalization
-            </h2>
+      {/* Content Area */}
+      <div className="flex-1 max-w-[800px]">
+        {activeTab === 'profile' && (
+          <div className="space-y-6 animate-fadeIn">
+            <UserProfile session={session} onUpdateSession={onUpdateSession} />
           </div>
+        )}
 
-          {/* Option A: Font Size Scaling (STANDARD vs ENHANCED) */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-[10px] uppercase font-black text-white tracking-widest">
-              <Type className="w-3.5 h-3.5 text-zinc-550 shrink-0" />
-              <span>Global Typography Profile</span>
-            </div>
-            <p className="text-[9px] text-[#8e8e93] leading-normal uppercase">
-              Configure system terminal font scale. Enhanced scaling optimizes readability on massive high-pixel monitors.
-            </p>
+        {activeTab === 'security' && (
+          <div className="space-y-6 animate-fadeIn pb-12">
             
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              <button
-                onClick={() => {
-                  setSelectedFont('STANDARD');
-                  handleSaveSettings('STANDARD', compactMode, activeTheme);
-                }}
-                className={`py-2 px-3 border text-[10px] uppercase font-black tracking-widest rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                  selectedFont === 'STANDARD'
-                    ? 'bg-zinc-900 border-indigo-500 text-white shadow-md'
-                    : 'bg-black border-zinc-900 text-zinc-500 hover:text-white'
-                }`}
-              >
-                <span>◌ Standard Size</span>
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedFont('ENHANCED');
-                  handleSaveSettings('ENHANCED', compactMode, activeTheme);
-                }}
-                className={`py-2 px-3 border text-[10px] uppercase font-black tracking-widest rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                  selectedFont === 'ENHANCED'
-                    ? 'bg-zinc-900 border-indigo-500 text-white shadow-md'
-                    : 'bg-black border-zinc-900 text-zinc-500 hover:text-white'
-                }`}
-              >
-                <span>◈ Enhanced Scale (+8%)</span>
-              </button>
+            {/* MFA Container */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+                <Lock className="w-5 h-5 text-indigo-400" />
+                <h2 className="text-lg font-black tracking-tight text-white uppercase">Account Vault & Identity</h2>
+              </div>
+              <p className="text-xs text-zinc-400">Manage multi-factor keys, credential handshakes, and GDPR data locks.</p>
+              
+              <TwoFactorFlow />
             </div>
-          </div>
 
-          {/* Option B: Compact rows spacing density (denser row rendering overlay) */}
-          <div className="pt-2 border-t border-zinc-900/60 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-[10px] uppercase font-black text-white tracking-widest">
-                <Eye className="w-3.5 h-3.5 text-zinc-550 shrink-0" />
-                <span>Station Spacing Density</span>
+            {/* Email Transition Container */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-indigo-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 19.5h18M3 4.5h18M3 9.5h18M3 14.5h18" /></svg>
+                <h2 className="text-sm font-bold tracking-wider text-white uppercase">Primary Email & Two-Step OTP</h2>
               </div>
               
-              <label className="relative inline-flex items-center cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={compactMode}
-                  onChange={(e) => {
-                    const newVal = e.target.checked;
-                    setCompactMode(newVal);
-                    handleSaveSettings(selectedFont, newVal, activeTheme);
-                  }}
-                  className="sr-only peer"
-                />
-                <div className="w-9 h-5 bg-zinc-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-550 after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:bg-zinc-950 peer-checked:bg-indigo-600 peer-checked:after:bg-white" />
-              </label>
+              <div className="space-y-3">
+                <div className="text-xs text-zinc-500">
+                  Changing your registered primary email requires verification. A safety transition log is also compiled, firing a security warning message to your retired address.
+                </div>
+
+                <div className="bg-zinc-900/30 border border-zinc-900 p-3 rounded-lg text-xs">
+                  <div className="text-zinc-500 font-bold mb-0.5 uppercase tracking-wide">Current Email</div>
+                  <div className="text-zinc-300 font-mono font-bold">{session?.email || 'N/A'}</div>
+                </div>
+
+                {emailError && <div className="text-xs font-bold text-rose-500 p-2 bg-rose-950/20 rounded-md border border-rose-900/30">{emailError}</div>}
+                {emailSuccess && <div className="text-xs font-bold text-emerald-400 p-2 bg-emerald-950/20 rounded-md border border-emerald-900/30">{emailSuccess}</div>}
+
+                {otpSent ? (
+                  <form onSubmit={handleEmailUpdateVerify} className="space-y-3 animate-fadeIn">
+                    <div className="p-3 bg-indigo-950/20 border border-indigo-900/40 rounded-lg text-xs space-y-2">
+                      <div className="font-bold text-indigo-300">🔓 Sandbox Verification Dispatcher:</div>
+                      <p className="text-zinc-400">Because you are in the Sandbox preview, you can read the 6-digit verification code below:</p>
+                      <div className="font-mono text-sm font-bold text-emerald-400 bg-black/50 px-2 py-1 rounded w-fit select-all border border-emerald-950">
+                        {simulatedOtp}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Type Verification Code (OTP)</label>
+                      <input 
+                        type="text"
+                        placeholder="000000"
+                        maxLength={6}
+                        value={emailOtp}
+                        onChange={e => setEmailOtp(e.target.value.replace(/\D/g, ''))}
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-center text-sm font-mono tracking-widest text-white focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-3 pt-1">
+                      <button 
+                        type="button" 
+                        onClick={() => { setOtpSent(false); setEmailOtp(''); }} 
+                        className="px-3 py-1.5 text-xs text-zinc-500 hover:text-white cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit"
+                        className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors"
+                      >
+                        Verify & Commit Update
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <form onSubmit={handleEmailUpdateRequest} className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Requested New Email Address</label>
+                      <input 
+                        type="email"
+                        placeholder="newemailaddress@trade.com"
+                        value={newEmail}
+                        onChange={e => setNewEmail(e.target.value)}
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <button 
+                        type="submit"
+                        className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors"
+                      >
+                        Request Transition OTP
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
             </div>
-            <p className="text-[9px] text-[#8e8e93] leading-normal uppercase">
-              Toggle Compact View mode. Restructures vertical list paddings, layout metrics, and grid density for extreme information bandwidth.
-            </p>
-          </div>
 
-          {/* Option C: Background Theme custom drop-down selection */}
-          <div className="pt-2 border-t border-zinc-900/60 space-y-2">
-            <div className="flex items-center gap-2 text-[10px] uppercase font-black text-white tracking-widest">
-              <Palette className="w-3.5 h-3.5 text-zinc-550 shrink-0" />
-              <span>Institutional Theme Layer</span>
+            {/* Password Mutation Container */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-indigo-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" /></svg>
+                <h2 className="text-sm font-bold tracking-wider text-white uppercase">Reset Account Password</h2>
+              </div>
+              
+              <form onSubmit={handleChangePasswordSubmit} className="space-y-4">
+                {pwError && <div className="text-xs font-bold text-rose-500 p-2 bg-rose-950/20 rounded-md border border-rose-900/30">{pwError}</div>}
+                {pwSuccess && <div className="text-xs font-bold text-emerald-400 p-2 bg-emerald-950/20 rounded-md border border-emerald-900/30">{pwSuccess}</div>}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Current Password</label>
+                    <input 
+                      type="password"
+                      placeholder="••••••••••••"
+                      value={currentPassword}
+                      onChange={e => setCurrentPassword(e.target.value)}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">New Password</label>
+                    <input 
+                      type="password"
+                      placeholder="••••••••••••"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="text-[10px] text-zinc-500 space-y-1 leading-normal list-disc pl-3">
+                  <div>• Password must be at least 8 characters.</div>
+                  <div>• Must contain at least one UPPERCASE letter.</div>
+                  <div>• Must contain at least one digit (0-9) and one special punctuation mark.</div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button 
+                    type="submit"
+                    className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors"
+                  >
+                    Update Vault Password
+                  </button>
+                </div>
+              </form>
             </div>
-            <p className="text-[9px] text-[#8e8e93] leading-normal uppercase mb-2">
-              Alters background containment fields and surface panels colors. Core execute labels and indicator marker colors are permanently frozen!
-            </p>
 
-            <select
-              value={activeTheme}
-              onChange={(e) => {
-                const newVal = e.target.value;
-                setActiveTheme(newVal);
-                handleSaveSettings(selectedFont, compactMode, newVal);
-              }}
-              className="w-full bg-black border border-zinc-900 text-white rounded-lg p-3 text-xs focus:outline-none focus:border-zinc-700 transition-colors uppercase font-mono cursor-pointer"
-            >
-              <option value="SLAYER PURE DARK">SLAYER PURE DARK (Pitch Black)</option>
-              <option value="DEALER FLOW SLATE">DEALER FLOW SLATE (Navy Matte)</option>
-              <option value="VOLATILITY RADAR">VOLATILITY RADAR (Low-Light Night Violet)</option>
-              <option value="CARBON MONITOR MATTE">CARBON MONITOR MATTE (Industrial Charcoal)</option>
-            </select>
+            {/* Active Sessions & SSO Container */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg animate-fadeIn">
+              <div className="flex items-center justify-between border-b border-zinc-900 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-indigo-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" /></svg>
+                  <h2 className="text-sm font-bold tracking-wider text-white uppercase">Active Sessions & SSO Logs</h2>
+                </div>
+                <button 
+                  onClick={handleRevokeAllSessions}
+                  type="button"
+                  className="px-3 py-1 bg-rose-600/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 text-rose-400 hover:text-white text-[11px] font-bold rounded-lg cursor-pointer transition-all"
+                >
+                  Log Out All Devices (SSO Revoke)
+                </button>
+              </div>
+              <p className="text-xs text-zinc-400 leading-normal">
+                These correspond to active clients having access to Skyseye. Security state termination deletes session signatures immediately.
+              </p>
+
+              <div className="divide-y divide-zinc-900/80 bg-zinc-950/40 border border-zinc-900 rounded-xl overflow-hidden">
+                {sessions.length === 0 ? (
+                  <div className="p-4 text-xs text-center text-zinc-500 font-mono">No active sessions located.</div>
+                ) : (
+                  sessions.map((sess, idx) => (
+                    <div key={idx} className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white font-mono">{sess.ip_address}</span>
+                          {sess.is_current ? (
+                            <span className="px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-bold text-[9px] rounded-full uppercase tracking-wider">
+                              Current Connection
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold text-[9px] rounded-full uppercase tracking-wider">
+                              Active Node
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[10px] text-zinc-500 truncate max-w-[300px] sm:max-w-md font-mono" title={sess.user_agent}>
+                          {sess.user_agent}
+                        </div>
+                        <div className="text-[10px] text-zinc-400 font-mono">
+                          Created: {new Date(sess.created_at).toLocaleString()} | Activity: {new Date(sess.last_active).toLocaleTimeString()}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* GDPR Deactivation & Account Purge Container */}
+            <div className="bg-rose-950/10 border border-rose-500/20 rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-rose-500/20 pb-3">
+                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-rose-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <h2 className="text-sm font-bold tracking-wider text-rose-400 uppercase">GDPR Data Purge & Account Exit</h2>
+              </div>
+              <p className="text-xs text-zinc-400 leading-normal">
+                Under EU GDPR privacy rules, requesting account removal sets a Soft Delete token (<span className="font-mono text-indigo-400">deleted_at = NOW()</span>). You will be logged out of active dashboards immediately, and automatic background cleanup workers permanently wipe database states after 30 days.
+              </p>
+
+              {deleteError && <div className="text-xs font-bold text-rose-500 p-2 bg-rose-950/20 rounded-md border border-rose-900/30">{deleteError}</div>}
+
+              {showDeleteConfirm ? (
+                <div className="p-4 bg-zinc-950 border border-rose-500/30 rounded-lg space-y-3 animate-fadeIn">
+                  <div className="text-xs text-zinc-300 font-bold">⚠️ CRITICAL: Are you absolutely sure?</div>
+                  <p className="text-[11px] text-zinc-500">
+                    This will immediately deactivate your username handles, API authorization key credentials, and option flow access. Action is irreversible after 30 days.
+                  </p>
+                  <div className="flex gap-3 justify-end">
+                    <button 
+                      onClick={() => setShowDeleteConfirm(false)}
+                      className="px-3 py-1.5 text-xs text-zinc-400 hover:text-white cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={handleSoftDeleteAccount}
+                      className="px-4 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors"
+                    >
+                      Confirm Permanent Deactivation Lockout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="px-4 py-2 bg-rose-600/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 text-rose-400 hover:text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
+                >
+                  Request GDPR Deletion Lockout
+                </button>
+              )}
+            </div>
+
           </div>
-        </div>
+        )}
 
-        {/* Informational notification */}
-        <div className="p-4 bg-zinc-950/40 border border-zinc-900 text-[10px] rounded-xl font-mono uppercase text-[#a1a1aa] leading-relaxed flex gap-3">
-          <ShieldAlert className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-          <span>
-            Strict System Lock: Changing themes only shifts parent-level backdrops. Directives mandate that all key visual execution marks, heat maps, and status flags (GEX columns, Buy/Wait, <span className="text-zinc-300 font-bold">HOLDING</span>, <span className="text-zinc-300 font-bold">TESTING</span>, <span className="text-zinc-300 font-bold">FAILING</span> labels) must never shift hues.
-          </span>
-        </div>
-      </div>
+        {activeTab === 'privacy' && (
+          <div className="space-y-6 animate-fadeIn pb-12">
+            
+            {/* Header Description Card */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+                <ShieldAlert className="w-5 h-5 text-indigo-400" />
+                <h2 className="text-sm font-bold tracking-wider text-white uppercase">Privacy Safeguards & Notification Vault</h2>
+              </div>
+              <p className="text-xs text-zinc-400 leading-normal">
+                Determine who can trace your profile footprint, toggle direct Twilio SMS carrier alerts, and trigger GDPR compliance data portability archives.
+              </p>
+            </div>
 
-      {/* Col 8-12: Referrals Token discount vault & Invoice simulation */}
-      <div className="lg:col-span-5 space-y-6">
-        
-        {/* Module 5: Referrals token stats */}
-        <div className="bg-[#0a0a0c] border border-zinc-900 rounded-xl p-6 space-y-5 relative">
-          <div className="absolute top-0 right-0 p-3 text-[8.5px] text-zinc-650 font-bold uppercase tracking-widest">
-            Module-05 Engine
+            {/* Notification preferences JSONB manager */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-5 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-indigo-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <h2 className="text-xs font-bold tracking-wider text-white uppercase">Notification Preference Matrix (JSONB)</h2>
+              </div>
+              <p className="text-xs text-zinc-500">
+                Backend workers must query these configurations directly before triggering or sending any live external updates.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900 flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-bold text-white">TLS Email Transmissions</div>
+                    <div className="text-[10px] text-zinc-500">Enable secure email alert dispatch</div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input 
+                      type="checkbox"
+                      checked={notifPreferences.email_enabled}
+                      disabled={isPatchingPrivacy}
+                      onChange={(e) => {
+                        const next = { ...notifPreferences, email_enabled: e.target.checked };
+                        setNotifPreferences(next);
+                        handleUpdatePrivacySettings({ notification_preferences: next });
+                      }}
+                      className="peer sr-only"
+                    />
+                    <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                  </label>
+                </div>
+
+                <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900 flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-bold text-white">Twilio SMS Shortcode alerts</div>
+                    <div className="text-[10px] text-zinc-500">Route real-time spot alerts to device</div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input 
+                      type="checkbox"
+                      checked={notifPreferences.sms_enabled}
+                      disabled={isPatchingPrivacy}
+                      onChange={(e) => {
+                        const next = { ...notifPreferences, sms_enabled: e.target.checked };
+                        setNotifPreferences(next);
+                        handleUpdatePrivacySettings({ notification_preferences: next });
+                      }}
+                      className="peer sr-only"
+                    />
+                    <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                  </label>
+                </div>
+
+                <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900 flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-bold text-white">Discord Webhook Feeds</div>
+                    <div className="text-[10px] text-zinc-500">Post sweeps directly to server webhooks</div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input 
+                      type="checkbox"
+                      checked={notifPreferences.discord_enabled}
+                      disabled={isPatchingPrivacy}
+                      onChange={(e) => {
+                        const next = { ...notifPreferences, discord_enabled: e.target.checked };
+                        setNotifPreferences(next);
+                        handleUpdatePrivacySettings({ notification_preferences: next });
+                      }}
+                      className="peer sr-only"
+                    />
+                    <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                  </label>
+                </div>
+
+                <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900 flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-bold text-white">Expected Move Alerts</div>
+                    <div className="text-[10px] text-zinc-500">Trigger on high GEX deviation parameters</div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input 
+                      type="checkbox"
+                      checked={notifPreferences.options_flow_alerts}
+                      disabled={isPatchingPrivacy}
+                      onChange={(e) => {
+                        const next = { ...notifPreferences, options_flow_alerts: e.target.checked };
+                        setNotifPreferences(next);
+                        handleUpdatePrivacySettings({ notification_preferences: next });
+                      }}
+                      className="peer sr-only"
+                    />
+                    <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Visibility Enums & Search Indexing */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-indigo-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                <h2 className="text-xs font-bold tracking-wider text-white uppercase">Profile Trace Matrix & Crawler Indexing</h2>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-white block">Profile Visibility Setting</span>
+                  <p className="text-[11px] text-zinc-500 leading-normal">Middleware guards search criteria strictly matching this cryptographic enum state before returning database metrics.</p>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-sans">
+                    {[
+                      { value: 'public', label: 'Public (Everyone)', desc: 'Unchecked global access' },
+                      { value: 'logged_in', label: 'Subscribers Only', desc: 'SSO log-in authentication' },
+                      { value: 'private', label: 'Private (Owner)', desc: 'Strict owner only verification' }
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setProfileVisibility(opt.value as any);
+                          handleUpdatePrivacySettings({ profile_visibility: opt.value as any });
+                        }}
+                        className={`p-3 rounded-lg border text-left cursor-pointer transition-all ${
+                          profileVisibility === opt.value
+                            ? 'bg-indigo-600/10 border-indigo-500 text-white shadow-md'
+                            : 'bg-zinc-950/20 border-zinc-900 text-zinc-450 hover:text-white'
+                        }`}
+                      >
+                        <div className="text-xs font-bold">{opt.label}</div>
+                        <div className="text-[9px] text-zinc-500 mt-0.5 leading-tight">{opt.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-zinc-900/60 flex items-center justify-between">
+                  <div className="max-w-[80%]">
+                    <span className="text-xs font-bold text-white block">Restrict Search Engine Indexing</span>
+                    <p className="text-[11px] text-zinc-500 leading-normal">
+                      Toggle to inject <code className="font-mono text-indigo-400">&lt;meta name="robots" content="noindex, nofollow"&gt;</code> into the public profile routes. Instructs Google and Bing crawler nodes to bypass parsing user options records.
+                    </p>
+                  </div>
+                  
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input 
+                      type="checkbox"
+                      checked={blockSearchIndexing}
+                      disabled={isPatchingPrivacy}
+                      onChange={(e) => {
+                        setBlockSearchIndexing(e.target.checked);
+                        handleUpdatePrivacySettings({ block_search_indexing: e.target.checked });
+                      }}
+                      className="peer sr-only"
+                    />
+                    <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* GDPR Compliance Data Export (S3 Storage) */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+                <FolderSync className="w-5 h-5 text-indigo-400 font-bold" />
+                <h2 className="text-xs font-bold tracking-wider text-white uppercase">GDPR Article 20 Data Portability (S3 Secure Vault)</h2>
+              </div>
+              <p className="text-xs text-zinc-400 leading-normal">
+                Trigger our compliance background worker to compile all account logs, session logs, options-trading preferences, and payment logs into a single downloadable package. In accordance with GDPR standards, archives are stored in encrypted S3 compartments and expire permanently after 24 hours.
+              </p>
+
+              {isExporting ? (
+                <div className="space-y-2 animate-fadeIn pt-1">
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-zinc-400">Aggregating and Packaging Archive...</span>
+                    <span className="text-indigo-400 font-bold">{exportProgress}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-950 h-2 rounded overflow-hidden border border-zinc-900">
+                    <div className="bg-indigo-600 h-full transition-all duration-300" style={{ width: `${exportProgress}%` }}></div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-end pt-1">
+                  <button 
+                    type="button"
+                    onClick={triggerGdprExport}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors shadow-lg"
+                  >
+                    Compile & Export Data Portability Package
+                  </button>
+                </div>
+              )}
+
+              {/* Download Container */}
+              {exportDownloadUrl && (
+                <div className="mt-4 p-4 bg-zinc-950/60 border border-indigo-900/40 rounded-xl space-y-3 animate-fadeIn">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                    <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                    <span>Secure GDPR Cryptographic Archive Staged Successfully</span>
+                  </div>
+                  
+                  <div className="text-[11px] text-zinc-500 leading-normal space-y-1">
+                    <div>• <strong>Storage Destination</strong>: S3 Secured Compartment (<code className="font-mono text-zinc-400">aws-eu-central-1-skyseye-gdpr-temp</code>)</div>
+                    <div>• <strong>Access Expiration</strong>: {exportExpiresAt ? new Date(exportExpiresAt).toLocaleString() : '24 hours'}</div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                    <a
+                      href={exportDownloadUrl}
+                      download
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-2"
+                    >
+                      <span>⬇️ Download GDPR Export Package</span>
+                    </a>
+                    
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const link = window.location.origin + exportDownloadUrl;
+                        navigator.clipboard.writeText(link);
+                        showToast("GDPR direct download URL copied.");
+                      }}
+                      className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold border border-zinc-800 text-xs rounded-lg cursor-pointer transition-colors"
+                    >
+                      Copy Direct File URL
+                    </button>
+                  </div>
+
+                  {exportEmailLog && (
+                    <div className="bg-indigo-950/20 border border-indigo-900/30 p-3 rounded-lg text-[10px] space-y-1 font-mono">
+                      <div className="font-bold text-indigo-300">📧 Sandbox TLS Email Alert Sent Log:</div>
+                      <p className="text-zinc-500">{exportEmailLog}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
           </div>
+        )}
 
-          <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
-            <Coins className="w-5 h-5 text-emerald-400" />
-            <h2 className="text-sm font-sans font-black tracking-tight text-white uppercase">
-              Referral Rewards Token Pool
-            </h2>
-          </div>
+        {activeTab === 'preferences' && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* Module 6: Appearance customization option box */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-5 relative shadow-lg">
+              <div className="absolute top-0 right-0 p-3 text-[10px] text-zinc-600 font-bold uppercase tracking-widest font-mono">
+                System Display
+              </div>
 
-          {/* Referral Token Pool Dashboard metrics */}
-          <div className="grid grid-cols-2 gap-3 bg-black/40 border border-zinc-950 rounded-xl p-4 text-center">
-            <div className="space-y-1">
-              <span className="text-[8px] text-zinc-500 uppercase font-black block tracking-widest">YOUR TOKENS</span>
-              <span className="text-2xl font-black text-emerald-400 font-mono block drop-shadow-[0_0_8px_rgba(16,185,129,0.2)]">
-                {session?.referral_tokens_pool || 0}
+              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+                <Settings className="w-5 h-5 text-indigo-400" />
+                <h2 className="text-lg font-black tracking-tight text-white">
+                  Display Preferences
+                </h2>
+              </div>
+
+              {/* Option A: Font Size Scaling (STANDARD vs ENHANCED) */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-bold text-white">
+                  <Type className="w-4 h-4 text-zinc-550 shrink-0" />
+                  <span>Text Size</span>
+                </div>
+                <p className="text-xs text-[#8e8e93] leading-relaxed">
+                  Configure system terminal font scale. Enhanced scaling optimizes readability on massive high-pixel monitors.
+                </p>
+                
+                <div className="mt-2">
+                  <select
+                    value={selectedFont}
+                    onChange={(e) => {
+                      const newVal = e.target.value as 'STANDARD' | 'ENHANCED' | 'ENHANCED_XL';
+                      setSelectedFont(newVal);
+                      handleSaveSettings(newVal, compactMode, activeTheme);
+                    }}
+                    className="w-full bg-black border border-zinc-900 text-white rounded-lg p-3 text-sm focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer appearance-none"
+                  >
+                    <option value="STANDARD">Standard</option>
+                    <option value="ENHANCED">Large</option>
+                    <option value="ENHANCED_XL">Extra Large</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Option B: Compact rows spacing density (denser row rendering overlay) */}
+              <div className="pt-4 border-t border-zinc-900/60 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-bold text-white">
+                    <Eye className="w-4 h-4 text-zinc-550 shrink-0" />
+                    <span>Compact View</span>
+                  </div>
+                  
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={compactMode}
+                      onChange={(e) => {
+                        const newVal = e.target.checked;
+                        setCompactMode(newVal);
+                        handleSaveSettings(selectedFont, newVal, activeTheme);
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-zinc-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-550 after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:bg-zinc-950 peer-checked:bg-indigo-600 peer-checked:after:bg-white" />
+                  </label>
+                </div>
+                <p className="text-xs text-[#8e8e93] leading-relaxed">
+                  Toggle Compact View mode. Restructures vertical list paddings, layout metrics, and grid density for extreme information bandwidth.
+                </p>
+              </div>
+
+              {/* Option C: Background Theme custom drop-down selection */}
+              <div className="pt-4 border-t border-zinc-900/60 space-y-2">
+                <div className="flex items-center gap-2 text-sm font-bold text-white">
+                  <Palette className="w-4 h-4 text-zinc-550 shrink-0" />
+                  <span>Interface Theme</span>
+                </div>
+                <p className="text-xs text-[#8e8e93] leading-relaxed mb-3">
+                  Alters background containment fields and surface panels colors.
+                </p>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                  {[
+                    { id: 'dark', name: 'Dark Mode', color: '#18181b', border: '#27272a' },
+                    { id: 'mocha', name: 'Mocha', color: '#2B211E', border: '#5C4A42' },
+                    { id: 'purple', name: 'Deep Purple', color: '#1A0B2E', border: '#4A3076' },
+                    { id: 'pink', name: 'Soft Pink', color: '#FFF0F5', border: '#F0D0DF', text: '#4A2B3D' },
+                    { id: 'abyss', name: 'OLED Abyss', color: '#000000', border: '#27272A' },
+                    { id: 'slate', name: 'Midnight Slate', color: '#0B1120', border: '#334155' },
+                    { id: 'phantom', name: 'Phantom Radial', color: '#1C1C22', border: '#27272A' },
+                    { id: 'grid', name: 'Data Grid', color: '#09090B', border: '#27272A' }
+                  ].map(theme => (
+                    <div
+                      key={theme.id}
+                      onClick={() => {
+                        setActiveTheme(theme.id);
+                        localStorage.setItem('slayer_theme', theme.id);
+                        document.documentElement.setAttribute('data-theme', theme.id);
+                        handleSaveSettings(selectedFont, compactMode, theme.id);
+                      }}
+                      className={`relative p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                        activeTheme === theme.id ? 'border-indigo-500 transform scale-105 shadow-lg' : 'border-zinc-800/60 hover:border-zinc-700'
+                      }`}
+                      style={{ backgroundColor: theme.color, borderColor: activeTheme === theme.id ? undefined : theme.border }}
+                    >
+                      <div className="h-12 rounded bg-white/5 mb-2 border border-white/10" />
+                      <div 
+                        className="text-[10px] font-bold text-center uppercase tracking-widest whitespace-nowrap overflow-hidden text-ellipsis"
+                        style={{ color: theme.text || '#fff' }}
+                      >
+                        {theme.name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Informational notification */}
+            <div className="p-4 bg-zinc-950/40 border border-zinc-900 text-[11px] rounded-xl text-[#a1a1aa] leading-relaxed flex gap-3">
+              <ShieldAlert className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <span>
+                <b>Strict System Lock:</b> Changing themes shifts parent-level backdrops and site colors seamlessly. All key visual execution marks, heat maps, and status flags maintain their crucial hues for data legibility.
               </span>
-              <span className="text-[7.5px] text-zinc-600 block uppercase font-mono">1 Token = 10% Off</span>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'keybinds' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-5 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+                <Type className="w-5 h-5 text-indigo-400" />
+                <h2 className="text-lg font-black tracking-tight text-white">Keyboard Shortcuts & Hotkeys</h2>
+              </div>
+              <div className="flex justify-between items-start border-b border-zinc-900 pb-4 mb-4">
+                <p className="text-sm text-zinc-400 max-w-md">
+                  Customize quick-access keybinds for global menu toggles and workspace switching. These bindings work universally across macOS (Command) and Windows (Ctrl).
+                </p>
+                
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center gap-3 bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-zinc-800">
+                    <span className="text-xs font-bold text-zinc-300">Enable All Shortcuts</span>
+                    <button
+                      onClick={() => setGlobalKeybindsEnabled(!globalKeybindsEnabled)}
+                      className={`relative w-10 h-5 rounded-full transition-colors ${globalKeybindsEnabled ? 'bg-indigo-500' : 'bg-zinc-700'}`}
+                    >
+                      <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${globalKeybindsEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const defaults = {
+                        home: 'shift+h',
+                        skyvision: 'shift+s',
+                        pinpoint: 'shift+p',
+                        auditor: 'shift+a',
+                        dealerflow: 'shift+d',
+                        arbor: 'shift+r',
+                        settings: 'shift+o',
+                        prismMenu: 'cmd+k',
+                      };
+                      useContractStore.getState().setKeybinds(defaults);
+                      useContractStore.getState().setDisabledKeybinds({});
+                      setGlobalKeybindsEnabled(true);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-zinc-400 bg-zinc-900/50 hover:bg-zinc-800 hover:text-white border border-zinc-800 rounded-lg transition-all"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Reset to Defaults
+                  </button>
+                </div>
+              </div>
+              
+              <div className={`space-y-2 transition-opacity duration-300 ${!globalKeybindsEnabled ? 'opacity-30 pointer-events-none' : ''}`}>
+                {[
+                  { id: 'prismMenu', label: 'Toggle Prism Command Menu', default: 'cmd+k' },
+                  { id: 'home', label: 'Workspace: Home', default: 'shift+h' },
+                  { id: 'skyvision', label: 'Workspace: SkyVision', default: 'shift+s' },
+                  { id: 'pinpoint', label: 'Workspace: Pinpoint AI', default: 'shift+p' },
+                  { id: 'auditor', label: 'Workspace: Quant Auditor', default: 'shift+a' },
+                  { id: 'dealerflow', label: 'Workspace: Dealer Flow', default: 'shift+d' },
+                  { id: 'arbor', label: 'Workspace: Research & Community', default: 'shift+r' },
+                  { id: 'settings', label: 'Settings & Preferences', default: 'shift+o' },
+                ].map(bind => (
+                  <KeybindRow key={bind.id} bindId={bind.id as any} label={bind.label} />
+                ))}
+              </div>
             </div>
             
-            <div className="space-y-1 border-l border-zinc-900/60 pl-3">
-              <span className="text-[8px] text-zinc-500 uppercase font-black block tracking-widest">CURRENT DISCOUNT</span>
-              <span className="text-2xl font-black text-white font-mono block">
-                {Math.min(100, (session?.referral_tokens_pool || 0) * 10)}%
+            <div className="p-4 bg-zinc-950/40 border border-zinc-900 text-[11px] rounded-xl text-[#a1a1aa] leading-relaxed flex gap-3">
+              <ShieldAlert className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <span>
+                <b>Hotkey Note:</b> To rebind, click on a shortcut button and press your new key combination. Use Modifier keys (Shift, Ctrl, Alt, Meta) plus a character.
               </span>
-              <span className="text-[7.5px] text-[#8e8e93] block uppercase font-mono">Simulated Multipliers</span>
             </div>
           </div>
+        )}
 
-          {/* Your custom referral code */}
-          <div className="space-y-2">
-            <span className="text-[9px] text-[#A1A1AA] uppercase tracking-widest font-black block">Your Custom Referral Code</span>
-            <div className="flex gap-2">
-              <div className="flex-1 bg-zinc-950 border border-zinc-900 text-white rounded-lg px-3 py-2 text-xs font-bold font-mono tracking-wider flex items-center justify-between">
-                <span>{session?.custom_referral_code || 'SLAYERX9Y2'}</span>
-                <span className="text-[8px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded">Active</span>
+        {activeTab === 'referrals' && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* Module 5: Referrals token stats */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-5 relative shadow-lg">
+              <div className="absolute top-0 right-0 p-3 text-[10px] text-zinc-600 font-bold uppercase tracking-widest font-mono">
+                Module-05 Engine
               </div>
-              <button
-                onClick={copyReferralLink}
-                className="px-3.5 py-1.5 bg-zinc-900 border border-zinc-850 hover:bg-zinc-850 text-zinc-300 hover:text-white rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                title="Copy full referral link to clipboard"
-              >
-                {referralCopied ? <span className="text-[9px] uppercase text-emerald-400 font-black">Copied!</span> : <Share2 className="w-4 h-4 text-zinc-400" />}
-              </button>
+
+              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+                <Coins className="w-5 h-5 text-emerald-400" />
+                <h2 className="text-lg font-black tracking-tight text-white">
+                  Referral Rewards Token Pool
+                </h2>
+              </div>
+
+              {/* Referral Progress Bar (Gamification) */}
+              <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 overflow-hidden">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs font-bold text-white">Tokens to Next Free Month</span>
+                  <span className="text-xs font-mono text-emerald-400">{session?.referral_tokens_pool || 0} / 10</span>
+                </div>
+                <div className="w-full h-2.5 bg-black rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min(100, ((session?.referral_tokens_pool || 0) / 10) * 100)}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Referral Token Pool Dashboard metrics */}
+              <div className="grid grid-cols-2 gap-3 bg-black/40 border border-zinc-950 rounded-xl p-4 text-center">
+                <div className="space-y-1">
+                  <span className="text-xs text-zinc-500 font-bold block">YOUR TOKENS</span>
+                  <span className="text-2xl font-black text-emerald-400 font-mono block drop-shadow-[0_0_8px_rgba(16,185,129,0.2)]">
+                    {session?.referral_tokens_pool || 0}
+                  </span>
+                  <span className="text-xs text-zinc-600 block font-mono mt-1">1 Token = 10% Off</span>
+                </div>
+                
+                <div className="space-y-1 border-l border-zinc-900/60 pl-3">
+                  <span className="text-xs text-zinc-500 font-bold block">CURRENT DISCOUNT</span>
+                  <span className="text-2xl font-black text-white font-mono block">
+                    {Math.min(100, (session?.referral_tokens_pool || 0) * 10)}%
+                  </span>
+                  <span className="text-xs text-[#8e8e93] block font-mono mt-1">Simulated Multipliers</span>
+                </div>
+              </div>
+
+              {/* Your custom referral code */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <span className="text-sm text-[#A1A1AA] font-bold block">Your Referral Code</span>
+                  <div className="bg-zinc-950 border border-zinc-900 text-white rounded-lg px-3 py-2 text-sm font-bold font-mono tracking-widest text-center shadow-inner">
+                    {session?.custom_referral_code || 'SLAYERX'}
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <span className="text-sm text-[#A1A1AA] font-bold block">Your Custom Referral Link</span>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex-1 bg-zinc-950 border border-zinc-900 text-[#a1a1aa] rounded-lg px-3 py-2 text-xs font-bold font-mono md:tracking-wider flex items-center justify-between whitespace-nowrap overflow-hidden text-ellipsis shadow-inner">
+                      <span className="truncate pr-2">{referralLink}</span>
+                    </div>
+                    <button
+                      onClick={copyReferralLink}
+                      className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg flex items-center justify-center cursor-pointer transition-colors sm:shrink-0"
+                      title="Copy full referral link to clipboard"
+                    >
+                      {referralCopied ? 'Copied!' : 'Copy Link'}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <p className="text-[8.5px] text-zinc-500 leading-normal uppercase">
-              Send your link to traders. They receive a 5% discount on checkout, and you earn exactly 1 Token when they pay. Earn 10 tokens for a 100% free workstation month!
-            </p>
           </div>
+        )}
 
-          {/* Invoice simulation box */}
-          <div className="pt-2 border-t border-[#121217] space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-[9px] text-[#A1A1AA] uppercase tracking-widest font-black block">Interactive Billing Test</span>
-              <span className="text-[8px] bg-[#0c1824] px-2 py-0.5 border border-[#1e1e24] rounded text-zinc-400">Sandbox</span>
-            </div>
-            <p className="text-[8.5px] text-zinc-500 leading-normal uppercase">
-              Test your infinite rollover pool. Click below to trigger a simulated monthly cron-job run. Up to 10 tokens will load as invoice deductions, with excess tokens rolled over.
-            </p>
+        {activeTab === 'billing' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 relative shadow-lg space-y-4">
+              <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <Receipt className="w-5 h-5 text-indigo-400" />
+                  <h2 className="text-lg font-black tracking-tight text-white">Subscription & Tier</h2>
+                </div>
+                {session?.customer_id && (
+                  <span className="text-[8px] tracking-widest uppercase bg-indigo-950/40 px-2 py-0.5 border border-indigo-900/30 rounded text-indigo-400 font-mono">
+                    Tokenized SSL
+                  </span>
+                )}
+              </div>
 
-            <button
-              onClick={handleRunSimulatedBilling}
-              disabled={isSimulatingInvoice}
-              className="w-full py-2.5 bg-indigo-500/10 border border-indigo-500/30 hover:bg-[#6366f1]/20 text-indigo-400 font-black text-[10px] uppercase tracking-widest rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-            >
-              {isSimulatingInvoice ? (
-                <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>CALCULATING INVOICE LEDGERS...</span>
-                </>
-              ) : (
-                <>
-                  <Calculator className="w-3.5 h-3.5" />
-                  <span>Run Simulated Billing Invoice</span>
-                </>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1 text-left">
+                  <div className="text-[10px] uppercase tracking-wider font-bold text-zinc-500">Current Plan Protocol</div>
+                  <div className="text-2xl font-black uppercase text-white tracking-widest flex items-center gap-2">
+                    <span>{session?.access_tier || 'GUEST'} TIER</span>
+                    {session?.cancels_at_period_end ? (
+                      <span className="text-[9px] tracking-normal font-sans font-semibold bg-rose-500/10 border border-rose-500/20 text-rose-400 px-2.5 py-0.5 rounded-full">
+                        Cancels at Period End
+                      </span>
+                    ) : (
+                      session?.access_tier && !['guest', 'discord'].includes(session?.access_tier) && (
+                        <span className="text-[9px] tracking-normal font-sans font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-full">
+                          Active & Auto-renewing
+                        </span>
+                      )
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      useContractStore.getState().setActiveTab('subscription');
+                      window.scrollTo({ top: 0, behavior: 'auto' });
+                    }}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase tracking-widest rounded-lg transition-colors cursor-pointer"
+                  >
+                    View Upgrades
+                  </button>
+
+                  {session?.access_tier && !['guest', 'discord'].includes(session?.access_tier) && (
+                    <button
+                      onClick={() => setShowCancelConfirm(true)}
+                      disabled={!!session?.cancels_at_period_end}
+                      className={`px-4 py-2 font-bold text-xs uppercase tracking-widest rounded-lg transition-all cursor-pointer ${
+                        session?.cancels_at_period_end
+                          ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-900'
+                          : 'bg-zinc-900 hover:bg-rose-950/20 text-rose-400 border border-zinc-850 hover:border-rose-900/30'
+                      }`}
+                    >
+                      {session?.cancels_at_period_end ? 'Cancellation Logged' : 'Cancel Subscription'}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Secure Customer_id and Payment_method_id details */}
+              {session?.customer_id && (
+                <div className="bg-[#050506]/60 border border-zinc-900/60 rounded-xl p-4 space-y-2 text-left font-mono text-[10px] text-zinc-500">
+                  <div className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest pb-1 border-b border-zinc-900/40">Secure Tokenization Storage Ledger</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono">
+                    <div>
+                      <span className="text-zinc-600 font-bold block text-[8px] uppercase">Stripe Customer ID</span>
+                      <code className="text-indigo-400 font-mono text-[9.5px]">{session.customer_id}</code>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600 font-bold block text-[8px] uppercase">Tokenized Payment Method ID</span>
+                      <code className="text-emerald-400 font-mono text-[9.5px]">{session.payment_method_id || 'Not Saved (Iframe Protected)'}</code>
+                    </div>
+                  </div>
+                  <p className="text-[9px] text-zinc-650 italic leading-tight pt-1">
+                    🔒 No raw PAN context, raw credit card formats, or CVVs are stored on the Skyseye database. Cardholder details are stored exclusively in Stripe's audited cloud.
+                  </p>
+                </div>
               )}
-            </button>
 
-            {invoiceLog && (
-              <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-[#050506] border border-zinc-900 rounded-lg p-3 text-left font-mono text-[8px] text-[#a1a1aa] leading-relaxed space-y-1 mt-2 relative overflow-hidden"
+              {/* Confirmation Dialog / Modal */}
+              {showCancelConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+                  <div className="bg-[#09090b] border border-zinc-850 rounded-2xl max-w-md w-full p-6 text-left space-y-4 shadow-2xl relative">
+                    <div className="flex items-center gap-3 text-rose-400 pb-2 border-b border-zinc-900">
+                      <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                      <h3 className="text-base font-black uppercase tracking-wider">Are you sure?</h3>
+                    </div>
+                    
+                    <p className="text-xs text-zinc-400 leading-normal font-sans text-left">
+                      Canceling your subscription takes effect at the end of your current paid billing period. You will <strong>retain full access</strong> to your current tier and real-time options flow triggers until your paid time expires.
+                    </p>
+
+                    <div className="flex justify-end gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowCancelConfirm(false)}
+                        className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold text-xs uppercase tracking-widest rounded-lg cursor-pointer transition-all border border-zinc-800"
+                      >
+                        Keep Subscription
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelSubscription}
+                        disabled={isCanceling}
+                        className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-widest rounded-lg cursor-pointer transition-all flex items-center gap-2 shadow-lg shadow-rose-950/40"
+                      >
+                        {isCanceling ? 'Processing...' : 'Confirm Cancel'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Invoice simulation box */}
+            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-5 relative shadow-lg">
+              <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <Receipt className="w-5 h-5 text-indigo-400" />
+                  <h2 className="text-lg font-black tracking-tight text-white">Billing & Invoices</h2>
+                </div>
+                <span className="text-[8px] bg-[#0c1824] px-2 py-0.5 border border-[#1e1e24] rounded text-zinc-400">Sandbox</span>
+              </div>
+              
+              <p className="text-xs text-zinc-400">
+                You currently have no active credit cards on file. This environment uses a developer sandbox integration for simulated billing runs.
+              </p>
+
+              <button
+                onClick={handleRunSimulatedBilling}
+                disabled={isSimulatingInvoice}
+                className="w-full py-3 mt-2 bg-indigo-500/10 border border-indigo-500/30 hover:bg-[#6366f1]/20 text-indigo-400 font-black text-xs uppercase tracking-widest rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
-                <div className="absolute top-0 right-0 p-1 bg-indigo-500/10 border-l border-b border-zinc-900 text-indigo-400 font-black tracking-widest text-[7px] uppercase select-none">Invoice Receipt</div>
-                <div className="text-[7.5px] text-zinc-650 font-black tracking-widest uppercase border-b border-zinc-900 pb-1 mb-1.5 flex justify-between">
-                  <span>BILLING_RUN_RESULT // SUCCESS</span>
-                  <span className="text-zinc-600 font-normal">Active tier: {invoiceLog.access_tier}</span>
-                </div>
-                <div>Plan Base Monthly Tariff: <span className="text-white font-bold font-mono">${invoiceLog.base_rate}.00</span></div>
-                <div>Invoice Tokens Redeemed: <span className="text-rose-400 text-right">-{invoiceLog.tokens_deducted} Tokens ({invoiceLog.discount_rate_pct}% Off)</span></div>
-                <div>Applied Deduction Credit: <span className="text-emerald-400 text-right">-${invoiceLog.discount_amount_usd.toFixed(2)} USD</span></div>
-                <div className="border-t border-zinc-900/60 pt-1 mt-1 font-bold flex justify-between text-[9px]">
-                  <span className="text-[#f4f4f5]">Net Amount Charged:</span>
-                  <span className="text-emerald-400">${invoiceLog.total_charged_usd.toFixed(2)} USD</span>
-                </div>
-                <div className="border-t border-dashed border-zinc-900/80 pt-1 mt-1 text-[7.5px] text-zinc-600 uppercase flex gap-1.5 items-center">
-                  <FolderSync className="w-3 h-3 text-indigo-400/80" />
-                  <span>Rollover Vault: {invoiceLog.tokens_remaining_rolled_over} Tokens rolled over safely for next months.</span>
-                </div>
-              </motion.div>
-            )}
+                {isSimulatingInvoice ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>CALCULATING INVOICE LEDGERS...</span>
+                  </>
+                ) : (
+                  <>
+                    <Calculator className="w-4 h-4" />
+                    <span>Run Simulated Billing Invoice</span>
+                  </>
+                )}
+              </button>
+
+              {invoiceLog && (
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-[#050506] border border-zinc-900 rounded-lg p-3 text-left font-mono text-[10px] text-[#a1a1aa] leading-relaxed space-y-1 mt-2 relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 p-1 bg-indigo-500/10 border-l border-b border-zinc-900 text-indigo-400 font-black tracking-widest text-[7px] uppercase select-none">Invoice Receipt</div>
+                  <div className="text-[9px] text-zinc-650 font-black tracking-widest uppercase border-b border-zinc-900 pb-1 mb-1.5 flex justify-between">
+                    <span>BILLING_RUN_RESULT // SUCCESS</span>
+                    <span className="text-zinc-600 font-normal">Active tier: {invoiceLog.access_tier}</span>
+                  </div>
+                  <div>Plan Base Monthly Tariff: <span className="text-white font-bold font-mono">${invoiceLog.base_rate}.00</span></div>
+                  <div>Invoice Tokens Redeemed: <span className="text-rose-400 text-right">-{invoiceLog.tokens_deducted} Tokens ({invoiceLog.discount_rate_pct}% Off)</span></div>
+                  <div>Applied Deduction Credit: <span className="text-emerald-400 text-right">-${invoiceLog.discount_amount_usd.toFixed(2)} USD</span></div>
+                  <div className="border-t border-zinc-900/60 pt-2 mt-2 font-bold flex justify-between text-[11px]">
+                    <span className="text-[#f4f4f5]">Net Amount Charged:</span>
+                    <span className="text-emerald-400">${invoiceLog.total_charged_usd.toFixed(2)} USD</span>
+                  </div>
+                  <div className="border-t border-dashed border-zinc-900/80 pt-2 mt-2 text-[9px] text-zinc-600 uppercase flex gap-1.5 items-center">
+                    <FolderSync className="w-3.5 h-3.5 text-indigo-400/80 shrink-0" />
+                    <span>Rollover Vault: {invoiceLog.tokens_remaining_rolled_over} Tokens rolled over safely for next months.</span>
+                  </div>
+                </motion.div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
+
+      {toastText && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          className={`fixed bottom-5 right-5 z-[100] p-4 bg-[#09090b] border ${toastType === 'success' ? 'border-emerald-500/30' : 'border-rose-500/30'} shadow-2xl flex items-center gap-2.5 font-mono text-[10.5px] text-white rounded-sm`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${toastType === 'success' ? 'bg-emerald-400' : 'bg-rose-500'} animate-pulse`} />
+          <span className="uppercase font-semibold tracking-wider text-zinc-400">{toastType === 'success' ? 'SUCCESS' : 'ERROR'}:</span>
+          <span>{toastText}</span>
+        </motion.div>
+      )}
     </div>
   );
 }

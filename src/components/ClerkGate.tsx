@@ -13,6 +13,7 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [referralCode, setReferralCode] = useState(referralCodeFromUrl || '');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +27,7 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
     try {
       const endpoint = activeMode === 'signup' ? '/api/auth/clerk-signup' : '/api/auth/clerk-login';
       const body = activeMode === 'signup' 
-        ? { email, name, password, referralCode: referralCode.trim() } 
+        ? { email, name, password, referralCode: referralCode.trim(), avatar: avatarUrl } 
         : { email, password };
 
       const res = await fetch(endpoint, {
@@ -138,6 +139,24 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Zak Ali"
+                  className="w-full bg-black/60 border border-zinc-900 focus:border-zinc-700 text-white font-mono rounded-lg p-3 pl-10 text-xs focus:outline-none transition-colors"
+                />
+                <User className="w-3.5 h-3.5 text-zinc-650 absolute left-3 top-1/2 -translate-y-1/2" />
+              </div>
+            </div>
+          )}
+
+          {activeMode === 'signup' && (
+            <div>
+              <label className="text-[8.5px] text-zinc-500 uppercase tracking-widest font-extrabold block mb-1">
+                Profile Photo URL (Optional)
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value)}
+                  placeholder="https://example.com/avatar.png"
                   className="w-full bg-black/60 border border-zinc-900 focus:border-zinc-700 text-white font-mono rounded-lg p-3 pl-10 text-xs focus:outline-none transition-colors"
                 />
                 <User className="w-3.5 h-3.5 text-zinc-650 absolute left-3 top-1/2 -translate-y-1/2" />

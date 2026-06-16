@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { GexProfileData } from '../types';
-import { Target, Activity, Zap, TrendingUp, TrendingDown, Layers } from 'lucide-react';
+import { Target, Activity, Zap, Layers } from 'lucide-react';
 
 interface IntradayTargetsViewProps {
   profile: GexProfileData;
