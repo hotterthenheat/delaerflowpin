@@ -1351,3 +1351,225 @@ body.prism-locked {
 [data-theme="grid"] .text-white, [data-theme="grid"] .text-\[\#f4f4f5\], [data-theme="grid"] .text-\[\#E0E0E0\] { color: var(--text-primary) !important; }
 [data-theme="grid"] .text-\[\#a1a1aa\], [data-theme="grid"] .text-\[\#8e8e93\], [data-theme="grid"] .text-\[\#888888\], [data-theme="grid"] .text-zinc-500, [data-theme="grid"] .text-zinc-400, [data-theme="grid"] .text-zinc-600 { color: var(--text-secondary) !important; }
 
+
+/* ============================================================
+   MASTER THEME LIBRARY (31 themes) + DISPLAY PREFERENCES
+   Each theme defines 6 semantic tokens; the generic [data-theme]
+   layer below remaps the app's zinc/hex utilities to those tokens
+   so any theme recolors the whole UI from one small block.
+   ============================================================ */
+
+/* --- Generic theme machinery (applies to ANY active theme) --- */
+[data-theme] body {
+  background: var(--bg-base) !important;
+  color: var(--text-primary) !important;
+}
+[data-theme] .bg-black,
+[data-theme] .bg-\[\#140203\],
+[data-theme] .bg-\[\#0e0e11\],
+[data-theme] .bg-\[\#050508\],
+[data-theme] .bg-\[\#18181b\],
+[data-theme] .bg-\[\#0A0A0B\],
+[data-theme] .bg-\[\#0c0c0e\],
+[data-theme] .bg-\[\#0c0c0d\],
+[data-theme] .bg-\[\#08080c\],
+[data-theme] .bg-\[\#07070a\],
+[data-theme] .bg-\[\#050505\],
+[data-theme] .bg-\[\#060607\],
+[data-theme] .bg-\[\#070708\],
+[data-theme] .bg-\[\#070709\],
+[data-theme] .bg-\[\#08080a\],
+[data-theme] .bg-\[\#0d0d11\],
+[data-theme] .bg-\[\#0f0f12\],
+[data-theme] .bg-\[\#101014\],
+[data-theme] .bg-\[\#141416\],
+[data-theme] .bg-\[\#17171A\],
+[data-theme] .bg-\[\#1C1C1E\],
+[data-theme] .bg-\[\#18181c\],
+[data-theme] .bg-\[\#050506\],
+[data-theme] .bg-\[\#0a0a0c\],
+[data-theme] .bg-\[\#09090b\],
+[data-theme] .bg-\[\#121214\],
+[data-theme] .bg-\[\#121215\],
+[data-theme] .bg-\[\#1A1A1D\],
+[data-theme] .bg-zinc-950,
+[data-theme] .bg-zinc-900 {
+  background-color: var(--bg-surface) !important;
+}
+[data-theme] .bg-zinc-850,
+[data-theme] .bg-zinc-800 {
+  background-color: var(--border-color) !important;
+}
+[data-theme] .border-zinc-950,
+[data-theme] .border-zinc-900,
+[data-theme] .border-zinc-850,
+[data-theme] .border-zinc-800,
+[data-theme] .border-\[\#2A2A2D\],
+[data-theme] .border-\[\#1A1A1D\],
+[data-theme] .border-\[\#121214\] {
+  border-color: var(--border-color) !important;
+}
+[data-theme] .text-white,
+[data-theme] .text-\[\#f4f4f5\],
+[data-theme] .text-\[\#E0E0E0\] {
+  color: var(--text-primary) !important;
+}
+[data-theme] .text-zinc-300,
+[data-theme] .text-zinc-400,
+[data-theme] .text-zinc-450,
+[data-theme] .text-zinc-500,
+[data-theme] .text-zinc-550,
+[data-theme] .text-zinc-600,
+[data-theme] .text-zinc-650,
+[data-theme] .text-\[\#a1a1aa\],
+[data-theme] .text-\[\#8e8e93\],
+[data-theme] .text-\[\#888888\] {
+  color: var(--text-secondary) !important;
+}
+[data-theme] .bg-white {
+  background-color: var(--accent-color) !important;
+  color: #ffffff !important;
+  border-color: var(--accent-color) !important;
+}
+
+/* --- Base --- */
+[data-theme="abyss"]   { --bg-base:#000000; --bg-surface:#0A0A0A; --text-primary:#FFFFFF; --text-secondary:#A1A1AA; --border-color:#27272A; --accent-color:#10B981; }
+[data-theme="slate"]   { --bg-base:#0B1120; --bg-surface:#172033; --text-primary:#E2E8F0; --text-secondary:#64748B; --border-color:#334155; --accent-color:#38BDF8; }
+[data-theme="phantom"] { --bg-base: radial-gradient(circle at center, #1C1C22 0%, #09090B 100%); --bg-surface:#18181B; --text-primary:#FAFAFA; --text-secondary:#8E8EA0; --border-color:#27272A; --accent-color:#8B5CF6; }
+[data-theme="grid"]    { --bg-base:#09090B; --bg-surface:#18181B; --text-primary:#FAFAFA; --text-secondary:#A1A1AA; --border-color:#27272A; --accent-color:#F43F5E; --bg-pattern: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px); --bg-size:40px 40px; }
+[data-theme="grid"] body { background-color: var(--bg-base) !important; background-image: var(--bg-pattern) !important; background-size: var(--bg-size) !important; }
+[data-theme="mocha"]   { --bg-base:#2B211E; --bg-surface:#3E322D; --text-primary:#FDF8F5; --text-secondary:#BCAAA4; --border-color:#5C4A42; --accent-color:#D4A373; }
+[data-theme="purple"]  { --bg-base:#1A0B2E; --bg-surface:#2D1B4E; --text-primary:#F3E8FF; --text-secondary:#9333EA; --border-color:#4A3076; --accent-color:#D633FF; }
+[data-theme="pink"]    { --bg-base:#FFF0F5; --bg-surface:#FFFFFF; --text-primary:#4A2B3D; --text-secondary:#966C82; --border-color:#F0D0DF; --accent-color:#E05286; }
+
+/* --- Extreme / High-Tech --- */
+[data-theme="synthwave"] { --bg-base:#0B0C10; --bg-surface:#1A1F2B; --text-primary:#C5C6C7; --text-secondary:#66FCF1; --border-color:#243545; --accent-color:#FF007A; }
+[data-theme="obsidian"]  { --bg-base:#050505; --bg-surface:#121212; --text-primary:#F2E8D5; --text-secondary:#A68A56; --border-color:#332917; --accent-color:#D4AF37; }
+[data-theme="crimson"]   { --bg-base:#0D0303; --bg-surface:#1A0808; --text-primary:#FFE5E5; --text-secondary:#CC6666; --border-color:#4D1A1A; --accent-color:#FF1A1A; }
+[data-theme="biolume"]   { --bg-base:#01110A; --bg-surface:#032115; --text-primary:#E0FFE5; --text-secondary:#4ADE80; --border-color:#06402B; --accent-color:#059669; }
+[data-theme="tokyo"]     { --bg-base:#0A0B1A; --bg-surface:#141526; --text-primary:#E6E8FF; --text-secondary:#7A7ED4; --border-color:#242645; --accent-color:#FF2A6D; }
+[data-theme="acid"]      { --bg-base:#111211; --bg-surface:#1C1E1C; --text-primary:#EEF2EE; --text-secondary:#8B998B; --border-color:#2D332D; --accent-color:#D4FF00; }
+[data-theme="outrun"]    { --bg-base:#14081C; --bg-surface:#22102E; --text-primary:#FDE8FF; --text-secondary:#B878D6; --border-color:#3B1C4D; --accent-color:#FF7700; }
+[data-theme="matrix"]    { --bg-base:#000800; --bg-surface:#001400; --text-primary:#CCFFCC; --text-secondary:#4D994D; --border-color:#003300; --accent-color:#00FF00; }
+[data-theme="vaporwave"] { --bg-base:#1A1A2E; --bg-surface:#252542; --text-primary:#F1E4FF; --text-secondary:#90B4CE; --border-color:#3E3E66; --accent-color:#FF8EAF; }
+
+/* --- Earth, Elements & Metals --- */
+[data-theme="arrakis"]  { --bg-base:#17100A; --bg-surface:#261C14; --text-primary:#F5E9D3; --text-secondary:#C2A385; --border-color:#3D2D20; --accent-color:#E67E22; }
+[data-theme="arctic"]   { --bg-base:#040D14; --bg-surface:#0A1A2A; --text-primary:#E0F0FF; --text-secondary:#8BB4D9; --border-color:#15304A; --accent-color:#00D0FF; }
+[data-theme="volcanic"] { --bg-base:#121010; --bg-surface:#1F1B1B; --text-primary:#FFF0ED; --text-secondary:#A68A85; --border-color:#332B2B; --accent-color:#FF4500; }
+[data-theme="canopy"]   { --bg-base:#0B140D; --bg-surface:#142418; --text-primary:#E3F2E6; --text-secondary:#7FA687; --border-color:#243D2A; --accent-color:#22C55E; }
+[data-theme="trench"]   { --bg-base:#01060E; --bg-surface:#051224; --text-primary:#D6E8FF; --text-secondary:#5C83B8; --border-color:#0F264A; --accent-color:#06B6D4; }
+[data-theme="sapphire"] { --bg-base:#050B14; --bg-surface:#0A1629; --text-primary:#F0F6FF; --text-secondary:#7A9BCC; --border-color:#142C52; --accent-color:#3B82F6; }
+[data-theme="copper"]   { --bg-base:#091211; --bg-surface:#11211F; --text-primary:#E2F2EF; --text-secondary:#6B9993; --border-color:#1F3B37; --accent-color:#D97757; }
+[data-theme="velvet"]   { --bg-base:#140A0D; --bg-surface:#241217; --text-primary:#FDE8ED; --text-secondary:#C28595; --border-color:#3D1F28; --accent-color:#E11D48; }
+[data-theme="iron"]     { --bg-base:#12100E; --bg-surface:#1F1C18; --text-primary:#F2EDE9; --text-secondary:#998D82; --border-color:#332E2A; --accent-color:#D96941; }
+
+/* --- High-Contrast / Focus --- */
+[data-theme="solar"]     { --bg-base:#080500; --bg-surface:#140D00; --text-primary:#FFF8E6; --text-secondary:#B3924D; --border-color:#291A00; --accent-color:#F59E0B; }
+[data-theme="bloodmoon"] { --bg-base:#0F1115; --bg-surface:#1A1D24; --text-primary:#F1F3F5; --text-secondary:#868E96; --border-color:#2C303A; --accent-color:#E03131; }
+[data-theme="ghost"]     { --bg-base:#050505; --bg-surface:#0F0F0F; --text-primary:#A3A3A3; --text-secondary:#525252; --border-color:#1F1F1F; --accent-color:#D4D4D4; }
+[data-theme="cobalt"]    { --bg-base:#0A111A; --bg-surface:#131F2E; --text-primary:#E8F0FE; --text-secondary:#8AB4F8; --border-color:#1E314B; --accent-color:#4285F4; }
+[data-theme="matcha"]    { --bg-base:#0A120D; --bg-surface:#132117; --text-primary:#EDF5F0; --text-secondary:#8EAD9B; --border-color:#203827; --accent-color:#A3E635; }
+[data-theme="amethyst"]  { --bg-base:#0B0512; --bg-surface:#150A24; --text-primary:#F5EBFF; --text-secondary:#9D75CC; --border-color:#281445; --accent-color:#A855F7; }
+
+/* ============================================================
+   TEXT SIZE — global typography scale (16 / 18 / 20px)
+   rem base is set for future rem-based type; zoom gives an
+   immediate visible scale across the current px-based UI.
+   ============================================================ */
+:root[data-text-size="standard"] { font-size: 16px; }
+:root[data-text-size="large"]    { font-size: 18px; }
+:root[data-text-size="xlarge"]   { font-size: 20px; }
+[data-text-size="large"]  body { zoom: 1.12; }
+[data-text-size="xlarge"] body { zoom: 1.24; }
+
+/* ============================================================
+   COMPACT VIEW — denser spacing
+   ============================================================ */
+:root { --grid-gap: 1.5rem; --table-cell-padding: 0.75rem; }
+[data-compact="true"] { --grid-gap: 0.5rem; --table-cell-padding: 0.35rem; }
+[data-compact="true"] .p-6 { padding: 1rem !important; }
+[data-compact="true"] .p-5 { padding: 0.85rem !important; }
+[data-compact="true"] .p-4 { padding: 0.6rem !important; }
+[data-compact="true"] .gap-6 { gap: 0.85rem !important; }
+[data-compact="true"] .gap-4 { gap: 0.5rem !important; }
+[data-compact="true"] .gap-3 { gap: 0.4rem !important; }
+[data-compact="true"] .space-y-6 > * + * { margin-top: 0.85rem !important; }
+[data-compact="true"] .space-y-4 > * + * { margin-top: 0.5rem !important; }
+[data-compact="true"] .py-3 { padding-top: 0.4rem !important; padding-bottom: 0.4rem !important; }
+
+/* ============================================================
+   ULTRAWIDE — break out of single-column on 21:9 / 32:9 monitors
+   while keeping text blocks readable (max 80ch).
+   ============================================================ */
+[data-ultrawide="true"] p { max-width: 80ch; }
+@media (min-width: 1700px) {
+  [data-ultrawide="true"] main { max-width: 100% !important; }
+  [data-ultrawide="true"] .max-w-7xl,
+  [data-ultrawide="true"] .max-w-6xl,
+  [data-ultrawide="true"] .max-w-5xl { max-width: 94vw !important; }
+}
+@media (min-width: 2300px) {
+  [data-ultrawide="true"] .grid-cols-1 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  [data-ultrawide="true"] .lg\:grid-cols-2 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+}
+
+/* ============================================================
+   INSTITUTIONAL STATUS COLOR LOCK — muted, flat, distinct on #000
+   ============================================================ */
+:root {
+  --status-holding: #4ADE80; /* muted mint green */
+  --status-testing: #D4D4D8; /* neutral light grey */
+  --status-failing: #F87171; /* desaturated soft red */
+}
+.status-holding { color: var(--status-holding) !important; }
+.status-testing { color: var(--status-testing) !important; }
+.status-failing { color: var(--status-failing) !important; }
+.bg-status-holding { background-color: var(--status-holding) !important; }
+.bg-status-testing { background-color: var(--status-testing) !important; }
+.bg-status-failing { background-color: var(--status-failing) !important; }
+.border-status-holding { border-color: var(--status-holding) !important; }
+.border-status-testing { border-color: var(--status-testing) !important; }
+.border-status-failing { border-color: var(--status-failing) !important; }
+
+/* ============================================================
+   TABULAR FIGURES — lock numeric width so live ticks don't jitter
+   ============================================================ */
+.font-mono,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   SETTINGS — mobile responsiveness (< 768px)
+   Sidebar collapses to a horizontal scrolling tab strip; the 800px
+   container becomes full-width with 16px side padding.
+   ============================================================ */
+@media (max-width: 767px) {
+  #slayer-settings-panel {
+    flex-direction: column !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    gap: 1rem !important;
+  }
+  /* First child = the category sidebar -> horizontal scroll strip on top */
+  #slayer-settings-panel > div:first-child {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+  #slayer-settings-panel > div:first-child button {
+    flex: 0 0 auto !important;
+  }
+  /* Content pane fills the width on mobile */
+  #slayer-settings-panel > div:last-child {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}

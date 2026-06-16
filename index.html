@@ -4,13 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Slayer Trading</title>
+    <!-- Zero-flash display preferences: applied before first paint -->
     <script>
-      (function() {
+      (function () {
         try {
+          var d = document.documentElement;
           var theme = localStorage.getItem('slayer_theme');
-          if (theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-          }
+          if (theme) d.setAttribute('data-theme', theme);
+
+          var sizeMap = { STANDARD: 'standard', ENHANCED: 'large', ENHANCED_XL: 'xlarge' };
+          var ts = localStorage.getItem('slayer_text_size');
+          if (ts && sizeMap[ts]) d.setAttribute('data-text-size', sizeMap[ts]);
+
+          if (localStorage.getItem('slayer_compact') === 'true') d.setAttribute('data-compact', 'true');
+          if (localStorage.getItem('slayer_ultrawide') === 'true') d.setAttribute('data-ultrawide', 'true');
         } catch (e) {}
       })();
     </script>
@@ -20,4 +27,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

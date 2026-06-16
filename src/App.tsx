@@ -1,6 +1,8 @@
 import React, { useState, useEffect, memo, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useContractStore } from './lib/store';
+import { applyAllPreferences } from './lib/displayPrefs';
+import { withCacheBust } from './lib/format';
 import { ASSET_LIST } from './data';
 import { AssetInfo } from './types';
 
@@ -300,6 +302,8 @@ export default function App() {
 
   const [globalSearchInput, setGlobalSearchInput] = useState('');
   const [globalSearchIndex, setGlobalSearchIndex] = useState(0);
+  // Cache-bust the avatar only when it actually changes (avoids re-fetch churn).
+  const avatarCacheBust = useMemo(() => Date.now(), [session?.avatar]);
   const prismFilter = useContractStore(s => s.prismFilter);
   const setPrismFilter = useContractStore(s => s.setPrismFilter);
   const globalSearchInputRef = useRef<HTMLInputElement>(null);
@@ -545,10 +549,12 @@ export default function App() {
           if (localAvatar) {
             data.avatar = localAvatar;
           }
-          if (data.selected_theme) {
-            localStorage.setItem('slayer_theme', data.selected_theme);
-            document.documentElement.setAttribute('data-theme', data.selected_theme);
-          }
+          applyAllPreferences({
+            selected_theme: data.selected_theme,
+            selected_font_scale: data.selected_font_scale,
+            compact_view_enabled: data.compact_view_enabled,
+            ultrawide_enabled: data.ultrawide_enabled,
+          });
         }
         
         setSession(data);
@@ -1024,6 +1030,23 @@ export default function App() {
                 </span>
                 <span className="text-[8px] text-zinc-650 font-mono">SETTINGS</span>
               </button>
+
+              {session?.is_super_admin && (
+                <button
+                  onClick={() => handleSelectTab('admin')}
+                  className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
+                    activeTab === 'admin'
+                      ? 'bg-rose-950/40 text-white font-bold border-l-2 border-rose-500 pl-2'
+                      : 'text-rose-400/80 hover:bg-rose-950/20 hover:text-rose-300'
+                  }`}
+                >
+                  <span className="flex items-center gap-1.55">
+                    <Lock className="w-3 h-3 text-rose-500" />
+                    <span>★ OVERSEER COMMAND CENTER</span>
+                  </span>
+                  <span className="text-[8px] text-zinc-650 font-mono">ADMIN</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -1055,9 +1078,9 @@ export default function App() {
 
           {session?.authenticated ? (
             <div className="flex items-center gap-3 bg-zinc-950 px-3.5 py-1.5 border border-zinc-900 rounded-sm">
-              <img 
-                src={session.avatar} 
-                alt="user avatar" 
+              <img
+                src={withCacheBust(session.avatar, avatarCacheBust)}
+                alt="user avatar"
                 className="w-4.5 h-4.5 rounded-full border border-zinc-850 object-cover" 
                 referrerPolicy="no-referrer"
               />

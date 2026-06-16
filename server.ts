@@ -57,6 +57,78 @@ function getGeminiClient() {
 // API middleware
 app.use(express.json({ limit: '50mb' }));
 
+// ============================================================
+// ADMIN COMMAND CENTER — shared in-memory state & gates (spec §6)
+// In-memory to match this app's storage model. A production deploy would
+// back these with a real DB on an isolated admin subdomain with enforced
+// MFA; the subdomain + MFA are deployment-layer concerns.
+// ============================================================
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'admin@slayer.io,demo@slayer.io')
+  .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+type AdminRole = 'super_admin' | 'support' | 'marketing' | 'user';
+function roleForEmail(email?: string | null): AdminRole {
+  if (!email) return 'user';
+  return ADMIN_EMAILS.includes(email.toLowerCase().trim()) ? 'super_admin' : 'user';
+}
+
+let MAINTENANCE_MODE = false;
+
+interface AuditEntry {
+  id: string; admin_id: string; admin_email: string; action_taken: string;
+  target_id: string; timestamp: string; ip_address: string; method: string;
+}
+const AUDIT_LOG: AuditEntry[] = []; // append-only, read-only to clients
+
+const FEATURE_FLAGS: Record<string, boolean> = {
+  new_pinpoint_engine: true,
+  microstructure_lab: true,
+  automation_suite: false,
+  ai_copilot: false,
+};
+
+interface AdminCoupon {
+  code: string; discount_type: 'PERCENT' | 'FIXED'; discount_value: number;
+  redemption_limit: number; redemptions: number; user_restriction: string;
+  expires_at: string | null; created_by: string; created_at: string;
+}
+const ADMIN_COUPONS: AdminCoupon[] = [];
+
+const SUSPENDED_USERS = new Set<string>();    // emails
+const BANNED_USERS = new Set<string>();       // emails
+const FORCE_LOGOUT_USERS = new Set<string>(); // emails forced to re-auth
+
+// Maintenance gate — non-admins receive 503 while maintenance mode is active.
+app.use((req, res, next) => {
+  if (!MAINTENANCE_MODE) return next();
+  const p = req.path || '';
+  if (p.startsWith('/api/admin') || p === '/api/health' || p.startsWith('/api/auth')) return next();
+  const s = getSessionFromCookies(req.headers.cookie);
+  if (s && roleForEmail(s.email) !== 'user') return next();
+  if (p.startsWith('/api/')) {
+    return res.status(503).json({ error: 'Service temporarily down for maintenance.', maintenance: true });
+  }
+  return res
+    .status(503)
+    .send('<body style="margin:0;background:#000;color:#10b981;font-family:monospace;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center">503 — Slayer Trade is under maintenance. Please check back shortly.</body>');
+});
+
+// Impersonation is strictly READ-ONLY (spec fix #4): while an admin is
+// impersonating a user, reject every mutating request with 403. Logout is
+// allowed so the admin can exit impersonation.
+app.use((req, res, next) => {
+  const method = (req.method || 'GET').toUpperCase();
+  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return next();
+  if (req.path === '/api/auth/logout') return next();
+  const s = getSessionFromCookies(req.headers.cookie);
+  if (s && (s.is_impersonating || s.read_only)) {
+    return res.status(403).json({
+      error: 'Impersonation mode is strictly read-only — mutating actions are forbidden.',
+      is_impersonating: true,
+    });
+  }
+  next();
+});
+
 // RECURSIVE DATA SANITIZATION TO DEFEND AGAINST XSS & SQL INJECTION
 function sanitizeValue(value: any): any {
   if (typeof value === 'string') {
@@ -1614,6 +1686,7 @@ interface UserAccount {
   custom_referral_code: string;
   selected_font_scale: 'STANDARD' | 'ENHANCED';
   compact_view_enabled: boolean;
+  ultrawide_enabled?: boolean;
   selected_theme: 'SLAYER PURE DARK' | 'DEALER FLOW SLATE' | 'VOLATILITY RADAR' | 'CARBON MONITOR MATTE';
   no_refund_policy_logged: boolean;
   active_ip: string | null;
@@ -2019,6 +2092,18 @@ app.get('/api/auth/session', (req, res) => {
   const session = getSessionFromCookies(req.headers.cookie);
   if (session && session.email) {
     const userEmail = session.email.toLowerCase().trim();
+
+    // Moderation gates (spec §6): banned / force-logged-out users are bounced.
+    if (BANNED_USERS.has(userEmail)) {
+      res.cookie('slayer_session', '', { httpOnly: true, path: '/', maxAge: 0 });
+      return res.json({ authenticated: false, blocked: 'BANNED', message: 'This account has been permanently banned.' });
+    }
+    if (FORCE_LOGOUT_USERS.has(userEmail)) {
+      FORCE_LOGOUT_USERS.delete(userEmail);
+      res.cookie('slayer_session', '', { httpOnly: true, path: '/', maxAge: 0 });
+      return res.json({ authenticated: false, forced_logout: true });
+    }
+
     let user = usersDb.get(userEmail);
     
     // Auto-reconstruct user from valid cookie if they were wiped from in-memory DB during server restart
@@ -2065,7 +2150,10 @@ app.get('/api/auth/session', (req, res) => {
       block_search_indexing: user.block_search_indexing,
       customer_id: user.customer_id || '',
       payment_method_id: user.payment_method_id || '',
-      cancels_at_period_end: !!user.cancels_at_period_end
+      cancels_at_period_end: !!user.cancels_at_period_end,
+      is_super_admin: roleForEmail(user.email) !== 'user',
+      admin_role: roleForEmail(user.email),
+      suspended: SUSPENDED_USERS.has(userEmail)
     });
   } else {
     res.json({ authenticated: false });
@@ -3154,7 +3242,7 @@ app.patch('/api/users/preferences', express.json({ limit: '50mb' }), (req, res) 
     return res.status(401).json({ error: 'Settings access denied. Unauthorized.' });
   }
 
-  const { selected_font_scale, compact_view_enabled, selected_theme, name, avatar, username, cover_photo, notification_preferences, profile_visibility, block_search_indexing } = req.body;
+  const { selected_font_scale, compact_view_enabled, ultrawide_enabled, selected_theme, name, avatar, username, cover_photo, notification_preferences, profile_visibility, block_search_indexing } = req.body;
   const userEmail = session.email.toLowerCase().trim();
   let user = usersDb.get(userEmail);
 
@@ -3183,6 +3271,7 @@ app.patch('/api/users/preferences', express.json({ limit: '50mb' }), (req, res) 
 
   if (selected_font_scale !== undefined) user.selected_font_scale = selected_font_scale;
   if (compact_view_enabled !== undefined) user.compact_view_enabled = !!compact_view_enabled;
+  if (ultrawide_enabled !== undefined) user.ultrawide_enabled = !!ultrawide_enabled;
   if (selected_theme !== undefined) user.selected_theme = selected_theme;
 
   if (name !== undefined) {
@@ -3615,6 +3704,203 @@ app.get('/api/health', (req, res) => {
 
 
 // Start Express with Vite dev server middleware in dev mode
+// ============================================================
+// REFERRAL / PROMO CODE GENERATOR (spec §B)
+// zakali75 -> "ZALI" -> ZALI10OFF (collision -> ZALI9X10OFF ...)
+// ============================================================
+function generateReferralCode(username: string): string {
+  const letters = String(username || '').replace(/[^a-zA-Z]/g, '');
+  let base = letters.length <= 4 ? letters.toUpperCase() : (letters.slice(0, 2) + letters.slice(-2)).toUpperCase();
+  if (!base) base = 'SLAYER';
+  const exists = (code: string) =>
+    Array.from(usersDb.values()).some((u) => (u.custom_referral_code || '').toUpperCase() === code.toUpperCase());
+  let candidate = `${base}10OFF`;
+  if (!exists(candidate)) return candidate;
+  // Collision resolution: append a random 2-char alphanumeric until unique.
+  const ALNUM = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  for (let i = 0; i < 500; i++) {
+    const suffix = ALNUM[Math.floor(Math.random() * 36)] + ALNUM[Math.floor(Math.random() * 36)];
+    candidate = `${base}${suffix}10OFF`;
+    if (!exists(candidate)) return candidate;
+  }
+  return `${base}${Date.now().toString(36).toUpperCase()}10OFF`;
+}
+
+// Returns (and lazily migrates to the strict [PREFIX]10OFF format) the
+// current user's shareable referral code.
+app.get('/api/billing/my-referral-code', (req, res) => {
+  const session = getSessionFromCookies(req.headers.cookie);
+  if (!session || !session.email) return res.status(401).json({ error: 'Authentication required.' });
+  const userEmail = session.email.toLowerCase().trim();
+  const user = usersDb.get(userEmail);
+  if (!user) return res.status(404).json({ error: 'User not found.' });
+  if (!/10OFF$/.test(user.custom_referral_code || '')) {
+    user.custom_referral_code = generateReferralCode(user.username || userEmail.split('@')[0]);
+  }
+  res.json({ referral_code: user.custom_referral_code, tokens: user.referral_tokens_pool || 0 });
+});
+
+// ============================================================
+// ADMIN COMMAND CENTER — routes (spec §6)
+// ============================================================
+function getAdminContext(req: any): { email: string; role: AdminRole } | null {
+  const s = getSessionFromCookies(req.headers.cookie);
+  if (!s || !s.email) return null;
+  const role = roleForEmail(s.email);
+  if (role === 'user') return null;
+  return { email: s.email.toLowerCase().trim(), role };
+}
+function requireAdmin(roles: AdminRole[] = ['super_admin', 'support', 'marketing']) {
+  return (req: any, res: any, next: any) => {
+    const ctx = getAdminContext(req);
+    if (!ctx) return res.status(403).json({ error: 'Admin access denied.' });
+    if (!roles.includes(ctx.role)) return res.status(403).json({ error: 'Insufficient admin role for this action.' });
+    req.admin = ctx;
+    next();
+  };
+}
+function clientIp(req: any): string {
+  return (req.headers['x-forwarded-for'] || '').toString().split(',')[0].trim() || req.ip || req.socket?.remoteAddress || 'unknown';
+}
+// Immutable audit trail: every admin mutation is appended (never edited).
+function logAudit(req: any, action: string, targetId: string) {
+  const ctx = req.admin || getAdminContext(req);
+  AUDIT_LOG.unshift({
+    id: `aud-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    admin_id: ctx?.email || 'unknown',
+    admin_email: ctx?.email || 'unknown',
+    action_taken: action,
+    target_id: targetId,
+    timestamp: new Date().toISOString(),
+    ip_address: clientIp(req),
+    method: req.method,
+  });
+  if (AUDIT_LOG.length > 1000) AUDIT_LOG.length = 1000;
+}
+
+app.get('/api/admin/overview', requireAdmin(), (req: any, res) => {
+  res.json({
+    live_connections: sseClients.length,
+    total_users: usersDb.size,
+    suspended: SUSPENDED_USERS.size,
+    banned: BANNED_USERS.size,
+    maintenance_mode: MAINTENANCE_MODE,
+    feature_flags: FEATURE_FLAGS,
+    coupons: ADMIN_COUPONS.length,
+    audit_entries: AUDIT_LOG.length,
+    admin_role: req.admin.role,
+  });
+});
+
+// Live traffic counter (poll). True WebSockets are a deployment upgrade;
+// this reflects the live SSE connection pool.
+app.get('/api/admin/live', requireAdmin(), (req, res) => {
+  res.json({ live_connections: sseClients.length, ts: Date.now() });
+});
+
+// Paginated user CRM
+app.get('/api/admin/users', requireAdmin(), (req, res) => {
+  const page = Math.max(1, parseInt(String(req.query.page || '1'), 10) || 1);
+  const perPage = Math.min(50, Math.max(5, parseInt(String(req.query.perPage || '10'), 10) || 10));
+  const q = String(req.query.q || '').toLowerCase().trim();
+  let all = Array.from(usersDb.values());
+  if (q) {
+    all = all.filter((u) =>
+      (u.email || '').toLowerCase().includes(q) ||
+      (u.username || '').toLowerCase().includes(q) ||
+      (u.name || '').toLowerCase().includes(q));
+  }
+  const total = all.length;
+  const start = (page - 1) * perPage;
+  const rows = all.slice(start, start + perPage).map((u) => ({
+    id: u.id, email: u.email, name: u.name, username: u.username,
+    access_tier: u.access_tier, referral_tokens_pool: u.referral_tokens_pool,
+    custom_referral_code: u.custom_referral_code, role: roleForEmail(u.email),
+    suspended: SUSPENDED_USERS.has((u.email || '').toLowerCase()),
+    banned: BANNED_USERS.has((u.email || '').toLowerCase()),
+  }));
+  res.json({ rows, total, page, perPage, totalPages: Math.max(1, Math.ceil(total / perPage)) });
+});
+
+function moderationHandler(action: 'suspend' | 'unsuspend' | 'ban' | 'unban' | 'force-logout') {
+  return (req: any, res: any) => {
+    const email = String(req.params.email || '').toLowerCase().trim();
+    if (!email) return res.status(400).json({ error: 'Target email required.' });
+    if (ADMIN_EMAILS.includes(email)) return res.status(403).json({ error: 'Cannot moderate an admin account.' });
+    if (action === 'suspend') SUSPENDED_USERS.add(email);
+    if (action === 'unsuspend') SUSPENDED_USERS.delete(email);
+    if (action === 'ban') { BANNED_USERS.add(email); FORCE_LOGOUT_USERS.add(email); }
+    if (action === 'unban') BANNED_USERS.delete(email);
+    if (action === 'force-logout') FORCE_LOGOUT_USERS.add(email);
+    logAudit(req, `USER_${action.toUpperCase().replace('-', '_')}`, email);
+    res.json({ success: true, action, email });
+  };
+}
+app.post('/api/admin/users/:email/suspend', requireAdmin(['super_admin', 'support']), moderationHandler('suspend'));
+app.post('/api/admin/users/:email/unsuspend', requireAdmin(['super_admin', 'support']), moderationHandler('unsuspend'));
+app.post('/api/admin/users/:email/ban', requireAdmin(['super_admin']), moderationHandler('ban'));
+app.post('/api/admin/users/:email/unban', requireAdmin(['super_admin']), moderationHandler('unban'));
+app.post('/api/admin/users/:email/force-logout', requireAdmin(['super_admin', 'support']), moderationHandler('force-logout'));
+
+app.get('/api/admin/audit', requireAdmin(), (req, res) => res.json({ entries: AUDIT_LOG.slice(0, 200) }));
+
+app.get('/api/admin/flags', requireAdmin(), (req, res) => res.json({ flags: FEATURE_FLAGS }));
+app.post('/api/admin/flags', requireAdmin(['super_admin', 'marketing']), (req: any, res) => {
+  const { key, value } = req.body || {};
+  if (!(key in FEATURE_FLAGS)) return res.status(404).json({ error: 'Unknown feature flag.' });
+  FEATURE_FLAGS[key] = !!value;
+  logAudit(req, `FLAG_${key}_${value ? 'ON' : 'OFF'}`, key);
+  res.json({ flags: FEATURE_FLAGS });
+});
+
+app.post('/api/admin/maintenance', requireAdmin(['super_admin']), (req: any, res) => {
+  MAINTENANCE_MODE = !!(req.body && req.body.enabled);
+  logAudit(req, `MAINTENANCE_${MAINTENANCE_MODE ? 'ON' : 'OFF'}`, 'system');
+  res.json({ maintenance_mode: MAINTENANCE_MODE });
+});
+
+app.get('/api/admin/coupons', requireAdmin(), (req, res) => res.json({ coupons: ADMIN_COUPONS }));
+app.post('/api/admin/coupons', requireAdmin(['super_admin', 'marketing']), (req: any, res) => {
+  let { code, discount_type, discount_value, redemption_limit, user_restriction, expires_at } = req.body || {};
+  code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!code) return res.status(400).json({ error: 'Code required (A-Z, 0-9, no spaces).' });
+  if (ADMIN_COUPONS.some((c) => c.code === code)) return res.status(409).json({ error: 'Coupon code already exists.' });
+  const coupon: AdminCoupon = {
+    code,
+    discount_type: discount_type === 'FIXED' ? 'FIXED' : 'PERCENT',
+    discount_value: Math.max(0, Number(discount_value) || 0),
+    redemption_limit: Math.max(0, parseInt(String(redemption_limit), 10) || 0),
+    redemptions: 0,
+    user_restriction: String(user_restriction || '').toLowerCase().trim(),
+    expires_at: expires_at || null,
+    created_by: req.admin.email,
+    created_at: new Date().toISOString(),
+  };
+  ADMIN_COUPONS.push(coupon);
+  logAudit(req, 'COUPON_CREATE', code);
+  res.json({ success: true, coupon });
+});
+
+// Impersonation (super admin only): issues a read-only session for the target.
+app.post('/api/admin/impersonate/:email', requireAdmin(['super_admin']), (req: any, res) => {
+  const targetEmail = String(req.params.email || '').toLowerCase().trim();
+  const target = usersDb.get(targetEmail);
+  if (!target) return res.status(404).json({ error: 'Target user not found.' });
+  setSessionCookie(res, {
+    authenticated: true,
+    provider: 'impersonation',
+    name: target.name,
+    email: target.email,
+    avatar: target.avatar,
+    access_tier: target.access_tier,
+    is_impersonating: true,
+    read_only: true,
+    impersonated_by: req.admin.email,
+  }, req);
+  logAudit(req, 'IMPERSONATE_START', targetEmail);
+  res.json({ success: true, impersonating: targetEmail, read_only: true });
+});
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
