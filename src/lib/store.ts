@@ -298,9 +298,13 @@ export const useContractStore = create<ContractStore>((set, get) => ({
     set({ globalKeybindsEnabled: enabled });
   },
 
-  disabledKeybinds: typeof window !== 'undefined' && localStorage.getItem('slayer_disabled_keybinds')
-    ? JSON.parse(localStorage.getItem('slayer_disabled_keybinds')!)
-    : {},
+  disabledKeybinds: (() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('slayer_disabled_keybinds') : null;
+      if (raw) return JSON.parse(raw);
+    } catch { /* ignore corrupt/legacy value */ }
+    return {};
+  })(),
   setDisabledKeybinds: (binds) => set((state) => {
     const newDisabled = { ...state.disabledKeybinds, ...binds };
     if (typeof window !== 'undefined') {
@@ -309,18 +313,23 @@ export const useContractStore = create<ContractStore>((set, get) => ({
     return { disabledKeybinds: newDisabled };
   }),
 
-  keybinds: typeof window !== 'undefined' && localStorage.getItem('slayer_keybinds') 
-    ? JSON.parse(localStorage.getItem('slayer_keybinds')!) 
-    : {
-        home: 'shift+h',
-        skyvision: 'shift+s',
-        pinpoint: 'shift+p',
-        auditor: 'shift+a',
-        dealerflow: 'shift+d',
-        arbor: 'shift+r',
-        settings: 'shift+o',
-        prismMenu: 'cmd+k',
-      },
+  keybinds: (() => {
+    const defaults = {
+      home: 'shift+h',
+      skyvision: 'shift+s',
+      pinpoint: 'shift+p',
+      auditor: 'shift+a',
+      dealerflow: 'shift+d',
+      arbor: 'shift+r',
+      settings: 'shift+o',
+      prismMenu: 'cmd+k',
+    };
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('slayer_keybinds') : null;
+      if (raw) return { ...defaults, ...JSON.parse(raw) };
+    } catch { /* ignore corrupt/legacy value */ }
+    return defaults;
+  })(),
   setKeybinds: (binds) => set((state) => {
     const newBinds = { ...state.keybinds, ...binds };
     if (typeof window !== 'undefined') {
@@ -464,7 +473,7 @@ export const useContractStore = create<ContractStore>((set, get) => ({
       contract: payload.contract,
       health: payload.trade_health,
       recommendation: payload.recommendation,
-      expectedMove: Number(payload.expected_move?.pct?.replace(/[^0-9.]/g, '') || '0'),
+      expectedMove: Number(String(payload.expected_move?.pct ?? '').replace(/[^0-9.]/g, '') || '0'),
       targets: payload.targets,
       chartData: payload.candles || [],
       pinpoint: {

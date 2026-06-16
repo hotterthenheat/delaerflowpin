@@ -55,7 +55,7 @@ function getGeminiClient() {
 }
 
 // API middleware
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '12mb' }));
 
 // ============================================================
 // ADMIN COMMAND CENTER — shared in-memory state & gates (spec §6)
@@ -63,7 +63,9 @@ app.use(express.json({ limit: '50mb' }));
 // back these with a real DB on an isolated admin subdomain with enforced
 // MFA; the subdomain + MFA are deployment-layer concerns.
 // ============================================================
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'admin@slayer.io,demo@slayer.io')
+// In production, admins MUST be configured via ADMIN_EMAILS (fail closed); the
+// demo defaults apply only outside production.
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || (process.env.NODE_ENV === 'production' ? '' : 'admin@slayer.io,demo@slayer.io'))
   .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 type AdminRole = 'super_admin' | 'support' | 'marketing' | 'user';
 function roleForEmail(email?: string | null): AdminRole {
@@ -125,6 +127,20 @@ app.use((req, res, next) => {
       error: 'Impersonation mode is strictly read-only — mutating actions are forbidden.',
       is_impersonating: true,
     });
+  }
+  next();
+});
+
+// Suspended / banned enforcement (spec §6): block mutating requests from
+// moderated accounts. Logout stays open so the client can clear its session.
+app.use((req, res, next) => {
+  const method = (req.method || 'GET').toUpperCase();
+  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return next();
+  if (req.path === '/api/auth/logout') return next();
+  const s = getSessionFromCookies(req.headers.cookie);
+  const email = s?.email ? String(s.email).toLowerCase().trim() : '';
+  if (email && (BANNED_USERS.has(email) || SUSPENDED_USERS.has(email))) {
+    return res.status(403).json({ error: 'This account is suspended or banned.', moderated: true });
   }
   next();
 });
@@ -1833,6 +1849,13 @@ app.get('/api/auth/sandbox', (req, res) => {
 });
 
 // Custom Clerk Simulated Auth Endpoints (Module 2)
+// Strips sensitive fields from a user record before it is sent to any client.
+function sanitizeUser(user: any) {
+  if (!user || typeof user !== 'object') return user;
+  const { passwordHash, two_factor_secret, temp_2fa_secret, backup_codes, email_otp, temp_new_email, ...safe } = user;
+  return safe;
+}
+
 app.post('/api/auth/clerk-signup', express.json(), (req, res) => {
   const { email, name, password, referralCode, avatar } = req.body;
   if (!email || !name) {
@@ -1964,7 +1987,7 @@ app.post('/api/auth/clerk-signup', express.json(), (req, res) => {
   };
 
   setSessionCookie(res, userSession, req);
-  res.json({ success: true, user: newUser, referral_credited: referralCreditApplied, referrer: creditedReferrerEmail });
+  res.json({ success: true, user: sanitizeUser(newUser), referral_credited: referralCreditApplied, referrer: creditedReferrerEmail });
 });
 
 app.post('/api/auth/clerk-login', express.json(), (req, res) => {
@@ -2045,7 +2068,7 @@ app.post('/api/auth/clerk-login', express.json(), (req, res) => {
   };
 
   setSessionCookie(res, userSession, req);
-  res.json({ success: true, user });
+  res.json({ success: true, user: sanitizeUser(user) });
 });
 
 app.get('/api/auth/callback', (req, res) => {
@@ -2468,7 +2491,7 @@ app.post('/api/auth/request-email-update', express.json(), (req, res) => {
   res.json({ 
     success: true, 
     message: 'Two-step verification triggered. A 6-digit OTP code has been dispatched to the requested email.',
-    otpCode: otp // Exposed only for sandbox test convenience
+    otpCode: process.env.NODE_ENV === 'production' ? undefined : otp // sandbox-only; omitted in production
   });
 });
 
@@ -3927,6 +3950,9 @@ app.post('/api/admin/impersonate/:email', requireAdmin(['super_admin']), (req: a
 });
 
 async function startServer() {
+  // Unmatched API routes -> JSON 404 (registered before the SPA/Vite catch-all).
+  app.use('/api', (req, res) => res.status(404).json({ error: 'API route not found.' }));
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -3941,6 +3967,12 @@ async function startServer() {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
+
+  // Terminal error handler — prevents an unhandled route throw from hanging requests.
+  app.use((err: any, _req: any, res: any, _next: any) => {
+    console.error('[unhandled error]', err?.message || err);
+    if (!res.headersSent) res.status(500).json({ error: 'Internal server error.' });
+  });
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[SkyVision Backend] Running on http://localhost:${PORT}`);

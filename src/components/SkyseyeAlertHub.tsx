@@ -80,6 +80,9 @@ export function SkyseyeAlertHub() {
   const setIsDeepSkyseyeExpanded = useContractStore(s => s.setIsDeepSkyseyeExpanded);
 
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  // Track auto-dismiss timers so they're cleared on unmount (no setState-after-unmount).
+  const dismissTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => { dismissTimers.current.forEach(clearTimeout); dismissTimers.current = []; }, []);
   
   // Refs for real-time background stream discovery and strict de-duplication
   const knownFlowIdsRef = useRef<Set<string>>(new Set());
@@ -244,9 +247,9 @@ export function SkyseyeAlertHub() {
         playCockpitPing();
 
         // Auto dismiss after 4.5 seconds
-        setTimeout(() => {
+        dismissTimers.current.push(setTimeout(() => {
           setToasts(prev => prev.filter(t => t.id !== best.id));
-        }, 4500);
+        }, 4500));
 
       } else if (optimalCandidates.length > 1) {
         // Multiple trades found -> state multiple trades found
@@ -274,9 +277,9 @@ export function SkyseyeAlertHub() {
         playCockpitPing();
 
         // Auto dismiss after 4.5 seconds
-        setTimeout(() => {
+        dismissTimers.current.push(setTimeout(() => {
           setToasts(prev => prev.filter(t => t.id !== multipleToast.id));
-        }, 4500);
+        }, 4500));
       }
     }
   }, [serverState]);
