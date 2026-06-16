@@ -1687,6 +1687,7 @@ interface UserAccount {
   selected_font_scale: 'STANDARD' | 'ENHANCED';
   compact_view_enabled: boolean;
   ultrawide_enabled?: boolean;
+  workspace_layout?: any;
   selected_theme: 'SLAYER PURE DARK' | 'DEALER FLOW SLATE' | 'VOLATILITY RADAR' | 'CARBON MONITOR MATTE';
   no_refund_policy_logged: boolean;
   active_ip: string | null;
@@ -3234,6 +3235,30 @@ Do NOT output any markdown headers, conversational filler, or self-praise. Just 
       ]
     });
   }
+});
+
+// ============================================================
+// WORKSPACE LAYOUT PERSISTENCE (resizable grid engine — spec Group 4/5)
+// Stores the user's pane layout JSON. New users hydrate Template A on the
+// client (see WorkspaceView) and PATCH it here so it's never empty.
+// ============================================================
+app.get('/api/users/workspace', (req, res) => {
+  const session = getSessionFromCookies(req.headers.cookie);
+  if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized.' });
+  const user = usersDb.get(session.email.toLowerCase().trim());
+  res.json({ layout: user?.workspace_layout || null });
+});
+
+app.patch('/api/users/workspace', express.json({ limit: '5mb' }), (req, res) => {
+  const session = getSessionFromCookies(req.headers.cookie);
+  if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized.' });
+  const user = usersDb.get(session.email.toLowerCase().trim());
+  if (!user) return res.status(404).json({ error: 'User not found.' });
+  if (req.body && Array.isArray(req.body.layout)) {
+    user.workspace_layout = req.body.layout;
+    return res.json({ success: true });
+  }
+  res.status(400).json({ error: 'A layout array is required.' });
 });
 
 app.patch('/api/users/preferences', express.json({ limit: '50mb' }), (req, res) => {

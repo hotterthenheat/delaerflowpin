@@ -21,6 +21,7 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { SubscriptionPricing } from './components/SubscriptionPricing';
 import { CelebrationOverlay } from './components/CelebrationOverlay';
 import { AdminOverseerPanel } from './components/AdminOverseerPanel';
+import { WorkspaceView } from './components/WorkspaceView';
 
 import {
   Sparkles,
@@ -28,6 +29,7 @@ import {
   Compass,
   Dna,
   Lock,
+  LayoutGrid,
   LogOut,
   Waves,
   ShieldCheck,
@@ -1031,6 +1033,21 @@ export default function App() {
                 <span className="text-[8px] text-zinc-650 font-mono">SETTINGS</span>
               </button>
 
+              <button
+                onClick={() => handleSelectTab('workspace')}
+                className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
+                  activeTab === 'workspace'
+                    ? 'bg-zinc-900 text-white font-bold border-l-2 border-emerald-450 pl-2'
+                    : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-white'
+                }`}
+              >
+                <span className="flex items-center gap-1.55">
+                  <LayoutGrid className="w-3 h-3 text-emerald-450" />
+                  <span>8. TERMINAL WORKSPACE</span>
+                </span>
+                <span className="text-[8px] text-zinc-650 font-mono">GRID</span>
+              </button>
+
               {session?.is_super_admin && (
                 <button
                   onClick={() => handleSelectTab('admin')}
@@ -1236,8 +1253,14 @@ export default function App() {
         )}
 
         {/* TAB 8: ADMIN OVERSEER */}
+        {activeTab === 'workspace' && (
+          <div className="view-enter">
+            <WorkspaceView isSuperAdmin={!!session?.is_super_admin} />
+          </div>
+        )}
+
         {activeTab === 'admin' && (
-          <AdminOverseerPanel 
+          <AdminOverseerPanel
             session={session} 
             onSimulateTier={handleSimulateTier} 
           />
