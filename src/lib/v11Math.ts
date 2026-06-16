@@ -520,8 +520,13 @@ export interface DealerPosEngineResult {
   callWall: number;
   putWall: number;
   gammaFlipPrice: number;
+  gammaFlipConfident: boolean;   // false when no GEX zero-crossing was found (fallback) — Phase 3 abstains
+  wallsConfident: boolean;       // false when no dominant wall was found (fallback) — Phase 3 abstains
+  grossGex: number;
   dealer01: number;
   gexStrikes: { strike: number; gex: number }[];
+  dexStrikes: { strike: number; dex: number }[];
+  vexStrikes: { strike: number; vex: number }[];
   expectedMovePct: number;
 }
 function quickGamma(S: number, K: number, dte: number, iv: number): number {
@@ -552,6 +557,8 @@ export function computeDealerInventory(
   dte = 1 // default 
 ): DealerPosEngineResult {
   const GEX_strike_list: { strike: number; gex: number }[] = [];
+  const DEX_strike_list: { strike: number; dex: number }[] = [];
+  const VEX_strike_list: { strike: number; vex: number }[] = [];
   let netGex = 0;
   let netDex = 0;
   let netVex = 0;
@@ -586,11 +593,14 @@ export function computeDealerInventory(
     grossVex += Math.abs(VEX_strike);
 
     GEX_strike_list.push({ strike: c.strike, gex: GEX_strike });
+    DEX_strike_list.push({ strike: c.strike, dex: DEX_strike });
+    VEX_strike_list.push({ strike: c.strike, vex: VEX_strike });
     gexPerStrike[c.strike] = (gexPerStrike[c.strike] || 0) + GEX_strike;
   });
 
   // Mathematically correct grid search solver for Gamma Flip (S*) crossing level
   let gammaFlip = spot * 0.995; // default fallback
+  let gammaFlipConfident = false;
   const gridPoints: { S: number; gex: number }[] = [];
   const minSpot = spot * 0.85;
   const maxSpot = spot * 1.15;
@@ -608,6 +618,7 @@ export function computeDealerInventory(
     if (Math.sign(ptA.gex) !== Math.sign(ptB.gex) && ptA.gex !== 0) {
       const t = -ptA.gex / (ptB.gex - ptA.gex);
       gammaFlip = ptA.S + t * (ptB.S - ptA.S);
+      gammaFlipConfident = true;
       break;
     }
   }
@@ -634,6 +645,9 @@ export function computeDealerInventory(
     }
   });
 
+  // A dominant wall on BOTH sides is required to trust wall-based Phase-3 metrics.
+  const wallsConfident = maxCallGexAbs > 0 && maxPutGexAbs > 0;
+
   // Normalization to [-1, +1]
   const e_GEX = Math.tanh((netGex / (grossGex || 1)) * 3);
   const e_DEX = Math.tanh((netDex / (grossDex || 1)) * 3);
@@ -656,8 +670,13 @@ export function computeDealerInventory(
     callWall,
     putWall,
     gammaFlipPrice: gammaFlip,
+    gammaFlipConfident,
+    wallsConfident,
+    grossGex,
     dealer01,
     gexStrikes: GEX_strike_list,
+    dexStrikes: DEX_strike_list,
+    vexStrikes: VEX_strike_list,
     expectedMovePct
   };
 }

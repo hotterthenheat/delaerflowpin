@@ -83,3 +83,43 @@ export function dealerConvexity(
   for (let i = 0; i < chain.length; i++) sum += (gN[i] + sN[i] + vN[i] + cN[i]) / 4;
   return 100 * (sum / chain.length);
 }
+
+export interface DealerSignals {
+  dealerTrapScore: number; dealerTrapConfident: boolean;
+  gammaFlipProximity: number; gammaFlipProximityConfident: boolean;
+  dealerStressIndex: number;
+  dealerConvexity: number;
+}
+
+/**
+ * Aggregator that routes a dealer-metrics result (from computeDealerInventory)
+ * into the four Phase-3 signals. NOT displayed and NOT consumed by the ranker;
+ * the caller wires these into the BUY decision gate + position sizing.
+ * `volExpansionNorm` is the existing ATR/IV-expansion microstructure score [0,1].
+ */
+export function computeDealerSignals(input: {
+  spot: number; callWall: number; putWall: number; gammaFlipPrice: number;
+  grossGex: number; expectedMovePct: number;
+  gexAtCallWall: number; gexAtPutWall: number;
+  wallsConfident: boolean; gammaFlipConfident: boolean;
+  volExpansionNorm?: number;
+  convexityChain: { gamma: number; speed?: number; vanna?: number; charm?: number; oi: number }[];
+}, cfg: DealerSignalConfig = DEFAULT_DEALER_SIGNAL_CONFIG): DealerSignals {
+  const trap = dealerTrapScore({
+    gexAtCallWall: input.gexAtCallWall, gexAtPutWall: input.gexAtPutWall, grossGex: input.grossGex,
+    callWall: input.callWall, putWall: input.putWall, spot: input.spot, wallsConfident: input.wallsConfident,
+  }, cfg);
+  const prox = gammaFlipProximity({
+    spot: input.spot, gammaFlipPrice: input.gammaFlipPrice,
+    expectedMovePct: input.expectedMovePct, gammaFlipConfident: input.gammaFlipConfident,
+  });
+  const stress = dealerStressIndex({
+    grossGex: input.grossGex, volExpansionNorm: input.volExpansionNorm ?? 0.5, gammaFlipProximity: prox.value,
+  }, cfg);
+  const convexity = dealerConvexity(input.convexityChain, input.spot);
+  return {
+    dealerTrapScore: trap.value, dealerTrapConfident: trap.confident,
+    gammaFlipProximity: prox.value, gammaFlipProximityConfident: prox.confident,
+    dealerStressIndex: stress, dealerConvexity: convexity,
+  };
+}
