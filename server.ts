@@ -188,6 +188,12 @@ app.use((req, res, next) => {
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
     const clientIp = req.ip || (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || 'unknown';
     const now = Date.now();
+    // Evict stale windows so the per-IP rate-limit map can't grow without bound.
+    if (ipRateLimitDb.size > 5000) {
+      for (const [ip, d] of ipRateLimitDb) {
+        if (now - d.windowStart > RATE_LIMIT_WINDOW_MS) ipRateLimitDb.delete(ip);
+      }
+    }
     let rateData = ipRateLimitDb.get(clientIp);
     if (!rateData || (now - rateData.windowStart) > RATE_LIMIT_WINDOW_MS) {
       rateData = { count: 1, windowStart: now };
@@ -2789,8 +2795,9 @@ app.post('/api/billing/webhook', express.json(), (req, res) => {
     });
   }
 
-  // Record key
+  // Record key (bounded — evict oldest beyond a cap so the set can't grow forever).
   webhookIdempotencyKeys.add(idempotencyKey);
+  if (webhookIdempotencyKeys.size > 5000) { const oldest = webhookIdempotencyKeys.values().next().value; if (oldest !== undefined) webhookIdempotencyKeys.delete(oldest); }
 
   const { event, customer_id, payment_method_id, plan, email } = req.body;
 
@@ -3170,6 +3177,8 @@ app.post('/api/upload', express.json({ limit: '10mb' }), (req, res) => {
     data: base64Data,
     mime: mimeType
   });
+  // Bound the in-memory image store (base64 blobs) so uploads can't exhaust RAM.
+  if (cdnStorage.size > 300) { const oldest = cdnStorage.keys().next().value; if (oldest !== undefined) cdnStorage.delete(oldest); }
 
   const cdnUrl = `/api/images/${uniqueId}`;
   res.json({ cdnUrl });

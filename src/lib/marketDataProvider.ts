@@ -93,7 +93,7 @@ export async function fetchLiveSpotPrice(ticker: string, defaultFallbackPrice: n
         throw new Error(`HTTP ${response.status}`);
       }
       const json = await response.json();
-      price = json?.ticker?.lastTrade?.p || json?.ticker?.todaysPayment || json?.ticker?.prevDay?.c || defaultFallbackPrice;
+      price = json?.ticker?.lastTrade?.p || json?.ticker?.min?.c || json?.ticker?.day?.c || json?.ticker?.prevDay?.c || defaultFallbackPrice;
     }
 
     snapshotCache[cacheKey] = { data: price, timestamp: now };
