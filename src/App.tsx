@@ -767,14 +767,15 @@ export default function App() {
   }
 
   // Pre-calculated components mappings with zero client math
+  const topMispriced = serverState?.discovery?.mispricedCalls?.[0];
   const bestOpportunity = {
-    asset: serverState?.discovery?.mispricedCalls[0]?.asset || ASSET_LIST[0],
-    ticker: `${serverState?.discovery?.mispricedCalls[0]?.asset.ticker || 'SPX'} ${serverState?.discovery?.mispricedCalls[0]?.strike || 7640}C`,
-    confidence: serverState?.discovery?.mispricedCalls[0]?.health || 91,
+    asset: topMispriced?.asset || ASSET_LIST[0],
+    ticker: `${topMispriced?.asset?.ticker || 'SPX'} ${topMispriced?.strike || 7640}C`,
+    confidence: topMispriced?.health || 91,
     isCall: true,
-    currentPrice: `$${(serverState?.discovery?.mispricedCalls[0]?.marketPrice || 4.2).toFixed(2)}`,
-    fairValue: `$${(serverState?.discovery?.mispricedCalls[0]?.modelValue || 6.8).toFixed(2)}`,
-    entryZone: `$${((serverState?.discovery?.mispricedCalls[0]?.marketPrice || 4.2) * 0.92).toFixed(2)} - $${((serverState?.discovery?.mispricedCalls[0]?.marketPrice || 4.2) * 0.98).toFixed(2)}`
+    currentPrice: `$${(topMispriced?.marketPrice || 4.2).toFixed(2)}`,
+    fairValue: `$${(topMispriced?.modelValue || 6.8).toFixed(2)}`,
+    entryZone: `$${((topMispriced?.marketPrice || 4.2) * 0.92).toFixed(2)} - $${((topMispriced?.marketPrice || 4.2) * 0.98).toFixed(2)}`
   };
 
   const topSub10Calls = (serverState?.discovery?.mispricedCalls || []).map((c: any) => ({
