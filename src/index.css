@@ -1513,3 +1513,63 @@ body.prism-locked {
   [data-ultrawide="true"] .grid-cols-1 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   [data-ultrawide="true"] .lg\:grid-cols-2 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }
+
+/* ============================================================
+   INSTITUTIONAL STATUS COLOR LOCK — muted, flat, distinct on #000
+   ============================================================ */
+:root {
+  --status-holding: #4ADE80; /* muted mint green */
+  --status-testing: #D4D4D8; /* neutral light grey */
+  --status-failing: #F87171; /* desaturated soft red */
+}
+.status-holding { color: var(--status-holding) !important; }
+.status-testing { color: var(--status-testing) !important; }
+.status-failing { color: var(--status-failing) !important; }
+.bg-status-holding { background-color: var(--status-holding) !important; }
+.bg-status-testing { background-color: var(--status-testing) !important; }
+.bg-status-failing { background-color: var(--status-failing) !important; }
+.border-status-holding { border-color: var(--status-holding) !important; }
+.border-status-testing { border-color: var(--status-testing) !important; }
+.border-status-failing { border-color: var(--status-failing) !important; }
+
+/* ============================================================
+   TABULAR FIGURES — lock numeric width so live ticks don't jitter
+   ============================================================ */
+.font-mono,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   SETTINGS — mobile responsiveness (< 768px)
+   Sidebar collapses to a horizontal scrolling tab strip; the 800px
+   container becomes full-width with 16px side padding.
+   ============================================================ */
+@media (max-width: 767px) {
+  #slayer-settings-panel {
+    flex-direction: column !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    gap: 1rem !important;
+  }
+  /* First child = the category sidebar -> horizontal scroll strip on top */
+  #slayer-settings-panel > div:first-child {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+  #slayer-settings-panel > div:first-child button {
+    flex: 0 0 auto !important;
+  }
+  /* Content pane fills the width on mobile */
+  #slayer-settings-panel > div:last-child {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}

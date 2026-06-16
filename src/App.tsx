@@ -2,6 +2,7 @@ import React, { useState, useEffect, memo, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useContractStore } from './lib/store';
 import { applyAllPreferences } from './lib/displayPrefs';
+import { withCacheBust } from './lib/format';
 import { ASSET_LIST } from './data';
 import { AssetInfo } from './types';
 
@@ -301,6 +302,8 @@ export default function App() {
 
   const [globalSearchInput, setGlobalSearchInput] = useState('');
   const [globalSearchIndex, setGlobalSearchIndex] = useState(0);
+  // Cache-bust the avatar only when it actually changes (avoids re-fetch churn).
+  const avatarCacheBust = useMemo(() => Date.now(), [session?.avatar]);
   const prismFilter = useContractStore(s => s.prismFilter);
   const setPrismFilter = useContractStore(s => s.setPrismFilter);
   const globalSearchInputRef = useRef<HTMLInputElement>(null);
@@ -1075,9 +1078,9 @@ export default function App() {
 
           {session?.authenticated ? (
             <div className="flex items-center gap-3 bg-zinc-950 px-3.5 py-1.5 border border-zinc-900 rounded-sm">
-              <img 
-                src={session.avatar} 
-                alt="user avatar" 
+              <img
+                src={withCacheBust(session.avatar, avatarCacheBust)}
+                alt="user avatar"
                 className="w-4.5 h-4.5 rounded-full border border-zinc-850 object-cover" 
                 referrerPolicy="no-referrer"
               />

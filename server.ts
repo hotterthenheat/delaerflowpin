@@ -112,6 +112,23 @@ app.use((req, res, next) => {
     .send('<body style="margin:0;background:#000;color:#10b981;font-family:monospace;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center">503 — Slayer Trade is under maintenance. Please check back shortly.</body>');
 });
 
+// Impersonation is strictly READ-ONLY (spec fix #4): while an admin is
+// impersonating a user, reject every mutating request with 403. Logout is
+// allowed so the admin can exit impersonation.
+app.use((req, res, next) => {
+  const method = (req.method || 'GET').toUpperCase();
+  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return next();
+  if (req.path === '/api/auth/logout') return next();
+  const s = getSessionFromCookies(req.headers.cookie);
+  if (s && (s.is_impersonating || s.read_only)) {
+    return res.status(403).json({
+      error: 'Impersonation mode is strictly read-only — mutating actions are forbidden.',
+      is_impersonating: true,
+    });
+  }
+  next();
+});
+
 // RECURSIVE DATA SANITIZATION TO DEFEND AGAINST XSS & SQL INJECTION
 function sanitizeValue(value: any): any {
   if (typeof value === 'string') {
@@ -3876,6 +3893,7 @@ app.post('/api/admin/impersonate/:email', requireAdmin(['super_admin']), (req: a
     email: target.email,
     avatar: target.avatar,
     access_tier: target.access_tier,
+    is_impersonating: true,
     read_only: true,
     impersonated_by: req.admin.email,
   }, req);

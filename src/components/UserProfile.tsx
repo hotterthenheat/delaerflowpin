@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { withCacheBust } from '../lib/format';
 import { Camera, Upload, User, CheckCircle2, X, Image as ImageIcon, AlertCircle, Check, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -24,6 +25,8 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
   const [handle, setHandle] = useState(() => session?.username || '');
   const [avatarUrl, setAvatarUrl] = useState(() => session?.avatar || '');
   const [coverUrl, setCoverUrl] = useState(() => session?.cover_photo || '');
+  // Stable per-mount cache-bust so a re-uploaded avatar (same S3 URL) isn't served stale.
+  const [avatarBust] = useState(() => Date.now());
 
   // Operation indicators
   const [isUpdating, setIsUpdating] = useState(false);
@@ -475,7 +478,7 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
             {avatarUrl ? (
               <>
                 <img
-                  src={avatarUrl}
+                  src={withCacheBust(avatarUrl, avatarBust)}
                   alt="Profile Avatar"
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
