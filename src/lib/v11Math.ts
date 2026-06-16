@@ -156,8 +156,10 @@ export function calculateAnalyticGreeks(
   const vanna = nd1 * Math.sqrt(T) * (1 - d1 / (sigma * Math.sqrt(T)));
   // Correct Charm: put charm equals call charm in dividend-free BSM
   const charm = -nd1 * (r / (sigma * Math.sqrt(T)) - d2 / (2 * Math.max(0.0001, T)));
+  // Speed (∂³V/∂S³) — V5.1 §3.4. Third derivative of value wrt spot.
+  const speed = -(gamma / Math.max(spot, 1e-9)) * (d1 / (sigma * Math.sqrt(T)) + 1);
 
-  return { delta, gamma, vega, theta: dailyTheta, vanna, charm };
+  return { delta, gamma, vega, theta: dailyTheta, vanna, charm, speed };
 }
 
 export function calculateWilderRSI(candles: Candle[]): number[] {

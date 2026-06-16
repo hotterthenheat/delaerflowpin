@@ -16,6 +16,7 @@ export interface StrikeSnapshot {
   vanna: number;
   oi: number;
   volume: number;
+  volShare: number;   // strike volume / total chain volume (V5.1 §2 migration)
   mid: number;
 }
 

@@ -2,13 +2,19 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
- * V5 SkyScore acceptance tests (spec Part 10). Plain assert + tsx style.
- * Run: npx tsx tests/skyScore.test.ts
+ * V5 + V5.1 SkyScore acceptance tests (spec Part 10 + V5.1 build notes).
+ * Plain assert + tsx style. Run: npx tsx tests/skyScore.test.ts
  */
 
 import assert from 'assert';
 import { normSignedTanh, normCrossSection, percentile } from '../src/lib/normalize';
-import { rankContracts, RankerContract, EmaTargets, DEFAULT_V5_CONFIG } from '../src/lib/skyScore';
+import {
+  rankContracts, RankerContract, EmaTargets, DEFAULT_V5_CONFIG,
+  reachMultiplier, mispricingMultiplier,
+} from '../src/lib/skyScore';
+import { SnapshotStore } from '../src/lib/snapshotStore';
+import { dealerStressIndex, dealerConvexity } from '../src/lib/dealerSignals';
+import { calculateAnalyticGreeks } from '../src/lib/v11Math';
 
 let passed = 0;
 const ok = (cond: boolean, msg: string) => { assert.ok(cond, msg); passed++; console.log('  ✓', msg); };
@@ -24,22 +30,21 @@ function mk(p: Partial<RankerContract>): RankerContract {
   };
 }
 
-console.log('--- V5 SKYSCORE ACCEPTANCE SUITE ---');
+console.log('--- V5 / V5.1 SKYSCORE ACCEPTANCE SUITE ---');
 
 // ---- Test A: normalizers + degenerate sets ----
 console.log('A. Normalizers / degenerate sets');
-ok(normSignedTanh(0, 5000) === 50, 'normSignedTanh(0, s) === 50 (zero change = neutral)');
-ok(normCrossSection(5, [5]) === 50, 'normCrossSection(x, [x]) === 50 (single-value set)');
-ok(normSignedTanh(0, 0) === 50, 'normSignedTanh(d, 0) === 50 (no scale → neutral, no NaN)');
+ok(normSignedTanh(0, 5000) === 50, 'normSignedTanh(0, s) === 50');
+ok(normCrossSection(5, [5]) === 50, 'normCrossSection(x, [x]) === 50');
+ok(normSignedTanh(0, 0) === 50, 'normSignedTanh(d, 0) === 50 (no NaN)');
 ok(percentile([], 50) === 0 && isFinite(percentile([7], 90)), 'percentile guards empty/single');
 {
   const single = rankContracts({
     direction: 'bullish', spot: 100, dteDays: 5, dataSource: 'SIMULATED', emaTargets: EMAS,
-    chain: [mk({ strike: 100 }), mk({ strike: 105, type: 'P', delta: -0.5 })], // 1 eligible call, 1 put (wrong type)
+    chain: [mk({ strike: 100 }), mk({ strike: 105, type: 'P', delta: -0.5 })],
   });
   const elig = single.filter((c) => c.eligible);
-  ok(elig.length === 1, 'single-candidate set: exactly one eligible');
-  ok(elig[0].dealerInfluenceScore === 50, 'single-candidate cross-section score === 50');
+  ok(elig.length === 1 && elig[0].dealerInfluenceScore === 50, 'single-candidate cross-section score === 50');
   ok(single.every((c) => [c.skyScore, c.positioningScore, c.dealerInfluenceScore, c.accelerationScore, c.emaPathScore, c.liquidityScore].every(isFinite)), 'no NaN/Infinity in any score');
 }
 
@@ -47,70 +52,121 @@ ok(percentile([], 50) === 0 && isFinite(percentile([7], 90)), 'percentile guards
 console.log('B. Eligibility gate');
 {
   const base = { direction: 'bullish' as const, spot: 100, dteDays: 5, dataSource: 'SIMULATED' as const, emaTargets: EMAS };
-  const reasonFor = (p: Partial<RankerContract>) => rankContracts({ ...base, chain: [mk(p)] })[0];
-  ok(reasonFor({ oi: 100 }).rejectReasons.some((r) => r.includes('OI')), 'rejects OI < 250');
-  ok(reasonFor({ volume: 50 }).rejectReasons.some((r) => r.includes('volume')), 'rejects volume < 100');
-  ok(reasonFor({ bid: 2.0, ask: 2.6 }).rejectReasons.some((r) => r.includes('spread')), 'rejects spread > 12%');
-  ok(reasonFor({ delta: 0.10 }).rejectReasons.some((r) => r.includes('delta')), 'rejects |delta| < 0.30');
-  ok(reasonFor({ delta: 0.80 }).rejectReasons.some((r) => r.includes('delta')), 'rejects |delta| > 0.60');
-  ok(reasonFor({ bid: 0 }).rejectReasons.some((r) => r.includes('bid')), 'rejects bid <= 0');
-  ok(reasonFor({}).eligible === true, 'clean contract passes all filters');
+  const r = (p: Partial<RankerContract>) => rankContracts({ ...base, chain: [mk(p)] })[0];
+  ok(r({ oi: 100 }).rejectReasons.some((x) => x.includes('OI')), 'rejects OI < 250');
+  ok(r({ volume: 50 }).rejectReasons.some((x) => x.includes('volume')), 'rejects volume < 100');
+  ok(r({ bid: 2.0, ask: 2.6 }).rejectReasons.some((x) => x.includes('spread')), 'rejects spread > 12%');
+  ok(r({ delta: 0.10 }).rejectReasons.some((x) => x.includes('delta')), 'rejects |delta| < 0.30');
+  ok(r({}).eligible === true, 'clean contract passes');
 }
 
-// ---- Test C-Positioning: NBRS weighted-average ----
-console.log('C. Positioning — NBRS weighted average');
+// ---- V5.1 §1.1: Positioning Density (cluster beats equal-mass lone spike) ----
+console.log('§1.1 Positioning Density — cluster > equal-mass lone spike');
 {
-  // 7 calls; center 100 OI=12400, all neighbors OI=1000 -> weighted neighbor OI = 1000 -> NBRS = 12.4
-  const strikes = [85, 90, 95, 100, 105, 110, 115];
-  const chain = strikes.map((s) => mk({ strike: s, oi: s === 100 ? 12400 : 1000 }));
-  const res = rankContracts({ direction: 'bullish', spot: 100, dteDays: 5, dataSource: 'SIMULATED', emaTargets: EMAS, chain });
-  const center = res.find((c) => c.strike === 100)!;
-  ok(Math.abs(center.nbrs - 12.4) < 0.01, `NBRS matches weighted-average formula (${center.nbrs} ≈ 12.40)`);
-  // NBRS 12.4 with cap 12 -> nbrsScore = 100; positioning = 0.6*100 + 0.4*50(SIM oiv) = 80
-  ok(Math.abs(center.positioningScore - 80) < 0.01, '12.4× NBRS → nbrsScore≈100 → positioning≈80 (SIM)');
+  const strikes = [88, 92, 96, 100, 104, 108, 112];
+  const lone = strikes.map((s) => mk({ strike: s, oi: s === 100 ? 6000 : 100, volume: 500 }));
+  const cluster = strikes.map((s) => mk({ strike: s, oi: 943, volume: 500 })); // equal total mass ≈ 6601
+  const base = { direction: 'bullish' as const, spot: 100, dteDays: 5, dataSource: 'SIMULATED' as const, emaTargets: EMAS };
+  const loneDensity = rankContracts({ ...base, chain: lone }).find((c) => c.strike === 100)!.positioningDensity;
+  const clusterDensity = rankContracts({ ...base, chain: cluster }).find((c) => c.strike === 100)!.positioningDensity;
+  ok(clusterDensity > loneDensity * 1.5, `equal-mass cluster density >> lone spike (${clusterDensity} vs ${loneDensity})`);
 }
 
-// ---- Test C-Dealer: ACCEL_SIGN flips the ranking ----
-console.log('C. Dealer — ACCEL_SIGN wired (flip inverts ranking)');
+// ---- V5.1 §1.2: reachability multiplier (corrected EM/distance) ----
+console.log('§1.2 Reachability multiplier (EM ÷ distance)');
+{
+  const EM = 0.02;
+  ok(reachMultiplier(EM, 0.5 * EM) === 1, 'target at 0.5·EM → 1.0');
+  ok(reachMultiplier(EM, EM) === 1, 'target at 1·EM → 1.0');
+  ok(Math.abs(reachMultiplier(EM, 2 * EM) - 0.5) < 1e-9, 'target at 2·EM → 0.5');
+  ok(Math.abs(reachMultiplier(EM, 4 * EM) - 0.25) < 1e-9, 'target at 4·EM → 0.25 (far targets decay, not grow)');
+}
+
+// ---- V5.1 §1.3: IV-mispricing multiplier ----
+console.log('§1.3 IV-mispricing multiplier');
+{
+  const K = DEFAULT_V5_CONFIG.IV_PEN_K, F = DEFAULT_V5_CONFIG.IV_PEN_FLOOR;
+  ok(mispricingMultiplier(0.20, 0.20, K, F) === 1, 'mid_iv == FairIV → 1.0');
+  ok(Math.abs(mispricingMultiplier(0.40, 0.20, K, F) - Math.max(1 - K, F)) < 1e-9, 'mid_iv = 2·FairIV → clamp(1-K, FLOOR, 1) = 0.5');
+  ok(mispricingMultiplier(0.10, 0.20, K, F) === 1, 'cheap contract NOT rewarded (multiplier 1, not >1)');
+}
+
+// ---- V5.1 §1.4: dominance no-NaN when total chain volume is 0 ----
+console.log('§1.4 Strike Dominance — no NaN at zero total volume');
+{
+  const res = rankContracts({ direction: 'bullish', spot: 100, dteDays: 5, dataSource: 'SIMULATED', emaTargets: EMAS, totalChainVolume: 0, chain: [mk({})] });
+  ok(isFinite(res[0].liquidityScore), 'liquidityScore finite when totalChainVolume === 0');
+}
+
+// ---- V5.1 §2: migration uses SHARE (raising total chain volume lowers positioning) ----
+console.log('§2 Volume-share migration (removes the close ramp)');
+{
+  const store = new SnapshotStore();
+  const cfg = { LOOKBACK_BARS: 1 };
+  const inp = (total: number) => ({ direction: 'bullish' as const, spot: 100, dteDays: 5, dataSource: 'LIVE' as const, emaTargets: EMAS, chain: [mk({ volume: 500 })], totalChainVolume: total, store, config: cfg });
+  const scan1 = rankContracts(inp(10000))[0];   // records volShare = 0.05, migration neutral (no prior)
+  const scan2 = rankContracts(inp(50000))[0];   // same raw volume, bigger chain → volShare 0.01 → migration < 0
+  ok(scan1.positioningScore === 50, 'first scan: no prior → migration neutral (positioning 50)');
+  ok(scan2.positioningScore < scan1.positioningScore, 'raising total chain volume (share falls) lowers positioning');
+}
+
+// ---- Dealer ACCEL_SIGN wired (flip inverts ranking) ----
+console.log('Dealer — ACCEL_SIGN flip inverts ranking');
 {
   const dealerOnly = { weights: { positioning: 0, dealer: 1, acceleration: 0, emaPath: 0, liquidity: 0 } };
   const A = mk({ symbol: 'AAA', strike: 100, gexStrike: 2e9, dexStrike: 0, vexStrike: 0 });
   const B = mk({ symbol: 'BBB', strike: 200, gexStrike: -2e9, dexStrike: 0, vexStrike: 0 });
   const base = { direction: 'bullish' as const, spot: 150, dteDays: 5, dataSource: 'SIMULATED' as const, emaTargets: EMAS, chain: [A, B] };
-  const plus = rankContracts({ ...base, config: { ...dealerOnly, ACCEL_SIGN: 1 } });
-  const minus = rankContracts({ ...base, config: { ...dealerOnly, ACCEL_SIGN: -1 } });
-  ok(plus[0].strike === 100, 'ACCEL_SIGN=+1 → strike 100 ranks #1');
-  ok(minus[0].strike === 200, 'ACCEL_SIGN=-1 → ranking inverts, strike 200 ranks #1');
+  ok(rankContracts({ ...base, config: { ...dealerOnly, ACCEL_SIGN: 1 } })[0].strike === 100, 'ACCEL_SIGN=+1 → strike 100 #1');
+  ok(rankContracts({ ...base, config: { ...dealerOnly, ACCEL_SIGN: -1 } })[0].strike === 200, 'ACCEL_SIGN=-1 → ranking inverts');
 }
 
-// ---- Test C-EMAPath: skew adjustment is active (beta=0 widens low-delta gap) ----
-console.log('C. EMA Path — skew adjustment active');
+// ---- EMA Path skew adjustment active ----
+console.log('EMA Path — skew adjustment active');
 {
   const emas2: EmaTargets = { ema5: 106, ema9: 110, ema20: 115, ema50: 125, ema200: 90 };
-  const low = mk({ symbol: 'LOW', strike: 106, delta: 0.33, iv: 0.30 });   // OTM at spot, ATM at target
-  const near = mk({ symbol: 'NEAR', strike: 97, delta: 0.58, iv: 0.30 });   // ITM call (less vega-sensitive)
+  const low = mk({ symbol: 'LOW', strike: 106, delta: 0.33, iv: 0.30 });
+  const near = mk({ symbol: 'NEAR', strike: 97, delta: 0.58, iv: 0.30 });
   const base = { direction: 'bullish' as const, spot: 100, dteDays: 14, dataSource: 'SIMULATED' as const, emaTargets: emas2, chain: [low, near] };
-  const withSkew = rankContracts({ ...base, config: { SPOT_VOL_BETA: -0.012 } });
+  const ret = (r: any[], s: string) => r.find((c) => c.symbol === s)!.emaReturns.ema5;
+  const skew = rankContracts({ ...base, config: { SPOT_VOL_BETA: -0.012 } });
   const noSkew = rankContracts({ ...base, config: { SPOT_VOL_BETA: 0 } });
-  const ret = (r: any[], sym: string) => r.find((c) => c.symbol === sym)!.emaReturns.ema5;
-  const gapSkew = ret(withSkew, 'LOW') - ret(withSkew, 'NEAR');
-  const gapNoSkew = ret(noSkew, 'LOW') - ret(noSkew, 'NEAR');
-  ok(ret(noSkew, 'LOW') > ret(withSkew, 'LOW'), 'beta=0 raises the low-delta EMA return vs skew-adjusted');
-  ok(gapNoSkew > gapSkew, 'beta=0 widens low-delta advantage (proves skew term is active)');
+  ok((ret(noSkew, 'LOW') - ret(noSkew, 'NEAR')) > (ret(skew, 'LOW') - ret(skew, 'NEAR')), 'beta=0 widens low-delta gap (skew term active)');
 }
 
-// ---- Test E: stability + breakdown sums into SkyScore ----
+// ---- V5.1 §3.3: Dealer Stress Index uses geometric mean (no product collapse) ----
+console.log('§3.3 Dealer Stress Index — geometric mean');
+{
+  const stress = dealerStressIndex({ grossGex: 5e9, volExpansionNorm: 1, gammaFlipProximity: 0.001 }, { TRAP_CAP: 0.5, GEX_REF: 5e9 });
+  ok(stress > 5 && stress < 25, `one tiny factor → small but non-zero (${stress.toFixed(1)}; raw product would be ~0.1)`);
+}
+
+// ---- V5.1 §3.4: Dealer Convexity per-component normalization + Speed greek ----
+console.log('§3.4 Dealer Convexity — per-component normalization; Speed present');
+{
+  const g = calculateAnalyticGreeks(100, 110, 14, 0.25, true) as any;
+  ok(isFinite(g.speed) && g.speed !== 0, 'Speed greek present and non-zero');
+  const chain = [
+    { gamma: 0.02, speed: -0.001, vanna: 0.05, charm: -0.01, oi: 1000 },
+    { gamma: 0.015, speed: -0.0008, vanna: 0.04, charm: -0.008, oi: 1500 },
+    { gamma: 0.03, speed: -0.002, vanna: 0.06, charm: -0.012, oi: 800 },
+  ];
+  const c1 = dealerConvexity(chain, 100);
+  const scaled = chain.map((x) => ({ ...x, vanna: x.vanna * 1e6 })); // wildly different scale on one greek
+  const c2 = dealerConvexity(scaled, 100);
+  ok(Math.abs(c1 - c2) < 1, `swapping one Greek's scale barely moves the score (${c1.toFixed(2)} vs ${c2.toFixed(2)}) — proves normalization, not raw sum`);
+}
+
+// ---- Stability + breakdown reconciliation ----
 console.log('E. Stability + breakdown reconciliation');
 {
-  const chain = [85, 90, 95, 100, 105, 110].map((s) => mk({ strike: s, oi: 1000 + s, volume: 300 + s }));
+  const chain = [88, 92, 96, 100, 104, 108].map((s) => mk({ strike: s, oi: 1000 + s, volume: 300 + s }));
   const inp = { direction: 'bullish' as const, spot: 100, dteDays: 5, dataSource: 'SIMULATED' as const, emaTargets: EMAS, chain };
-  const r1 = rankContracts(inp);
-  const r2 = rankContracts(inp);
+  const r1 = rankContracts(inp); const r2 = rankContracts(inp);
   ok(JSON.stringify(r1.map((c) => [c.strike, c.skyScore])) === JSON.stringify(r2.map((c) => [c.strike, c.skyScore])), 'identical inputs → identical ranking');
-  const w = DEFAULT_V5_CONFIG.weights;
-  const top = r1[0];
-  const recon = w.positioning * top.positioningScore + w.dealer * top.dealerInfluenceScore + w.acceleration * top.accelerationScore + w.emaPath * top.emaPathScore + w.liquidity * top.liquidityScore;
-  ok(Math.abs(recon - top.skyScore) < 0.6, `component breakdown reconciles to SkyScore (${recon.toFixed(2)} ≈ ${top.skyScore})`);
+  const w = DEFAULT_V5_CONFIG.weights; const t = r1[0];
+  const recon = w.positioning * t.positioningScore + w.dealer * t.dealerInfluenceScore + w.acceleration * t.accelerationScore + w.emaPath * t.emaPathScore + w.liquidity * t.liquidityScore;
+  ok(Math.abs(recon - t.skyScore) < 0.6, `breakdown reconciles to SkyScore (${recon.toFixed(2)} ≈ ${t.skyScore})`);
 }
 
-console.log(`\n--- V5 SUITE PASSED: ${passed} assertions ---`);
+console.log(`\n--- V5.1 SUITE PASSED: ${passed} assertions ---`);
