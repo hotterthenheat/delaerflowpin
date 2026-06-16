@@ -407,8 +407,8 @@ export function aggregateCandles(candles: Candle[], minutes: number): Candle[] {
     const list = groupMap.get(key)!;
     const open = list[0].open;
     const close = list[list.length - 1].close;
-    const high = Math.max(...list.map(c => c.high));
-    const low = Math.min(...list.map(c => c.low));
+    const high = list.reduce((m, c) => Math.max(m, c.high), -Infinity);
+    const low = list.reduce((m, c) => Math.min(m, c.low), Infinity);
     const volume = list.reduce((sum, c) => sum + (Number(c.volume) || 0), 0);
     const vwapSum = list.reduce((sum, c) => sum + (c.vwap || c.close) * c.volume, 0);
     const vwap = volume > 0 ? vwapSum / volume : close;

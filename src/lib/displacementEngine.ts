@@ -160,8 +160,8 @@ export function detectLiquiditySweeps(candles: Candle[], pivotWidth = 2): Liquid
   const n = candles.length;
   if (n < pivotWidth * 2 + 2) return events;
   const { highs, lows } = fractalPivots(candles, pivotWidth);
-  const globalHigh = Math.max(...candles.map(c => c.high));
-  const globalLow = Math.min(...candles.map(c => c.low));
+  const globalHigh = candles.reduce((m, c) => Math.max(m, c.high), -Infinity);
+  const globalLow = candles.reduce((m, c) => Math.min(m, c.low), Infinity);
 
   for (let i = pivotWidth + 1; i < n; i++) {
     const c = candles[i];
