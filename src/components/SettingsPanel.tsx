@@ -30,6 +30,77 @@ interface SettingsPanelProps {
   onUpdateSession: () => void;
 }
 
+// Referral code display + apply box (spec §B). Shows the user's strict
+// [PREFIX]10OFF code and applies a referral/promo code at /api/billing/apply-coupon.
+function ReferralCodeBox() {
+  const [code, setCode] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [applyInput, setApplyInput] = useState('');
+  const [applyMsg, setApplyMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [applying, setApplying] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/billing/my-referral-code', { credentials: 'same-origin' })
+      .then((r) => r.json())
+      .then((d) => { if (d.referral_code) setCode(d.referral_code); })
+      .catch(() => {});
+  }, []);
+
+  const copy = () => {
+    if (!code) return;
+    navigator.clipboard?.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  const apply = async () => {
+    if (!applyInput.trim()) return;
+    setApplying(true);
+    setApplyMsg(null);
+    try {
+      const r = await fetch('/api/billing/apply-coupon', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ referralCode: applyInput.trim() }),
+      });
+      const d = await r.json();
+      if (r.ok) setApplyMsg({ ok: true, text: `${d.discount_percentage}% discount applied — referrer ${d.referrer_name || ''} credited +1 token.` });
+      else setApplyMsg({ ok: false, text: d.error || 'Invalid code.' });
+    } catch {
+      setApplyMsg({ ok: false, text: 'Network error.' });
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  return (
+    <div className="bg-black/40 border border-zinc-900 rounded-xl p-4 space-y-4">
+      <div>
+        <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">Your Referral Code</span>
+        <div className="flex items-center gap-2 mt-1.5">
+          <code className="flex-1 bg-black border border-zinc-800 rounded-lg px-3 py-2.5 text-sm font-mono font-black text-emerald-400 tracking-widest">{code || '…'}</code>
+          <button onClick={copy} className="px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-bold uppercase tracking-widest text-zinc-300 hover:text-white">{copied ? 'Copied' : 'Copy'}</button>
+        </div>
+        <p className="text-[10px] text-zinc-600 mt-1.5">Share this code — referees get 10% off and you earn +1 token per use.</p>
+      </div>
+      <div className="pt-3 border-t border-zinc-900/60">
+        <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">Apply a Referral Code</span>
+        <div className="flex items-center gap-2 mt-1.5">
+          <input
+            value={applyInput}
+            onChange={(e) => setApplyInput(e.target.value.toUpperCase())}
+            placeholder="FRND10OFF"
+            className="flex-1 bg-black border border-zinc-800 rounded-lg px-3 py-2.5 text-sm font-mono text-white uppercase placeholder:text-zinc-700 focus:outline-none focus:border-emerald-500/50"
+          />
+          <button onClick={apply} disabled={applying} className="px-4 py-2.5 bg-emerald-600/15 border border-emerald-500/30 text-emerald-400 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600/25 disabled:opacity-50">{applying ? '…' : 'Apply'}</button>
+        </div>
+        {applyMsg && <p className={`text-[10px] mt-1.5 ${applyMsg.ok ? 'text-emerald-400' : 'text-rose-400'}`}>{applyMsg.text}</p>}
+      </div>
+    </div>
+  );
+}
+
 function KeybindRow({ bindId, label }: { bindId: keyof ContractStore['keybinds'], label: string }) {
   const keybinds = useContractStore(state => state.keybinds);
   const setKeybinds = useContractStore(state => state.setKeybinds);
@@ -1306,6 +1377,8 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                   Referral Rewards Token Pool
                 </h2>
               </div>
+
+              <ReferralCodeBox />
 
               {/* Referral Progress Bar (Gamification) */}
               <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 overflow-hidden">

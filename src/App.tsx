@@ -1027,6 +1027,23 @@ export default function App() {
                 </span>
                 <span className="text-[8px] text-zinc-650 font-mono">SETTINGS</span>
               </button>
+
+              {session?.is_super_admin && (
+                <button
+                  onClick={() => handleSelectTab('admin')}
+                  className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
+                    activeTab === 'admin'
+                      ? 'bg-rose-950/40 text-white font-bold border-l-2 border-rose-500 pl-2'
+                      : 'text-rose-400/80 hover:bg-rose-950/20 hover:text-rose-300'
+                  }`}
+                >
+                  <span className="flex items-center gap-1.55">
+                    <Lock className="w-3 h-3 text-rose-500" />
+                    <span>★ OVERSEER COMMAND CENTER</span>
+                  </span>
+                  <span className="text-[8px] text-zinc-650 font-mono">ADMIN</span>
+                </button>
+              )}
             </div>
           </div>
 
