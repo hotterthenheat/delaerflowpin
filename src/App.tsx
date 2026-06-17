@@ -23,6 +23,7 @@ import { CelebrationOverlay } from './components/CelebrationOverlay';
 import { AdminOverseerPanel } from './components/AdminOverseerPanel';
 import { WorkspaceView } from './components/WorkspaceView';
 
+import { BrandHeader } from './components/BrandLogo';
 import {
   Sparkles,
   Database,
@@ -66,7 +67,7 @@ const TickerTape = memo(() => {
   ];
 
   return (
-    <div className="w-full bg-[#050506]/75 border-b border-zinc-900/50 backdrop-blur-xl overflow-hidden py-1.5 relative z-40 select-none">
+    <div className="w-full bg-black/75 border-b border-black/50 backdrop-blur-xl overflow-hidden py-1.5 relative z-40 select-none">
       <div className="animate-ticker-marquee flex whitespace-nowrap">
         {[...Array(2)].map((_, loopIdx) => (
           <div key={loopIdx} className="flex gap-14 items-center pr-14 animate-none">
@@ -75,13 +76,13 @@ const TickerTape = memo(() => {
                 key={`${loopIdx}-${idx}`} 
                 className="flex items-center gap-2.5 font-mono text-[9.5px] px-2 py-1 rounded transition-all"
               >
-                <span className="font-black text-white tracking-widest">{t.ticker}</span>
+                <span className="font-black text-[#E5E5E5] tracking-widest">{t.ticker}</span>
                 <span className="text-zinc-500 text-[8.5px] uppercase">{t.name}</span>
                 <span className="font-extrabold text-[#f4f4f5]">${t.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                <span className={`font-bold flex items-center gap-0.5 ${t.isUp ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  {t.isUp ? '▲' : '▼'}{t.change}
+                <span className={`font-bold flex items-center gap-0.5 ${t.isUp ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
+                  {t.isUp ? '' : ''}{t.change}
                 </span>
-                <span className="text-zinc-650 text-[8px] font-black border border-zinc-950/20 bg-zinc-950/60 px-1 rounded-xs uppercase">
+                <span className="text-zinc-650 text-[8px] font-black border border-black bg-black/60 px-1 rounded-xs uppercase">
                   VOL: {t.vol}
                 </span>
               </div>
@@ -153,6 +154,8 @@ export default function App() {
     avatar?: string;
     access_tier?: 'guest' | 'discord' | 'intraday' | 'quant' | 'enterprise' | 'lifetime';
     is_super_admin?: boolean;
+    is_impersonating?: boolean;
+    impersonated_by?: string;
     referral_tokens_pool?: number;
     custom_referral_code?: string;
     selected_font_scale?: 'STANDARD' | 'ENHANCED';
@@ -236,6 +239,14 @@ export default function App() {
   // Subscription tier calculations and click-to-upgrade behavior
   const tierInfo = useMemo(() => {
     switch (purchasedTier) {
+      case 0:
+        return {
+          label: "TIER 0 // PUBLIC ACCESS",
+          desc: "NOT SECURED // LOGIN REQUIRED",
+          style: "bg-zinc-500/10 border-zinc-500/25 text-zinc-400 shadow-[0_0_15px_rgba(113,113,122,0.05)]",
+          dotColor: "bg-zinc-500",
+          iconColor: "text-zinc-400"
+        };
       case 1:
         return {
           label: "TIER 1 // DISCORD ALERTS",
@@ -256,9 +267,9 @@ export default function App() {
         return {
           label: "TIER 3 // PINPOINT GEXBOT",
           desc: "REAL-TIME GAMMA DEALER FLOW",
-          style: "bg-emerald-500/10 border-emerald-500/25 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.05)] border-2 border-emerald-500/30",
-          dotColor: "bg-emerald-450",
-          iconColor: "text-emerald-400 animate-pulse"
+          style: "bg-[#4ADE80] text-black/10 border-black text-[#4ADE80] shadow-[0_0_15px_rgba(34,211,238,0.05)] border-2 border-black",
+          dotColor: "bg-black/40",
+          iconColor: "text-[#4ADE80] animate-pulse"
         };
       case 4:
         return {
@@ -569,8 +580,13 @@ export default function App() {
             : (data.access_tier === 'pinpoint' || data.access_tier === 'quant') ? 3
             : (data.access_tier === 'enterprise') ? 4
             : data.access_tier === 'lifetime' ? 5
-            : 0;
+            : 1;
           useContractStore.getState().setPurchasedTier(tierNum);
+        } else {
+          useContractStore.getState().setIsAuthenticated(false);
+          useContractStore.getState().setPurchasedTier(0);
+          localStorage.removeItem('slayer_tier');
+          localStorage.removeItem('slayer_auth');
         }
       }
     } catch (e) {
@@ -601,6 +617,10 @@ export default function App() {
       const res = await fetch('/api/auth/logout', { method: 'POST' });
       if (res.ok) {
         setSession({ authenticated: false });
+        localStorage.removeItem('slayer_tier');
+        localStorage.removeItem('slayer_auth');
+        useContractStore.getState().setPurchasedTier(0);
+        useContractStore.getState().setIsAuthenticated(false);
         // Redirect to homepage
         window.location.reload();
       }
@@ -638,18 +658,26 @@ export default function App() {
           eventSource.close();
           return;
         }
+        if (data.type === 'TIER_UPGRADE') {
+          window.location.reload();
+          return;
+        }
         latestPayload = data;
       } catch (err) {
         console.error('[SkyVision Client] Parsing SSE Data Stream', err);
       }
     };
 
-    flushInterval = setInterval(() => {
+    
+    const flushData = () => {
       if (latestPayload) {
         updateFromSSE(latestPayload);
         latestPayload = null;
       }
-    }, 100);
+      flushInterval = requestAnimationFrame(flushData);
+    };
+    flushInterval = requestAnimationFrame(flushData);
+
 
     eventSource.onerror = (err) => {
       console.error('[SkyVision Client] Stream Connection Error', err);
@@ -657,7 +685,7 @@ export default function App() {
 
     return () => {
       eventSource.close();
-      if (flushInterval) clearInterval(flushInterval);
+      if (flushInterval) cancelAnimationFrame(flushInterval);
     };
   }, [selectedAsset, selectedTimeframe, selectedOptionType, selectedStrike, isPositionOpen, updateFromSSE, session]);
 
@@ -719,11 +747,11 @@ export default function App() {
 
   if (sessionBlockedMessage) {
     return (
-      <div className="min-h-screen bg-[#110203] text-red-500 flex flex-col justify-center items-center font-mono p-6 text-center select-none antialiased">
+      <div className="min-h-screen bg-black text-red-500 flex flex-col justify-center items-center font-mono p-6 text-center select-none antialiased">
         <div className="w-16 h-16 border-2 border-red-500 rounded-full flex items-center justify-center mb-6 animate-pulse">
           <span className="text-3xl font-black">!</span>
         </div>
-        <h1 className="text-xl font-black tracking-widest text-white uppercase mb-2">SLAYER TRADE SECURITY KICKOUT</h1>
+        <h1 className="text-xl font-black tracking-widest text-[#E5E5E5] uppercase mb-2">SLAYER TERMINAL SECURITY KICKOUT</h1>
         <p className="text-xs text-red-500 max-w-md uppercase tracking-wider leading-relaxed mb-4">
           CONCURRENT ACCESS PROTECTOR DISPATCHED: Connection established from a different IP address of this verified user credential. Active real-time workstation constraints limited to 1 concurrent IP.
         </p>
@@ -734,7 +762,7 @@ export default function App() {
           onClick={() => {
             window.location.reload();
           }}
-          className="mt-6 px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-widest rounded transition-colors cursor-pointer"
+          className="mt-6 px-4 py-2 bg-red-600 hover:bg-red-500 text-[#E5E5E5] font-bold text-xs uppercase tracking-widest rounded transition-colors cursor-pointer"
         >
           Re-establish Session Hook
         </button>
@@ -746,7 +774,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-black text-zinc-400 flex flex-col justify-center items-center font-mono select-none antialiased">
         <div className="w-8 h-8 border-t-2 border-white rounded-full animate-spin mb-4"></div>
-        <div className="tracking-widest uppercase text-xs text-white">SECURE WORKSTATION COCKPIT CONNECTING...</div>
+        <div className="tracking-widest uppercase text-xs text-[#E5E5E5]">SECURE WORKSTATION COCKPIT CONNECTING...</div>
         <div className="text-[10px] text-zinc-650 mt-2 uppercase font-mono font-bold animate-pulse">Verifying verified Clerk credentials and security cookies</div>
       </div>
     );
@@ -760,7 +788,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-black text-zinc-400 flex flex-col justify-center items-center font-mono select-none antialiased">
         <div className="w-8 h-8 border-t-2 border-white rounded-full animate-spin mb-4"></div>
-        <div className="tracking-widest uppercase text-xs text-white">SLAYER CLIENT HYDRATION ENGINE ONLINE...</div>
+        <div className="tracking-widest uppercase text-xs text-[#E5E5E5]">SLAYER CLIENT HYDRATION ENGINE ONLINE...</div>
         <div className="text-[10px] text-zinc-650 mt-2 uppercase font-mono">Resolving dynamic system variables</div>
       </div>
     );
@@ -791,33 +819,24 @@ export default function App() {
   }));
 
   const isCall = selectedOptionType === 'C';
-  const showColoredBg = isContractLocked && (activeTab === 'skyvision' || activeTab === 'auditor');
 
   let bgClass = "min-h-screen text-[#f4f4f5] flex flex-col font-mono select-none overflow-x-hidden antialiased relative transition-all duration-700 ease-in-out";
   const activeSlayerTheme = session?.selected_theme || 'SLAYER PURE DARK';
 
   if (activeSlayerTheme === 'CARBON MONITOR MATTE') {
-    bgClass += " bg-[#121212] text-zinc-100";
+    bgClass += " bg-black text-zinc-100";
   } else if (activeSlayerTheme === 'VOLATILITY RADAR') {
-    bgClass += " bg-[#0b0416] text-purple-100";
+    bgClass += " bg-black text-purple-100";
   } else if (activeSlayerTheme === 'DEALER FLOW SLATE') {
-    bgClass += " bg-[#0b0f19] text-blue-50";
+    bgClass += " bg-black text-blue-50";
   } else if (activeSlayerTheme === 'FOREST ALGORITHM') {
-    bgClass += " bg-[#021008] text-emerald-50";
+    bgClass += " bg-[#4ADE80] text-[#4ADE80]";
   } else if (activeSlayerTheme === 'CRIMSON TAPE') {
-    bgClass += " bg-[#120303] text-rose-50";
+    bgClass += " bg-black text-rose-50";
   } else if (activeSlayerTheme === 'MIDNIGHT OCEAN') {
-    bgClass += " bg-[#000a12] text-teal-50";
+    bgClass += " bg-black text-[#4ADE80]";
   } else {
-    bgClass += " bg-[#050506] text-[#f4f4f5]";
-  }
-
-  if (showColoredBg) {
-    if (isCall) {
-      bgClass = "min-h-screen text-[#f4f4f5] flex flex-col font-mono select-none overflow-x-hidden antialiased relative transition-all duration-700 ease-in-out bg-[#011409]";
-    } else {
-      bgClass = "min-h-screen text-[#f4f4f5] flex flex-col font-mono select-none overflow-x-hidden antialiased relative transition-all duration-700 ease-in-out bg-[#140203]";
-    }
+    bgClass += " bg-black text-[#f4f4f5]";
   }
 
   // Determine if alert notifications are allowed to display.
@@ -827,48 +846,37 @@ export default function App() {
 
   return (
     <div className={bgClass}>
+      {session?.is_impersonating && (
+        <div 
+          onClick={() => {
+            fetch('/api/auth/logout', { method: 'POST' }).then(() => window.location.reload());
+          }}
+          className="w-full bg-red-600 text-white font-bold text-center py-2 text-xs cursor-pointer hover:bg-red-700 transition-colors z-[9999]"
+        >
+          IMPERSONATING USER - CLICK HERE TO TERMINATE SESSION
+        </div>
+      )}
       {showAlerts && <SkyseyeAlertHub />}
       
       {/* Liquid background elements mirroring Apple macOS/iOS fluid updates */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 transition-opacity duration-1000">
-        {showColoredBg && isCall && (
-          <>
-            <div className="absolute top-[-10%] left-[-10%] w-[55%] h-[55%] rounded-full bg-emerald-500/12 blur-[120px] animate-fluid-blob-1 transition-all duration-700" />
-            <div className="absolute bottom-[-15%] right-[-10%] w-[65%] h-[60%] rounded-full bg-teal-500/8 blur-[140px] animate-fluid-blob-2 transition-all duration-700" />
-            <div className="absolute top-[35%] right-[20%] w-[45%] h-[45%] rounded-full bg-emerald-450/6 blur-[110px] animate-fluid-blob-3 transition-all duration-700" />
-          </>
-        )}
-        {showColoredBg && !isCall && (
-          <>
-            <div className="absolute top-[-10%] left-[-10%] w-[55%] h-[55%] rounded-full bg-rose-500/12 blur-[120px] animate-fluid-blob-1 transition-all duration-700" />
-            <div className="absolute bottom-[-15%] right-[-10%] w-[65%] h-[60%] rounded-full bg-red-600/8 blur-[140px] animate-fluid-blob-2 transition-all duration-700" />
-            <div className="absolute top-[35%] right-[20%] w-[45%] h-[45%] rounded-full bg-[#ff453a]/6 blur-[110px] animate-fluid-blob-3 transition-all duration-700" />
-          </>
-        )}
-        {!showColoredBg && (
-          <>
-            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.012] via-transparent to-black/[0.12] backdrop-blur-[1px] pointer-events-none transition-all duration-700" />
-            <div className="absolute top-[-10%] left-[-10%] w-[52%] h-[52%] rounded-full bg-white/6 blur-[120px] animate-fluid-blob-1 transition-all duration-700" />
-            <div className="absolute bottom-[-15%] right-[-10%] w-[60%] h-[55%] rounded-full bg-zinc-400/5 blur-[140px] animate-fluid-blob-2 transition-all duration-700" />
-            <div className="absolute top-[35%] right-[20%] w-[40%] h-[40%] rounded-full bg-zinc-650/4 blur-[110px] animate-fluid-blob-3 transition-all duration-700" />
-            <div className="absolute top-[10%] right-[40%] w-[35%] h-[35%] rounded-full bg-white/3 blur-[90px] animate-pulse transition-all duration-700" />
-          </>
-        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.012] via-transparent to-black/[0.12] backdrop-blur-[1px] pointer-events-none transition-all duration-700" />
+        <div className="absolute top-[-10%] left-[-10%] w-[52%] h-[52%] rounded-full bg-white/6 blur-[120px] animate-fluid-blob-1 transition-all duration-700" />
+        <div className="absolute bottom-[-15%] right-[-10%] w-[60%] h-[55%] rounded-full bg-black blur-[140px] animate-fluid-blob-2 transition-all duration-700" />
+        <div className="absolute top-[35%] right-[20%] w-[40%] h-[40%] rounded-full bg-black blur-[110px] animate-fluid-blob-3 transition-all duration-700" />
+        <div className="absolute top-[10%] right-[40%] w-[35%] h-[35%] rounded-full bg-white/3 blur-[90px] animate-pulse transition-all duration-700" />
       </div>
 
-      <div className="flex-1 flex flex-col w-full max-w-[1600px] mx-auto relative z-10">
+      <div className="flex-1 flex flex-col w-full mx-auto relative z-10">
         {/* Upper ecosystem workstation cockpit core header */}
-        <header className="sticky top-0 z-50 bg-[#050506]/80 backdrop-blur-xl border-b border-zinc-900/60 px-6 py-3 flex flex-col sm:flex-row justify-between items-center select-none font-mono gap-4">
+        <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-black/60 px-6 py-3 flex flex-col sm:flex-row justify-between items-center select-none font-mono gap-4">
 
         <div className="flex flex-wrap items-center gap-3.5">
           <div 
             onClick={() => setActiveTab('home')}
-            className="flex items-center gap-2 cursor-pointer group"
+            className="flex items-center gap-2 cursor-pointer group scale-75 transform origin-left"
           >
-            <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse group-hover:bg-emerald-450 transition-colors" />
-            <span className="text-xs font-black tracking-widest text-[#FFFFFF] uppercase whitespace-nowrap group-hover:text-emerald-400 transition-colors">
-              slayertrade
-            </span>
+            <BrandHeader />
           </div>
 
           {serverState?.data_source === 'TRADIER_POLYGON_COMPLEMENTARY' ? (
@@ -888,10 +896,10 @@ export default function App() {
               <span>LIVE TRADIER STREAM ACTIVE</span>
             </div>
           ) : serverState?.data_source === 'POLYGON_LIVE' ? (
-            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[8.5px] font-black tracking-widest uppercase rounded-xs">
+            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-black/40 border border-black text-[#4ADE80] text-[8.5px] font-black tracking-widest uppercase rounded-xs">
               <span className="relative flex h-1.5 w-1.5 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black/40 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-black/40"></span>
               </span>
               <span>LIVE POLYGON STREAM ACTIVE</span>
             </div>
@@ -906,30 +914,30 @@ export default function App() {
 
           {/* Active Workstation selector dropdown on hover */}
           <div className="relative group py-1">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 hover:text-white cursor-pointer select-none bg-zinc-950/80 hover:bg-zinc-900 border border-zinc-850 px-3 py-1.5 rounded-md transition-all">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>ACTIVE ENGINE: <span className="text-white uppercase font-black">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 hover:text-[#E5E5E5] cursor-pointer select-none bg-black/80 hover:bg-black border border-black px-3 py-1.5 rounded-md transition-all">
+              <span className="w-1.5 h-1.5 rounded-full bg-black/40 animate-pulse" />
+              <span>ACTIVE ENGINE: <span className="text-[#E5E5E5] uppercase font-black">
                 {activeTab === 'home' && 'Ecosystem Introduction'}
-                {activeTab === 'skyvision' && 'Slayer // SkyVision'}
-                {activeTab === 'pinpoint' && 'Slayer // Pinpoint'}
+                {activeTab === 'skyvision' && 'SkysVision'}
+                {activeTab === 'pinpoint' && 'Pinpoint AI'}
                 {activeTab === 'auditor' && 'Trust Archive & Registry'}
                 {activeTab === 'dealerflow' && 'Dealer Flow'}
                 {activeTab === 'arbor' && 'Research & Community'}
               </span></span>
-              <span className="text-[8px] text-zinc-650 group-hover:text-white transition-transform duration-200">▼</span>
+              <span className="text-[8px] text-zinc-650 group-hover:text-[#E5E5E5] transition-transform duration-200"></span>
             </div>
             
             {/* Hover options list */}
-            <div className="absolute top-full left-0 mt-1 w-[22rem] bg-[#09090b] border border-zinc-850 rounded-sm shadow-2xl opacity-0 scale-95 origin-top-left invisible group-hover:opacity-100 group-hover:scale-100 group-hover:visible transition-all duration-150 z-50 p-2 space-y-1 max-h-[80vh] overflow-y-auto">
-              <div className="text-[8px] text-zinc-650 font-black tracking-widest px-2 py-1 border-b border-[#121214] uppercase mb-1">
+            <div className="absolute top-full left-0 mt-1 w-[22rem] bg-black border border-black rounded-sm shadow-2xl opacity-0 scale-95 origin-top-left invisible group-hover:opacity-100 group-hover:scale-100 group-hover:visible transition-all duration-150 z-50 p-2 space-y-1 max-h-[80vh] overflow-y-auto">
+              <div className="text-[8px] text-zinc-650 font-black tracking-widest px-2 py-1 border-b border-black uppercase mb-1">
                 SELECT COGNITIVE CORE
               </div>
                        <button
                 onClick={() => handleSelectTab('home')}
                 className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
                   activeTab === 'home'
-                    ? 'bg-zinc-900 text-white font-bold border-l-2 border-white pl-2'
-                    : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-white'
+                    ? 'bg-black text-[#E5E5E5] font-bold border-l-2 border-white pl-2'
+                    : 'text-zinc-400 hover:bg-black/50 hover:text-[#E5E5E5]'
                 }`}
               >
                 <span>1. ECOSYSTEM INTRODUCTION</span>
@@ -940,13 +948,13 @@ export default function App() {
                 onClick={() => handleSelectTab('skyvision')}
                 className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
                   activeTab === 'skyvision'
-                    ? 'bg-zinc-900 text-white font-bold border-l-2 border-emerald-450 pl-2'
-                    : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-white'
+                    ? 'bg-black text-[#E5E5E5] font-bold border-l-2 border-black pl-2'
+                    : 'text-zinc-400 hover:bg-black/50 hover:text-[#E5E5E5]'
                 }`}
               >
                 <span className="flex items-center gap-1.55">
                   <Sparkles className="w-3 h-3 text-amber-500 animate-pulse" />
-                  <span>2. SLAYER // SKYVISION</span>
+                  <span>2. SKYSVISION</span>
                 </span>
                 <span className="text-[8px] text-zinc-650 font-mono">DECISION ARMORY</span>
               </button>
@@ -955,13 +963,13 @@ export default function App() {
                 onClick={() => handleSelectTab('pinpoint')}
                 className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
                   activeTab === 'pinpoint'
-                    ? 'bg-zinc-900 text-white font-bold border-l-2 border-emerald-450 pl-2'
-                    : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-white'
+                    ? 'bg-black text-[#E5E5E5] font-bold border-l-2 border-black pl-2'
+                    : 'text-zinc-400 hover:bg-black/50 hover:text-[#E5E5E5]'
                 }`}
               >
                 <span className="flex items-center gap-1.55">
-                  <Dna className="w-3 h-3 text-emerald-450" />
-                  <span>3. SLAYER // PINPOINT</span>
+                  <Dna className="w-3 h-3 text-[#4ADE80]" />
+                  <span>3. PINPOINT AI</span>
                 </span>
                 <span className="text-[8px] text-zinc-650 font-mono">MARKET INTEL</span>
               </button>
@@ -970,8 +978,8 @@ export default function App() {
                 onClick={() => handleSelectTab('auditor')}
                 className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
                   activeTab === 'auditor'
-                    ? 'bg-zinc-900 text-white font-bold border-l-2 border-emerald-450 pl-2'
-                    : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-white'
+                    ? 'bg-black text-[#E5E5E5] font-bold border-l-2 border-black pl-2'
+                    : 'text-zinc-400 hover:bg-black/50 hover:text-[#E5E5E5]'
                 }`}
               >
                 <span className="flex items-center gap-1.55">
@@ -985,18 +993,18 @@ export default function App() {
                 onClick={() => handleSelectTab('dealerflow')}
                 className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
                   activeTab === 'dealerflow'
-                    ? 'bg-zinc-900 text-white font-bold border-l-2 border-emerald-450 pl-2'
-                    : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-white'
+                    ? 'bg-black text-[#E5E5E5] font-bold border-l-2 border-black pl-2'
+                    : 'text-zinc-400 hover:bg-black/50 hover:text-[#E5E5E5]'
                 }`}
               >
                 <span className="flex items-center gap-1.55">
-                  <Waves className="w-3 h-3 text-emerald-450" />
+                  <Waves className="w-3 h-3 text-[#4ADE80]" />
                   <span>5. DEALER FLOW</span>
                 </span>
                 <span className="text-[8px] text-zinc-650 font-mono">GAMMA FLOW</span>
               </button>
 
-              <div className="text-[8px] text-zinc-650 font-black tracking-widest px-2 py-1 border-t border-b border-[#121214] uppercase my-1 font-mono">
+              <div className="text-[8px] text-zinc-650 font-black tracking-widest px-2 py-1 border-t border-b border-black uppercase my-1 font-mono">
                 MORE POWER TOOLS
               </div>
 
@@ -1004,18 +1012,18 @@ export default function App() {
                 onClick={() => handleSelectTab('arbor')}
                 className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
                   activeTab === 'arbor'
-                    ? 'bg-zinc-900 text-white font-bold border-l-2 border-emerald-450 pl-2'
-                    : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-white'
+                    ? 'bg-black text-[#E5E5E5] font-bold border-l-2 border-black pl-2'
+                    : 'text-zinc-400 hover:bg-black/50 hover:text-[#E5E5E5]'
                 }`}
               >
                 <span className="flex items-center gap-1.55">
-                  <GraduationCap className="w-3 h-3 text-emerald-450" />
+                  <GraduationCap className="w-3 h-3 text-[#4ADE80]" />
                   <span>6. RESEARCH & COMMUNITY</span>
                 </span>
                 <span className="text-[8px] text-zinc-650 font-mono">EDUCATION</span>
               </button>
 
-              <div className="text-[8px] text-zinc-650 font-black tracking-widest px-2 py-1 border-t border-b border-[#121214] uppercase my-1 font-mono">
+              <div className="text-[8px] text-zinc-650 font-black tracking-widest px-2 py-1 border-t border-b border-black uppercase my-1 font-mono">
                 USER PERSONALIZATION
               </div>
 
@@ -1023,12 +1031,12 @@ export default function App() {
                 onClick={() => handleSelectTab('settings')}
                 className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
                   activeTab === 'settings'
-                    ? 'bg-zinc-900 text-white font-bold border-l-2 border-emerald-450 pl-2'
-                    : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-white'
+                    ? 'bg-black text-[#E5E5E5] font-bold border-l-2 border-black pl-2'
+                    : 'text-zinc-400 hover:bg-black/50 hover:text-[#E5E5E5]'
                 }`}
               >
                 <span className="flex items-center gap-1.55">
-                  <SlidersHorizontal className="w-3 h-3 text-emerald-450" />
+                  <SlidersHorizontal className="w-3 h-3 text-[#4ADE80]" />
                   <span>7. SYSTEM CONFIGURATION</span>
                 </span>
                 <span className="text-[8px] text-zinc-650 font-mono">SETTINGS</span>
@@ -1038,12 +1046,12 @@ export default function App() {
                 onClick={() => handleSelectTab('workspace')}
                 className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
                   activeTab === 'workspace'
-                    ? 'bg-zinc-900 text-white font-bold border-l-2 border-emerald-450 pl-2'
-                    : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-white'
+                    ? 'bg-black text-[#E5E5E5] font-bold border-l-2 border-black pl-2'
+                    : 'text-zinc-400 hover:bg-black/50 hover:text-[#E5E5E5]'
                 }`}
               >
                 <span className="flex items-center gap-1.55">
-                  <LayoutGrid className="w-3 h-3 text-emerald-450" />
+                  <LayoutGrid className="w-3 h-3 text-[#4ADE80]" />
                   <span>8. TERMINAL WORKSPACE</span>
                 </span>
                 <span className="text-[8px] text-zinc-650 font-mono">GRID</span>
@@ -1054,8 +1062,8 @@ export default function App() {
                   onClick={() => handleSelectTab('admin')}
                   className={`w-full text-left px-2.5 py-2 text-[10px] font-medium transition-all rounded-xs flex items-center justify-between cursor-pointer ${
                     activeTab === 'admin'
-                      ? 'bg-rose-950/40 text-white font-bold border-l-2 border-rose-500 pl-2'
-                      : 'text-rose-400/80 hover:bg-rose-950/20 hover:text-rose-300'
+                      ? 'bg-rose-950/40 text-[#E5E5E5] font-bold border-l-2 border-rose-500 pl-2'
+                      : 'text-[#F87171]/80 hover:bg-rose-950/20 hover:text-[#F87171]'
                   }`}
                 >
                   <span className="flex items-center gap-1.55">
@@ -1076,7 +1084,7 @@ export default function App() {
           {/* Subscription Tier Badge */}
           <div 
             onClick={handleUpgradeClick}
-            className={`flex items-center gap-2.5 px-3 py-1.5 border rounded-md cursor-pointer hover:brightness-110 hover:border-zinc-500/40 active:scale-[0.98] transition-all select-none group font-mono ${tierInfo.style}`}
+            className={`flex items-center gap-2.5 px-3 py-1.5 border rounded-md cursor-pointer hover:brightness-110 hover:border-black active:scale-[0.98] transition-all select-none group font-mono ${tierInfo.style}`}
             title="Your current subscription level. Click to view upgrade options or manage tiers."
           >
             <span className="relative flex h-2 w-2 shrink-0">
@@ -1084,30 +1092,30 @@ export default function App() {
               <span className={`relative inline-flex rounded-full h-2 w-2 ${tierInfo.dotColor}`}></span>
             </span>
             <div className="flex flex-col text-left leading-tight">
-              <span className="text-[9.5px] font-black tracking-wider flex items-center gap-1 text-white text-sans">
+              <span className="text-[9.5px] font-black tracking-wider flex items-center gap-1 text-[#E5E5E5] text-sans">
                 {tierInfo.label}
                 <ChevronRight className="w-2.5 h-2.5 opacity-30 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all ml-0.5 text-zinc-400 shrink-0" />
               </span>
-              <span className="text-[7.5px] text-[#71717A] font-extrabold tracking-wider uppercase group-hover:text-white transition-colors">
+              <span className="text-[7.5px] text-[#71717A] font-extrabold tracking-wider uppercase group-hover:text-[#E5E5E5] transition-colors">
                 {tierInfo.desc}
               </span>
             </div>
           </div>
 
           {session?.authenticated ? (
-            <div className="flex items-center gap-3 bg-zinc-950 px-3.5 py-1.5 border border-zinc-900 rounded-sm">
+            <div className="flex items-center gap-3 bg-black px-3.5 py-1.5 border border-black rounded-sm">
               <img
                 src={withCacheBust(session.avatar, avatarCacheBust)}
                 alt="user avatar"
-                className="w-4.5 h-4.5 rounded-full border border-zinc-850 object-cover" 
+                className="w-4.5 h-4.5 rounded-full border border-black object-cover" 
                 referrerPolicy="no-referrer"
               />
-              <span className="text-[10px] font-black text-white uppercase">{session.name}</span>
+              <span className="text-[10px] font-black text-[#E5E5E5] uppercase">{session.name}</span>
               <span className="text-zinc-800">|</span>
               <button 
                 onClick={() => handleSelectTab('settings')} 
                 className={`flex items-center gap-1 text-[10px] uppercase font-black tracking-wider transition-colors cursor-pointer ${
-                  activeTab === 'settings' ? 'text-emerald-400 text-bold' : 'text-zinc-500 hover:text-white'
+                  activeTab === 'settings' ? 'text-[#4ADE80] text-bold' : 'text-zinc-500 hover:text-[#E5E5E5]'
                 }`}
                 title="System preferences & invoice summaries"
               >
@@ -1128,14 +1136,14 @@ export default function App() {
               <span className="text-zinc-650 hidden md:block uppercase font-black text-[9px] mr-2">SECURE PORTAL:</span>
               <button
                 onClick={() => setShowAuthModal(true)}
-                className="px-3 py-1.5 border border-emerald-850 hover:border-emerald-500 bg-emerald-950/30 text-emerald-400 hover:text-white uppercase font-black transition-all flex items-center gap-1.5 text-[9.5px] rounded-xs cursor-pointer active:scale-95"
+                className="px-3 py-1.5 border border-black hover:border-black bg-black/40 text-[#4ADE80] hover:text-[#E5E5E5] uppercase font-black transition-all flex items-center gap-1.5 text-[9.5px] rounded-xs cursor-pointer active:scale-95"
               >
                 <span>LOGIN / CREATE ACCOUNT</span>
               </button>
               <span className="text-zinc-800 text-[10px] select-none mx-0.5">|</span>
               <a 
                 href="/api/auth/sandbox" 
-                className="px-3 py-1.5 border border-zinc-850 hover:border-zinc-755 bg-zinc-950 text-zinc-400 hover:text-white uppercase font-black transition-colors flex items-center gap-1.5 text-[9.5px] rounded-xs"
+                className="px-3 py-1.5 border border-black hover:border-black bg-black text-zinc-400 hover:text-[#E5E5E5] uppercase font-black transition-colors flex items-center gap-1.5 text-[9.5px] rounded-xs"
               >
                 <span>ACTIVATE SANDBOX ENVIRONMENT</span>
               </a>
@@ -1205,7 +1213,7 @@ export default function App() {
 
         {/* TAB 3: PINPOINT AI (MARKET INTELLIGENCE) */}
         {activeTab === 'pinpoint' && (
-          <div className="view-enter border border-zinc-900 bg-[#060607]/80 rounded-md p-1 drop-shadow-2xl">
+          <div className="view-enter border border-black bg-black/80 rounded-md p-1 drop-shadow-2xl">
             <TierGuard requiredTier={3} tabKey="pinpoint" planKey="pinpoint" planName="Pinpoint Gexbot Tracker" planPrice="$500">
               <PinpointAIView />
             </TierGuard>
@@ -1280,14 +1288,14 @@ export default function App() {
 
       {/* VIEWPORT SIMULATION ACTIVE BANNER */}
       {isSimulating && (
-        <div className="fixed top-0 left-0 right-0 z-[9999] bg-rose-600 text-white px-4 py-1.5 flex justify-between items-center font-mono text-[10px] uppercase tracking-widest font-black shadow-[0_0_20px_rgba(225,29,72,0.4)]">
+        <div className="fixed top-0 left-0 right-0 z-[9999] bg-rose-600 text-[#E5E5E5] px-4 py-1.5 flex justify-between items-center font-mono text-[10px] uppercase tracking-widest font-black shadow-[0_0_20px_rgba(225,29,72,0.4)]">
           <div className="flex items-center gap-3">
             <span className="w-2 h-2 bg-white rounded-full animate-ping" />
             <span>SPOOFING ACTIVE: VIEWING PLATFORM AS [{session?.access_tier}]</span>
           </div>
           <button 
             onClick={handleExitSimulation}
-            className="bg-black hover:bg-zinc-900 text-white px-4 py-1 transition-colors border border-rose-800"
+            className="bg-black hover:bg-black text-[#E5E5E5] px-4 py-1 transition-colors border border-rose-800"
           >
             TERMINATE SIMULATION & RESTORE MASTER CLEARANCE
           </button>
@@ -1310,7 +1318,7 @@ export default function App() {
       )}
 
       {/* Terminal Footer Status Bar */}
-      <footer className="mt-auto border-t border-zinc-900 bg-black px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between text-[9px] text-zinc-550 font-mono tracking-widest uppercase gap-2">
+      <footer className="mt-auto border-t border-black bg-black px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between text-[9px] text-zinc-550 font-mono tracking-widest uppercase gap-2">
         <div className="flex flex-wrap gap-4 sm:gap-6 justify-center sm:justify-start">
           <span>SYSTEM STATUS: OPTIMAL</span>
           <span className="text-zinc-850">|</span>
@@ -1320,10 +1328,10 @@ export default function App() {
           <span className="text-zinc-850">|</span>
           <span>PROVENANCE TRAIL ACTIVE</span>
           <span className="text-zinc-850">|</span>
-          <span className="text-white">AUDIT: {serverState?.provenance?.audit_id || 'AUD-991A'}</span>
+          <span className="text-[#E5E5E5]">AUDIT: {serverState?.provenance?.audit_id || 'AUD-991A'}</span>
         </div>
         <div className="flex items-center gap-2 mt-2 sm:mt-0">
-          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+          <div className="w-1.5 h-1.5 bg-black/40 rounded-full animate-pulse"></div>
           <span className="text-zinc-400 font-bold">SERVER LIVE FEED STREAMING</span>
         </div>
       </footer>
@@ -1352,9 +1360,9 @@ export default function App() {
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 12, opacity: 0 }}
               transition={{ duration: 0.5, ease: [0.22, 1.2, 0.36, 1] }} // --ease-spring
-              className="w-full max-w-lg bg-[#0e0e11] border border-zinc-850 rounded-lg shadow-2xl overflow-hidden text-left"
+              className="w-full max-w-lg bg-black border border-black rounded-lg shadow-2xl overflow-hidden text-left"
             >
-              <div className="p-4 border-b border-zinc-900/60 flex flex-col gap-3">
+              <div className="p-4 border-b border-black/60 flex flex-col gap-3">
                 <div className="flex items-center gap-3">
                   <Search className="w-4 h-4 text-zinc-500 animate-pulse" />
                   <input 
@@ -1367,12 +1375,12 @@ export default function App() {
                     }}
                     onKeyDown={handleGlobalSearchKeyDown}
                     placeholder="Type search keyword or select computing token..."
-                    className="w-full bg-zinc-950 border border-zinc-850 px-3.5 py-1.5 text-white text-xs placeholder-zinc-650 font-mono rounded-md focus:ring-1 focus:ring-emerald-500/80 focus:border-emerald-500/80 focus:outline-none text-[11px]"
+                    className="w-full bg-black border border-black px-3.5 py-1.5 text-[#E5E5E5] text-xs placeholder-zinc-650 font-mono rounded-md focus:ring-1 focus:ring-zinc-300/80 focus:border-black focus:outline-none text-[11px]"
                   />
                   <button 
                     type="button"
                     onClick={() => setIsGlobalSearchOpen(false)}
-                    className="text-zinc-500 hover:text-white text-[9px] uppercase font-black transition-colors focus:outline-none"
+                    className="text-zinc-500 hover:text-[#E5E5E5] text-[9px] uppercase font-black transition-colors focus:outline-none"
                   >
                     ESC
                   </button>
@@ -1386,7 +1394,7 @@ export default function App() {
                         setGlobalSearchIndex(0);
                       }}
                       className={`px-3 py-1 rounded-sm text-[9px] uppercase font-bold transition-colors cursor-pointer ${
-                        prismFilter === filter ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                        prismFilter === filter ? 'bg-black text-[#E5E5E5]' : 'text-zinc-500 hover:text-[#4ADE80]'
                       }`}
                     >
                       {filter}
@@ -1396,7 +1404,7 @@ export default function App() {
               </div>
 
               <div className="p-3 max-h-[320px] overflow-y-auto hide-scrollbar">
-                <div className="text-[7.5px] text-[#5c5c68] font-extrabold uppercase px-3 py-1 tracking-wider mb-1">
+                <div className="text-[7.5px] text-[#000000] font-extrabold uppercase px-3 py-1 tracking-wider mb-1">
                   {prismFilter === 'All' ? 'GLOBAL REGISTRY' : prismFilter.toUpperCase()}
                 </div>
 
@@ -1457,13 +1465,13 @@ export default function App() {
                         }}
                         className={`w-full flex items-center justify-between text-left px-4 py-3 rounded-md transition-all border outline-none focus:outline-none cursor-pointer ${
                           isActive 
-                            ? 'bg-[#18181c] border-zinc-800' 
+                            ? 'bg-black border-black' 
                             : 'bg-transparent border-transparent'
                         }`}
                         onMouseEnter={() => setGlobalSearchIndex(idx)}
                       >
                         <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
-                          <span className={`text-[12px] font-black tracking-wider shrink-0 ${isActive ? 'text-[#38bdf8]' : isTkActive ? 'text-emerald-450' : 'text-zinc-300'}`}>
+                          <span className={`text-[12px] font-black tracking-wider shrink-0 ${isActive ? 'text-[#38bdf8]' : isTkActive ? 'text-[#4ADE80]' : 'text-[#4ADE80]'}`}>
                             {tickerItem.isContract ? tickerItem.contract : tickerItem.ticker}
                           </span>
                           <span className="text-[10px] text-zinc-500 uppercase font-medium truncate">
@@ -1474,7 +1482,7 @@ export default function App() {
                           <span className="text-[10px] font-bold text-zinc-400 font-mono">
                             {tickerItem.isContract || tickerItem.isTool || tickerItem.isNav ? tickerItem.pnl : `$${tickerItem.price?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                           </span>
-                          <ChevronRight className={`w-3.5 h-3.5 transition-colors ${isActive ? 'text-white' : 'text-zinc-700'}`} />
+                          <ChevronRight className={`w-3.5 h-3.5 transition-colors ${isActive ? 'text-[#E5E5E5]' : 'text-zinc-700'}`} />
                         </div>
                       </button>
                     );
@@ -1487,8 +1495,8 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="bg-black/40 px-4 py-2 border-t border-zinc-900 flex justify-between items-center text-[7.5px] text-zinc-650 uppercase tracking-wider font-semibold font-mono">
-                <span>USE KEYBOARD ARROWS ↑↓ AND ENTER</span>
+              <div className="bg-black/40 px-4 py-2 border-t border-black flex justify-between items-center text-[7.5px] text-zinc-650 uppercase tracking-wider font-semibold font-mono">
+                <span>USE KEYBOARD ARROWS  AND ENTER</span>
                 <span>{keybinds.prismMenu?.replace('cmd', typeof window !== 'undefined' && navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl').toUpperCase()} TO TOGGLE</span>
               </div>
             </motion.div>

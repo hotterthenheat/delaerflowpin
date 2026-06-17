@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { AssetInfo, Candle, FairValueGap, LiquidityEvent, TargetLevel, SystemScore } from '../types';
 import { InteractiveChart } from './InteractiveChart';
+import { SlayerScoreWidget, VolatilityStateWidget } from './WorkspaceWidgets';
 import { SkyVisionV11Cockpit } from './SkyVisionV11Cockpit';
 import { useContractStore } from '../lib/store';
 
@@ -34,11 +35,11 @@ const formatState = (state: string) => {
 const stateChip = (state: string) => {
   const s = formatState(state);
   const map: Record<string, string> = {
-    HOLDING: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
-    TESTING: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
-    FAILING: 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+    HOLDING: 'status-holding mirror-panel',
+    TESTING: 'status-testing mirror-panel',
+    FAILING: 'status-failing mirror-panel'
   };
-  return map[s] || 'bg-zinc-800 text-zinc-400 border-zinc-700';
+  return map[s] || 'bg-black text-zinc-400 border-black';
 };
 
 interface TradeIntelligenceWorkspaceProps {
@@ -199,8 +200,8 @@ export function TradeIntelligenceWorkspace({
   const thesisHealthStatus = useMemo(() => {
     if (invalidationTriggered) return { text: 'INVALIDATED / COLLAPSED', color: 'text-rose-500', bg: 'bg-rose-950/20 border-rose-900/60' };
     if (liveConfidence < 75) return { text: 'DETERIORATING / WEAK', color: 'text-amber-500', bg: 'bg-amber-950/20 border-amber-900/40' };
-    if (lastConfidenceChange === 'UP') return { text: 'IMPROVING / HIGH HEALTH', color: 'text-emerald-400', bg: 'bg-emerald-950/20 border-emerald-900/50' };
-    return { text: 'STEADY / HEALTHY', color: 'text-zinc-300', bg: 'bg-zinc-950 border-zinc-800' };
+    if (lastConfidenceChange === 'UP') return { text: 'IMPROVING / HIGH HEALTH', color: 'text-[#4ADE80]', bg: 'bg-black/40 border-black' };
+    return { text: 'STEADY / HEALTHY', color: 'text-[#4ADE80]', bg: 'bg-black border-black' };
   }, [liveConfidence, lastConfidenceChange, invalidationTriggered]);
 
   // Custom targets section matching options values
@@ -230,25 +231,25 @@ export function TradeIntelligenceWorkspace({
     <div className="flex flex-col gap-5 animate-fade-in">
       
       {/* 1. Header Information Summary */}
-      <div className="bg-zinc-950/70 border border-zinc-850 p-4 rounded-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-black/70 border border-black p-4 rounded-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[17px] font-mono font-bold tracking-widest text-white uppercase">{contractDisplayName}</span>
+            <span className="text-[17px] font-mono font-bold tracking-widest text-[#E5E5E5] uppercase">{contractDisplayName}</span>
             <span className={`px-2 py-0.5 border text-[10px] font-mono font-bold rounded-sm ${
-              contractBias === 'BULLISH' ? 'bg-emerald-950/60 border-emerald-900 text-emerald-400' : 'bg-rose-950/60 border-rose-900/60 text-rose-450'
+              contractBias === 'BULLISH' ? 'bg-black/40 border-black text-[#4ADE80]' : 'bg-rose-950/60 border-rose-900/60 text-[#F87171]'
             }`}>
               {contractBias} ACTIVE
             </span>
           </div>
           <p className="text-[10.5px] font-mono text-zinc-500 mt-1">
-            Associated Underlying: <span className="text-zinc-300">{selectedAsset.name} ({selectedTimeframe})</span> 
+            Associated Underlying: <span className="text-[#4ADE80]">{selectedAsset.name} ({selectedTimeframe})</span> 
             <span className="mx-2">|</span> Log Ingress: <span className="text-zinc-400">3 Seconds Ago</span>
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           {isLiveTicking && (
-            <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse inline-block mr-1"></span>
+            <span className="w-2.5 h-2.5 bg-black/40 rounded-full animate-pulse inline-block mr-1"></span>
           )}
           <span className="text-[10px] font-mono tracking-widest text-[#888888] uppercase">LIVE THESIS FEED</span>
         </div>
@@ -258,11 +259,11 @@ export function TradeIntelligenceWorkspace({
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
         
         {/* Metric 1: Recommendation Action Badge */}
-        <div className="bg-zinc-950/50 border border-zinc-850 p-4 rounded-sm flex flex-col justify-between">
+        <div className="bg-black/50 border border-black p-4 rounded-sm flex flex-col justify-between">
           <span className="text-[9.5px] font-mono text-zinc-500 uppercase tracking-widest">WORKSTATION DECISION</span>
           <div className="my-2 flex items-center gap-3">
             <span className={`text-3xl font-mono font-black ${
-              currentRecommendation === 'BUY' ? 'text-emerald-400' :
+              currentRecommendation === 'BUY' ? 'text-[#4ADE80]' :
               currentRecommendation === 'EXIT' ? 'text-rose-500 animate-pulse' :
               currentRecommendation === 'REDUCE' ? 'text-amber-500' : 'text-zinc-400'
             }`}>
@@ -278,20 +279,20 @@ export function TradeIntelligenceWorkspace({
         </div>
 
         {/* Metric 2: Living Confidence Score */}
-        <div className="bg-zinc-950/50 border border-zinc-850 p-4 rounded-sm flex flex-col justify-between">
+        <div className="bg-black/50 border border-black p-4 rounded-sm flex flex-col justify-between">
           <span className="text-[9.5px] font-mono text-[#888888] uppercase tracking-widest flex justify-between items-center">
             SYSTEM CONFIDENCE 
-            {lastConfidenceChange === 'UP' && <span className="text-emerald-400 text-[9px] uppercase font-black">holding</span>}
-            {lastConfidenceChange === 'DOWN' && <span className="text-rose-400 text-[9px] uppercase font-black">failing</span>}
+            {lastConfidenceChange === 'UP' && <span className="text-[#4ADE80] text-[9px] uppercase font-black">holding</span>}
+            {lastConfidenceChange === 'DOWN' && <span className="text-[#F87171] text-[9px] uppercase font-black">failing</span>}
           </span>
           <div className="my-2 flex items-baseline gap-1.5 font-mono">
             <span className="text-3xl font-bold font-mono text-zinc-100">{liveConfidence}%</span>
             <span className="text-[10px] text-zinc-500 uppercase">INDEX RATING</span>
           </div>
-          <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+          <div className="w-full bg-black h-1.5 rounded-full overflow-hidden">
             <div
               className={`h-full transition-all duration-300 ${
-                liveConfidence >= 88 ? 'bg-emerald-500' :
+                liveConfidence >= 88 ? 'bg-black/40' :
                 liveConfidence >= 75 ? 'bg-amber-500' : 'bg-rose-500'
               }`}
               style={{ width: `${liveConfidence}%` }}
@@ -300,23 +301,23 @@ export function TradeIntelligenceWorkspace({
         </div>
 
         {/* Metric 3: Universally Understood Trend / Momentum */}
-        <div className="bg-zinc-950/50 border border-zinc-850 p-4 rounded-sm flex flex-col justify-between">
+        <div className="bg-black/50 border border-black p-4 rounded-sm flex flex-col justify-between">
           <span className="text-[9.5px] font-mono text-zinc-500 uppercase tracking-widest">MOMENTUM & RISK</span>
           <div className="my-2 flex flex-col gap-0.5">
             <span className="text-[13px] font-mono font-bold text-zinc-150 uppercase">
-              Momentum: <span className="text-emerald-400">{systemScore.rsiCascade >= 7 ? 'Strong Impulse' : 'Muted'}</span>
+              Momentum: <span className="text-[#4ADE80]">{systemScore.rsiCascade >= 7 ? 'Strong Impulse' : 'Muted'}</span>
             </span>
             <span className="text-[13px] font-mono font-bold text-zinc-150 uppercase">
-              Risk Profile: <span className="text-zinc-300">{selectedAsset.volatility > 1.2 ? 'High Vol' : 'Medium'}</span>
+              Risk Profile: <span className="text-[#4ADE80]">{selectedAsset.volatility > 1.2 ? 'High Vol' : 'Medium'}</span>
             </span>
           </div>
           <span className="text-[10px] font-mono text-zinc-500 leading-normal uppercase">
-            Participation Level: <span className="text-zinc-300">{(currentCandle.relativeVolume || 2.1) > 1.8 ? 'High' : 'Normal'}</span>
+            Participation Level: <span className="text-[#4ADE80]">{(currentCandle.relativeVolume || 2.1) > 1.8 ? 'High' : 'Normal'}</span>
           </span>
         </div>
 
         {/* Metric 4: Thesis Health State */}
-        <div className="bg-zinc-950/50 border border-zinc-850 p-4 rounded-sm flex flex-col justify-between">
+        <div className="bg-black/50 border border-black p-4 rounded-sm flex flex-col justify-between">
           <span className="text-[9.5px] font-mono text-zinc-500 uppercase tracking-widest">ACTIVE TRADE DIAGNOSIS</span>
           <div className="my-2">
             <span className={`text-xs font-mono font-semibold tracking-wide uppercase px-2 py-1 rounded-sm block text-center border ${thesisHealthStatus.bg} ${thesisHealthStatus.color}`}>
@@ -334,19 +335,19 @@ export function TradeIntelligenceWorkspace({
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         
         {/* Signature Live Monitoring Panel */}
-        <div className="lg:col-span-8 bg-[#0B0B0C] border border-zinc-850 p-4 rounded-sm flex flex-col justify-between relative overflow-hidden">
+        <div className="lg:col-span-8 bg-black border border-black p-4 rounded-sm flex flex-col justify-between relative overflow-hidden">
           {/* Subtle background glow representing health */}
           <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 transition-all pointer-events-none duration-1000 ${
-            invalidationTriggered ? 'bg-rose-900/40' : 'bg-emerald-900/40'
+            invalidationTriggered ? 'bg-rose-900/40' : 'bg-black/40'
           }`} />
 
           <div>
-            <div className="flex items-center justify-between border-b border-zinc-900 pb-2 mb-3">
+            <div className="flex items-center justify-between border-b border-black pb-2 mb-3">
               <span className="text-xs font-bold font-mono tracking-wider text-zinc-200 uppercase flex items-center gap-1.5">
-                <Gauge className="w-4 text-emerald-400 animate-pulse" /> Signature Live Thesis Monitor
+                <Gauge className="w-4 text-[#4ADE80] animate-pulse" /> Signature Live Thesis Monitor
               </span>
               <span className={`font-mono text-[10px] font-bold ${
-                invalidationTriggered ? 'text-rose-450 animate-pulse' : 'text-emerald-400'
+                invalidationTriggered ? 'text-[#F87171] animate-pulse' : 'text-[#4ADE80]'
               } uppercase`}>
                 STATUS: {invalidationTriggered ? 'WEAKENING' : 'ACTIVE_STEADY'}
               </span>
@@ -359,16 +360,16 @@ export function TradeIntelligenceWorkspace({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Left Column values */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between border-b border-zinc-950 p-1">
+                <div className="flex items-center justify-between border-b border-black p-1">
                   <span className="text-[11px] font-mono text-zinc-400">THESIS STABILIZATION:</span>
-                  <span className={`text-[11px] font-mono font-bold uppercase ${invalidationTriggered ? 'text-rose-400' : 'text-emerald-450'}`}>
+                  <span className={`text-[11px] font-mono font-bold uppercase ${invalidationTriggered ? 'text-[#F87171]' : 'text-[#4ADE80]'}`}>
                     {invalidationTriggered ? 'FAILING' : 'SECURED'}
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-b border-zinc-950 p-1">
+                <div className="flex items-center justify-between border-b border-black p-1">
                   <span className="text-[11px] font-mono text-zinc-400">VWAP LINE LEVEL PROTECTION:</span>
                   <span className={`text-[11px] font-mono font-bold uppercase ${
-                    currentCandle.close >= (currentCandle.vwap || currentCandle.close) ? 'text-emerald-400' : 'text-rose-400'
+                    currentCandle.close >= (currentCandle.vwap || currentCandle.close) ? 'text-[#4ADE80]' : 'text-[#F87171]'
                   }`}>
                     {currentCandle.close >= (currentCandle.vwap || currentCandle.close) ? 'SAFE (+0.42%)' : 'LOST VWAP'}
                   </span>
@@ -377,15 +378,15 @@ export function TradeIntelligenceWorkspace({
 
               {/* Right Column details */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between border-b border-zinc-950 p-1">
+                <div className="flex items-center justify-between border-b border-black p-1">
                   <span className="text-[11px] font-mono text-zinc-400">PARTICIPATION QUALITY:</span>
                   <span className="text-[11px] font-mono font-bold text-zinc-200">
                     HI_VOLUME ({(currentCandle.relativeVolume || 2.1).toFixed(1)}x RVOL)
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-b border-zinc-950 p-1">
+                <div className="flex items-center justify-between border-b border-black p-1">
                   <span className="text-[11px] font-mono text-zinc-400">PEAK SHIFT DIAGNOSTICS:</span>
-                  <span className={`text-[11px] font-mono font-bold uppercase ${invalidationTriggered ? 'text-rose-400' : 'text-emerald-400'}`}>
+                  <span className={`text-[11px] font-mono font-bold uppercase ${invalidationTriggered ? 'text-[#F87171]' : 'text-[#4ADE80]'}`}>
                     {invalidationTriggered ? 'STRUCTURE FAILED' : 'HH / HL STEADY'}
                   </span>
                 </div>
@@ -395,9 +396,9 @@ export function TradeIntelligenceWorkspace({
             {/* If setup is weakening/invalidated, broadcast a warning box */}
             {invalidationTriggered && (
               <div className="mt-4 p-3 bg-rose-950/20 border border-rose-900/60 rounded-sm flex items-start gap-3">
-                <AlertTriangle className="w-4 text-rose-400 shrink-0 mt-0.5 animate-pulse" />
+                <AlertTriangle className="w-4 text-[#F87171] shrink-0 mt-0.5 animate-pulse" />
                 <div>
-                  <h4 className="text-[11.5px] font-mono font-bold text-rose-400 uppercase">COLLAPSE CRITERIA REASONS TRIGGERED</h4>
+                  <h4 className="text-[11.5px] font-mono font-bold text-[#F87171] uppercase">COLLAPSE CRITERIA REASONS TRIGGERED</h4>
                   <p className="text-[10px] font-mono text-rose-500 mt-1 leading-relaxed">
                     Lost VWAP Anchor Support • High Volatility Structure breakdown • Relative Volume bleed • RSI rapid rollover down. EXIT recommendation enforced.
                   </p>
@@ -406,7 +407,7 @@ export function TradeIntelligenceWorkspace({
             )}
           </div>
 
-          <div className="mt-4 pt-3 border-t border-zinc-900 flex justify-between items-center text-[10px] font-mono text-zinc-500 uppercase">
+          <div className="mt-4 pt-3 border-t border-black flex justify-between items-center text-[10px] font-mono text-zinc-500 uppercase">
             <span>Last Checked Cycle Match: SECURE</span>
             <span>Ref: SV_SYSTEM_LIVING_THESIS</span>
           </div>
@@ -414,9 +415,9 @@ export function TradeIntelligenceWorkspace({
         </div>
 
         {/* Dynamic Sandbox Simulator UI Card Panel */}
-        <div className="lg:col-span-4 bg-[#0B0B0C] border border-zinc-850 p-4 rounded-sm flex flex-col justify-between">
+        <div className="lg:col-span-4 bg-black border border-black p-4 rounded-sm flex flex-col justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-3 border-b border-zinc-900 pb-2">
+            <div className="flex items-center gap-2 mb-3 border-b border-black pb-2">
               <Sliders className="w-4 text-zinc-400" />
               <h3 className="font-mono font-bold text-xs uppercase tracking-wider text-zinc-200 flex items-center gap-2">
                 {serverState?.data_source !== 'SANDBOX_SYNTHETIC' ? 'Real-Time Order Flow Tapes' : 'Order Flow Sandbox Console'}
@@ -431,38 +432,38 @@ export function TradeIntelligenceWorkspace({
             <div className="grid grid-cols-2 gap-2 mb-3">
               <button
                 onClick={injectBuy}
-                className="px-2 py-2 rounded-sm border border-emerald-950 bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-400 font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3"
+                className="px-2 py-2 rounded-sm border border-black bg-black/40 hover:bg-black/40 text-[#4ADE80] font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3"
               >
                 Buy Block
               </button>
               <button
                 onClick={injectSell}
-                className="px-2 py-2 rounded-sm border border-rose-950 bg-rose-950/20 hover:bg-rose-950/40 text-rose-405 font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3"
+                className="px-2 py-2 rounded-sm border border-[#F87171]/50 bg-rose-950/20 hover:bg-rose-950/40 text-rose-405 font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3"
               >
                 Sell Block
               </button>
               <button
                 onClick={injectStopHunt}
-                className="px-2 py-2 rounded-sm border border-zinc-800 bg-zinc-900 hover:bg-zinc-850 text-zinc-300 font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3 col-span-2"
+                className="px-2 py-2 rounded-sm border border-black bg-black hover:bg-black text-[#4ADE80] font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3 col-span-2"
               >
                 ⚔️ Stop Hunt Sweep
               </button>
               <button
                 onClick={injectVWAPBreakdown}
-                className="px-2 py-2 rounded-sm border border-rose-900/60 bg-red-950/20 text-rose-450 font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3 col-span-2 hover:bg-rose-950/30"
+                className="px-2 py-2 rounded-sm border border-rose-900/60 bg-red-950/20 text-[#F87171] font-mono text-[10.5px] font-bold transition-all active:scale-95 cursor-pointer uppercase text-left pl-3 col-span-2 hover:bg-rose-950/30"
               >
                 💥 Trigger VWAP Breakdown
               </button>
             </div>
           </div>
 
-          <div className="border-t border-zinc-900 pt-3 flex items-center justify-between text-[11px] font-mono">
+          <div className="border-t border-black pt-3 flex items-center justify-between text-[11px] font-mono">
             <span className="text-zinc-500">Live Ticking Feed:</span>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setIsLiveTicking(!isLiveTicking)}
                 className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold transition-all ${
-                  isLiveTicking ? 'bg-emerald-500 text-black' : 'bg-zinc-900 text-zinc-500'
+                  isLiveTicking ? 'bg-black/40 text-black' : 'bg-black text-zinc-500'
                 }`}
               >
                 {isLiveTicking ? 'RUNNING' : 'PAUSED'}
@@ -471,7 +472,7 @@ export function TradeIntelligenceWorkspace({
                 <select
                   value={tickSpeed}
                   onChange={(e) => setTickSpeed(Number(e.target.value))}
-                  className="bg-zinc-900 border border-zinc-800 text-[9px] font-mono text-zinc-400 p-0.5 rounded-sm"
+                  className="mirror-panel text-[9px] font-mono text-zinc-400 p-0.5 rounded-sm"
                 >
                   <option value={1000}>1s</option>
                   <option value={3000}>3s</option>
@@ -488,9 +489,9 @@ export function TradeIntelligenceWorkspace({
       <section className="grid grid-cols-1 md:grid-cols-12 gap-5">
         
         {/* Why SkyVision Likes This Trade Card (Fills Col 5) */}
-        <div className="md:col-span-4 bg-zinc-950/50 border border-zinc-850 p-4 rounded-sm flex flex-col justify-between">
+        <div className="md:col-span-4 bg-black/50 border border-black p-4 rounded-sm flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between border-b border-zinc-900 pb-2.5 mb-3">
+            <div className="flex items-center justify-between border-b border-black pb-2.5 mb-3">
               <span className="text-xs font-bold font-mono tracking-wider text-zinc-200 uppercase">
                 Why SkyVision Likes This Trade
               </span>
@@ -500,7 +501,7 @@ export function TradeIntelligenceWorkspace({
               {checklistItems.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-2.5 font-mono text-[11.5px]">
                   {item.active ? (
-                    <CheckCircle className="w-4 text-emerald-400 shrink-0" />
+                    <CheckCircle className="w-4 text-[#4ADE80] shrink-0" />
                   ) : (
                     <XCircle className="w-4 text-zinc-650 shrink-0" />
                   )}
@@ -512,27 +513,27 @@ export function TradeIntelligenceWorkspace({
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-zinc-900 text-[10px] font-mono text-zinc-500 text-center uppercase">
+          <div className="mt-4 pt-3 border-t border-black text-[10px] font-mono text-zinc-500 text-center uppercase">
             No Jargon • Standardised Thesis Models Only
           </div>
         </div>
 
         {/* Options Target Cards Matrix (Fills Col 8) */}
         <div className="md:col-span-8 flex flex-col gap-3">
-          <span className="text-xs font-bold font-mono tracking-wider text-zinc-300 uppercase block">
+          <span className="text-xs font-bold font-mono tracking-wider text-[#4ADE80] uppercase block">
             Target Execution Matrix Projections
           </span>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {optionTargets.map((target, idx) => {
               // Decide styles depending on probability levels
-              let textAccentColor = 'text-emerald-400';
-              let borderAccentColor = 'border-emerald-900/60';
-              let badgeColor = 'bg-emerald-950/30';
+              let textAccentColor = 'text-[#4ADE80]';
+              let borderAccentColor = 'border-black';
+              let badgeColor = 'bg-black/40';
 
               if (target.prob < 50) {
-                textAccentColor = 'text-rose-450';
-                borderAccentColor = 'border-rose-950/50';
+                textAccentColor = 'text-[#F87171]';
+                borderAccentColor = 'border-[#F87171]/50/50';
                 badgeColor = 'bg-rose-950/20';
               } else if (target.prob < 75) {
                 textAccentColor = 'text-amber-500';
@@ -543,7 +544,7 @@ export function TradeIntelligenceWorkspace({
               return (
                 <div
                   key={target.id}
-                  className={`bg-zinc-950/70 border ${borderAccentColor} p-3.5 rounded-sm flex flex-col justify-between`}
+                  className={`bg-black/70 border ${borderAccentColor} p-3.5 rounded-sm flex flex-col justify-between`}
                 >
                   <div>
                     <span className="text-[9.5px] font-mono text-zinc-550 block">{target.label}</span>
@@ -552,14 +553,14 @@ export function TradeIntelligenceWorkspace({
                     </span>
                   </div>
 
-                  <div className="mt-3 pt-2.5 border-t border-zinc-900/60 flex flex-col gap-1 font-mono text-[10px]">
+                  <div className="mt-3 pt-2.5 border-t border-black/60 flex flex-col gap-1 font-mono text-[10px]">
                     <div className="flex justify-between items-center">
                       <span className="text-zinc-500">Probability:</span>
                       <span className={`font-bold ${textAccentColor}`}>{target.prob}%</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-zinc-500">ETA:</span>
-                      <span className="text-zinc-300">{target.eta}</span>
+                      <span className="text-[#4ADE80]">{target.eta}</span>
                     </div>
                   </div>
                 </div>
@@ -568,16 +569,16 @@ export function TradeIntelligenceWorkspace({
           </div>
 
           {/* Interactive expansion check for raw indices */}
-          <div className="bg-zinc-950/40 border border-zinc-900 p-2 text-center rounded-sm mt-1">
+          <div className="bg-black/40 border border-black p-2 text-center rounded-sm mt-1">
             <button
               onClick={() => setShowRawMetrics(!showRawMetrics)}
-              className="text-[10px] font-mono text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1 mx-auto cursor-pointer"
+              className="text-[10px] font-mono text-zinc-400 hover:text-[#E5E5E5] transition-colors flex items-center justify-center gap-1 mx-auto cursor-pointer"
             >
               Diagnostic Raw Indices Feed {showRawMetrics ? <ChevronUp className="w-3.5" /> : <ChevronDown className="w-3.5" />}
             </button>
             
             {showRawMetrics && (
-              <div className="mt-3 border-t border-zinc-900/60 pt-3 text-left grid grid-cols-2 md:grid-cols-4 gap-4 p-2 text-[11px] font-mono">
+              <div className="mt-3 border-t border-black/60 pt-3 text-left grid grid-cols-2 md:grid-cols-4 gap-4 p-2 text-[11px] font-mono">
                 <div>
                   <span className="block text-zinc-500 uppercase">RSI CASCADE RAW</span>
                   <span className="text-zinc-150 font-bold">1m RSI: {Math.floor(systemScore.rsiCascade * 6.5 + 23)} • 5m RSI: {Math.floor(systemScore.rsiCascade * 6.0 + 31)}</span>
@@ -614,8 +615,8 @@ export function TradeIntelligenceWorkspace({
       </section>
 
       {/* 5. Supporting Evidential Candlestick Chart AND Structural Nodes (Placed at the bottom as evidence) */}
-      <section className="bg-zinc-950/20 border border-zinc-850 p-4 rounded-sm flex flex-col gap-3">
-        <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+      <section className="bg-black/20 border border-black p-4 rounded-sm flex flex-col gap-3">
+        <div className="flex items-center justify-between border-b border-black pb-2">
           <span className="text-xs font-bold font-mono tracking-wider text-zinc-500 uppercase">
             SUPPORTING TELEMETRY EVIDENCE & STRUCTURAL NODES
           </span>
@@ -626,55 +627,12 @@ export function TradeIntelligenceWorkspace({
           
           {/* ============== INSTITUTIONAL MICRO-STRUCTURE METRICS ============== */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden mb-4" id="dealerflow-displacement-row">
-            {/* Gamma Squeeze Matrix */}
-            <div className="bg-[#0c0c0e] rounded-lg p-4 flex flex-col" id="gamma-squeeze-panel">
-              <div className="flex items-center gap-2 text-[9px] font-black tracking-widest text-[#a1a1aa] uppercase mb-3 shrink-0">
-                <Zap className="w-3.5 h-3.5 text-zinc-500" />
-                Gamma Squeeze Potential
-              </div>
-              <div className="space-y-2 flex-1 pt-2">
-                <div className="flex justify-between items-center bg-black/40 border border-zinc-900 rounded p-2">
-                  <span className="text-[9px] text-zinc-500 uppercase tracking-widest">Squeeze Trigger Level</span>
-                  <span className="font-mono font-bold text-white uppercase tabular-nums">{profile?.gammaFlip ? `$${profile.gammaFlip.toFixed(2)}` : 'N/A'}</span>
-                </div>
-                <div className="flex justify-between items-center bg-black/40 border border-zinc-900 rounded p-2">
-                  <span className="text-[9px] text-zinc-500 uppercase tracking-widest">Resistance Wall</span>
-                  <span className="font-mono font-bold text-rose-400 uppercase tabular-nums">{profile?.callWall ? `$${profile.callWall.toFixed(2)}` : 'N/A'}</span>
-                </div>
-                <div className="flex justify-between items-center bg-black/40 border border-zinc-900 rounded p-2">
-                  <span className="text-[9px] text-zinc-500 uppercase tracking-widest">Support Wall</span>
-                  <span className="font-mono font-bold text-emerald-400 uppercase tabular-nums">{profile?.putWall ? `$${profile.putWall.toFixed(2)}` : 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Liquidity Absorption Rate */}
-            <div className="bg-[#0c0c0e] rounded-lg p-4 flex flex-col" id="liquidity-absorption-panel">
-              <div className="flex items-center gap-2 text-[9px] font-black tracking-widest text-[#a1a1aa] uppercase mb-3 shrink-0">
-                <Layers className="w-3.5 h-3.5 text-zinc-500" />
-                Liquidity Absorption Status
-              </div>
-              <div className="space-y-2 flex-1 pt-2">
-                <div className="flex justify-between items-center bg-black/40 border border-zinc-900 rounded p-2">
-                  <span className="text-[9px] text-zinc-500 uppercase tracking-widest">Dealer Positioning</span>
-                  <span className={`font-black tracking-widest text-[9px] uppercase ${profile?.netGex > 0 ? 'text-sky-400' : 'text-amber-400'}`}>
-                    {profile?.netGex > 0 ? 'LONG GAMMA' : 'SHORT GAMMA'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center bg-black/40 border border-zinc-900 rounded p-2">
-                  <span className="text-[9px] text-zinc-500 uppercase tracking-widest">Volatility Cushion</span>
-                  <span className="font-mono font-bold text-indigo-400">{profile?.netVex > 0 ? 'EXPANDING' : 'SUPPRESSED'}</span>
-                </div>
-                <div className="flex justify-between items-center bg-black/40 border border-zinc-900 rounded p-2">
-                  <span className="text-[9px] text-zinc-500 uppercase tracking-widest">Flow Imbalance</span>
-                  <span className="font-mono font-bold text-white uppercase tabular-nums">{Math.abs(profile?.netDex / (profile?.strikes.reduce((a,c) => a + (c.callDex||0)+(c.putDex||0), 0) || 1) * 100).toFixed(1)}% SKEW</span>
-                </div>
-              </div>
-            </div>
+            <SlayerScoreWidget />
+            <VolatilityStateWidget />
           </div>
 
           {/* ============== FULL WIDTH CHART AT BOTTOM ============== */}
-          <div className="bg-[#0c0c0e] rounded-lg p-5 flex flex-col w-full overflow-hidden" id="displacement-overlay-chart-panel" style={{ minHeight: '380px' }}>
+          <div className="bg-black rounded-lg p-5 flex flex-col w-full overflow-hidden" id="displacement-overlay-chart-panel" style={{ minHeight: '380px' }}>
             <div className="flex items-center justify-between mb-3 shrink-0">
               <div className="flex items-center gap-2 text-[9px] font-black tracking-widest text-[#a1a1aa] uppercase">
                 <ShieldAlert className="w-3.5 h-3.5 text-zinc-500" />

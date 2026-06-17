@@ -1038,14 +1038,14 @@ export function DiscoveryView({
   // Dynamic light mode theme classes mapping
   const c_bgMain = isLight ? "bg-[#fcfcfd]" : "bg-transparent";
   const c_textColor = isLight ? "text-zinc-800" : "text-zinc-200";
-  const c_cardBg = isLight ? "bg-white border-zinc-200 shadow-sm text-zinc-800" : "bg-[#050505] border-zinc-900 shadow-2xl text-zinc-100";
-  const c_cardBorder = isLight ? "border-zinc-200" : "border-zinc-900";
-  const c_textWhite = isLight ? "text-zinc-950 font-black" : "text-white font-black";
+  const c_cardBg = isLight ? "bg-white border-black shadow-sm text-zinc-800" : "bg-black border-black shadow-2xl text-zinc-100";
+  const c_cardBorder = isLight ? "border-black" : "border-black";
+  const c_textWhite = isLight ? "text-zinc-950 font-black" : "text-[#E5E5E5] font-black";
   const c_textMuted = isLight ? "text-zinc-550 font-medium" : "text-zinc-400";
-  const c_pillBg = isLight ? "bg-zinc-100 border-zinc-200" : "bg-black/60 border-zinc-900";
-  const c_innerCardBg = isLight ? "bg-zinc-50 border-zinc-200/80" : "bg-[#0a0a0c] border-zinc-900";
-  const c_innerWellBg = isLight ? "bg-zinc-100/70 border-zinc-200/60" : "bg-zinc-950/60 border-zinc-900/60";
-  const c_glassBg = isLight ? "bg-zinc-100/95 border border-zinc-250 shadow-md text-zinc-800" : "bg-[#020202] border border-zinc-900/80 shadow-xl text-zinc-200";
+  const c_pillBg = isLight ? "bg-black border-black" : "bg-black/60 border-black";
+  const c_innerCardBg = isLight ? "bg-zinc-50 border-black" : "bg-black border-black";
+  const c_innerWellBg = isLight ? "bg-black border-black" : "bg-black/60 border-black/60";
+  const c_glassBg = isLight ? "bg-black border border-black shadow-md text-zinc-800" : "bg-black border border-black/80 shadow-xl text-zinc-200";
 
   return (
     <div className={`w-full flex flex-col font-mono select-none antialiased space-y-6 max-w-6xl mx-auto pt-2 pb-12 ${c_textColor}`}>
@@ -1058,8 +1058,8 @@ export function DiscoveryView({
 
         <div className="flex items-center gap-2.5 relative z-10">
           <div className="relative flex items-center justify-center">
-            <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping absolute" />
-            <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full relative z-10" />
+            <span className="w-2.5 h-2.5 bg-[#4ADE80] text-black rounded-full animate-ping absolute" />
+            <span className="w-2.5 h-2.5 bg-black/40 rounded-full relative z-10" />
           </div>
           <div>
             <h1 className={`text-xs font-black tracking-widest uppercase ${c_textWhite}`}>
@@ -1072,10 +1072,10 @@ export function DiscoveryView({
         </div>
 
         {/* Live Cockpit Statistics Panel */}
-        <div className={`flex items-center gap-4 flex-wrap text-left text-[10px] md:border-l md:pl-5 ${isLight ? 'border-zinc-200' : 'border-zinc-900'}`}>
+        <div className={`flex items-center gap-4 flex-wrap text-left text-[10px] md:border-l md:pl-5 ${isLight ? 'border-black' : 'border-black'}`}>
           <div className="space-y-0.5">
             <span className="text-[7.5px] text-zinc-500 uppercase block tracking-wider font-extrabold">GLOBAL GEX SUPPORT</span>
-            <span className="text-emerald-400 font-bold block transition-all duration-300">
+            <span className="text-[#4ADE80] font-bold block transition-all duration-300">
               +{globalGex.toFixed(1)}M
             </span>
           </div>
@@ -1087,13 +1087,13 @@ export function DiscoveryView({
           </div>
           <div className="space-y-0.5">
             <span className="text-[7.5px] text-zinc-500 uppercase block tracking-wider font-extrabold">SCANNING RATE</span>
-            <span className={`text-[#4f8cff] font-bold block transition-all duration-300 ${isMockScanning || metricsPulse ? 'animate-bounce text-emerald-400' : ''}`}>
+            <span className={`text-[#4f8cff] font-bold block transition-all duration-300 ${isMockScanning || metricsPulse ? 'animate-bounce text-[#4ADE80]' : ''}`}>
               {scanRate.toFixed(1)}/s
             </span>
           </div>
           <div className="space-y-0.5">
             <span className="text-[7.5px] text-zinc-500 uppercase block tracking-wider font-extrabold">LATENCY</span>
-            <span className="text-emerald-500 font-bold block">12ms (STREAM ON)</span>
+            <span className="text-[#4ADE80] font-bold block">12ms (STREAM ON)</span>
           </div>
         </div>
 
@@ -1103,7 +1103,7 @@ export function DiscoveryView({
       <div className={`grid grid-cols-1 md:grid-cols-12 gap-3 items-center rounded-lg border ${c_glassBg}`}>
         
         {/* Navigation Categories Tabs */}
-        <div className={`md:col-span-8 flex items-center p-0.5 border rounded-md overflow-x-auto scrollbar-none gap-0.5 ${isLight ? "bg-zinc-100 border-zinc-200" : "bg-black border-zinc-900"}`}>
+        <div className={`md:col-span-8 flex items-center p-0.5 border rounded-md overflow-x-auto scrollbar-none gap-0.5 ${isLight ? "bg-black border-black" : "bg-black border-black"}`}>
           {[
             { id: 'conviction', label: '🎯 CONVICTION', count: contracts.filter(c => c.shelf === 'conviction').length },
             { id: 'improved', label: '📈 VELOCITY', count: contracts.filter(c => c.shelf === 'improved').length },
@@ -1117,12 +1117,12 @@ export function DiscoveryView({
               onClick={() => setActiveShelf(shelf.id as any)}
               className={`px-3 py-1.5 text-[9.5px] uppercase font-black tracking-wider rounded-xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                 activeShelf === shelf.id
-                  ? (isLight ? 'bg-white text-zinc-950 font-extrabold shadow border border-zinc-200' : 'bg-white text-black font-extrabold shadow')
-                  : 'text-zinc-550 hover:text-zinc-300'
+                  ? (isLight ? 'bg-white text-zinc-950 font-extrabold shadow border border-black' : 'bg-white text-black font-extrabold shadow')
+                  : 'text-zinc-550 hover:text-[#4ADE80]'
               }`}
             >
               <span>{shelf.label}</span>
-              <span className={`text-[8px] font-bold px-1 py-0.2 rounded ${activeShelf === shelf.id ? 'bg-zinc-100 text-zinc-900' : (isLight ? 'bg-white text-zinc-400' : 'bg-zinc-950 text-zinc-650')}`}>
+              <span className={`text-[8px] font-bold px-1 py-0.2 rounded ${activeShelf === shelf.id ? 'bg-black text-zinc-900' : (isLight ? 'bg-white text-zinc-400' : 'bg-black text-zinc-650')}`}>
                 {shelf.count}
               </span>
             </button>
@@ -1130,7 +1130,7 @@ export function DiscoveryView({
         </div>
 
         {/* Option Call/Put Type Filter Option */}
-         <div className={`md:col-span-2 flex justify-center p-0.5 border rounded-md ${isLight ? "bg-zinc-100 border-zinc-200" : "bg-black border-zinc-900"}`}>
+         <div className={`md:col-span-2 flex justify-center p-0.5 border rounded-md ${isLight ? "bg-black border-black" : "bg-black border-black"}`}>
           {[
             { id: 'all', label: 'ALL' },
             { id: 'calls', label: 'C' },
@@ -1142,7 +1142,7 @@ export function DiscoveryView({
               className={`px-3.5 py-1.5 text-[8.5px] uppercase font-extrabold rounded-xs flex-1 transition-all cursor-pointer ${
                 optionTypeFilter === opt.id
                   ? 'bg-[#4f8cff]/15 text-[#4f8cff] border border-[#4f8cff]/30 font-black'
-                  : `text-zinc-500 border border-transparent ${isLight ? 'hover:text-zinc-950' : 'hover:text-white'}`
+                  : `text-zinc-500 border border-transparent ${isLight ? 'hover:text-zinc-950' : 'hover:text-[#E5E5E5]'}`
               }`}
             >
               {opt.label}
@@ -1154,8 +1154,8 @@ export function DiscoveryView({
         <div 
           className={`md:col-span-2 relative flex items-center rounded-lg px-3 py-1.5 border transition-all duration-300 focus-within:ring-1 focus-within:ring-[#4f8cff]/50 ${
             isLight 
-              ? 'bg-zinc-50 border-zinc-200 focus-within:bg-white focus-within:border-zinc-400' 
-              : 'bg-black/60 border-zinc-900 focus-within:bg-[#07070a]/90 focus-within:border-zinc-700 shadow-inner'
+              ? 'bg-zinc-50 border-black focus-within:bg-white focus-within:border-black' 
+              : 'bg-black/60 border-black focus-within:bg-black/90 focus-within:border-black shadow-inner'
           }`}
           ref={searchContainerRef}
         >
@@ -1167,7 +1167,7 @@ export function DiscoveryView({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="FILTER BY TICKER OR STRIKE..." 
             className={`w-full bg-transparent border-none text-[9.5px] font-black uppercase focus:outline-none placeholder-zinc-500 font-mono tracking-wider transition-all duration-200 ${
-              isLight ? 'text-zinc-900' : 'text-white'
+              isLight ? 'text-zinc-900' : 'text-[#E5E5E5]'
             }`}
           />
           {searchQuery.length > 0 ? (
@@ -1177,12 +1177,12 @@ export function DiscoveryView({
                 setSearchQuery('');
                 setIsSearchFocused(false);
               }} 
-              className="text-zinc-500 hover:text-white text-[8px] uppercase font-bold pl-1 font-mono hover:underline shrink-0"
+              className="text-zinc-500 hover:text-[#E5E5E5] text-[8px] uppercase font-bold pl-1 font-mono hover:underline shrink-0"
             >
               CLEAR
             </button>
           ) : (
-            <kbd className="hidden sm:inline-block bg-[#0f0f12] text-zinc-650 border border-zinc-900 px-1 py-[1.5px] rounded-xs font-mono text-[7px] select-none shrink-0">
+            <kbd className="hidden sm:inline-block bg-black text-zinc-650 border border-black px-1 py-[1.5px] rounded-xs font-mono text-[7px] select-none shrink-0">
               TXT
             </kbd>
           )}
@@ -1195,12 +1195,12 @@ export function DiscoveryView({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 3 }}
                 className={`absolute right-0 top-full mt-2 w-[300px] border shadow-2xl rounded-lg overflow-hidden z-50 text-left font-mono ${
-                  isLight ? 'bg-white border-zinc-200 text-zinc-800' : 'bg-[#0a0a0d] border-zinc-850 text-zinc-350'
+                  isLight ? 'bg-white border-black text-zinc-800' : 'bg-black border-black text-zinc-350'
                 }`}
               >
                 {/* 1. SECTION: MAIN INDEXES */}
                 <div className={`px-2.5 py-1 text-[7.5px] font-extrabold uppercase tracking-widest border-b ${
-                  isLight ? 'bg-zinc-100 text-zinc-500 border-zinc-200' : 'bg-zinc-900/40 text-zinc-600 border-zinc-900'
+                  isLight ? 'bg-black text-zinc-500 border-black' : 'bg-black/40 text-zinc-600 border-black'
                 }`}>
                   Switch Active Index Ticker
                 </div>
@@ -1216,7 +1216,7 @@ export function DiscoveryView({
                         setSearchQuery('');
                       }}
                       className={`w-full text-left px-3.5 py-1.5 transition-all flex justify-between items-center border-b ${
-                        isLight ? 'hover:bg-zinc-50 border-zinc-100' : 'hover:bg-zinc-900/60 border-zinc-900'
+                        isLight ? 'hover:bg-zinc-50 border-black' : 'hover:bg-black/60 border-black'
                       }`}
                     >
                       <div className="flex flex-col">
@@ -1225,7 +1225,7 @@ export function DiscoveryView({
                       </div>
                       <div className="text-right">
                         <span className="text-[9px] font-bold block">${a.defaultPrice.toFixed(2)}</span>
-                        <span className="text-[7.5px] font-bold text-emerald-450">+{a.volatility.toFixed(1)}% VOL</span>
+                        <span className="text-[7.5px] font-bold text-[#4ADE80]">+{a.volatility.toFixed(1)}% VOL</span>
                       </div>
                     </button>
                   ))
@@ -1233,7 +1233,7 @@ export function DiscoveryView({
 
                 {/* 2. SECTION: OPTIONS & TRANSITIONS */}
                 <div className={`px-2.5 py-1 text-[7.5px] font-extrabold uppercase tracking-widest border-b ${
-                  isLight ? 'bg-zinc-100 text-zinc-500 border-zinc-200' : 'bg-zinc-900/40 text-zinc-600 border-zinc-900'
+                  isLight ? 'bg-black text-zinc-500 border-black' : 'bg-black/40 text-zinc-600 border-black'
                 }`}>
                   Launch Option chain / Assessments
                 </div>
@@ -1254,17 +1254,17 @@ export function DiscoveryView({
                           setSearchQuery('');
                         }}
                         className={`w-full text-left px-3.5 py-2 transition-all border-b last:border-none flex flex-col ${
-                          isLight ? 'hover:bg-zinc-50 border-zinc-100' : 'hover:bg-zinc-900/60 border-zinc-900'
+                          isLight ? 'hover:bg-zinc-50 border-black' : 'hover:bg-black/60 border-black'
                         }`}
                       >
                         <div className="flex justify-between items-center">
-                          <span className={`text-[9.5px] font-black ${c.isCall ? 'text-emerald-450' : 'text-rose-455'}`}>
+                          <span className={`text-[9.5px] font-black ${c.isCall ? 'text-[#4ADE80]' : 'text-rose-455'}`}>
                             {c.ticker} {c.strike}{c.isCall ? 'C' : 'P'}
                           </span>
                           <span className={`text-[7.5px] font-bold px-1 py-0.2 rounded border ${
                             c.isCall 
-                              ? 'bg-emerald-950/20 text-[#00ff88] border-emerald-900/40' 
-                              : 'bg-rose-950/20 text-rose-400 border-rose-900/40'
+                              ? 'bg-black/40 text-[#4ADE80] border-black' 
+                              : 'bg-rose-950/20 text-[#F87171] border-[#F87171]/40'
                           }`}>
                             {c.shelf.toUpperCase()}
                           </span>
@@ -1285,14 +1285,14 @@ export function DiscoveryView({
       <div className={`w-full p-4 rounded-xl text-left relative overflow-hidden border ${c_cardBg}`}>
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#4f8cff]/4 blur-2xl pointer-events-none" />
         
-        <div className={`flex justify-between items-center cursor-pointer select-none pb-2 border-b ${isLight ? 'border-zinc-200' : 'border-zinc-900/60'}`} onClick={() => setIsStrategyExpanded(!isStrategyExpanded)}>
+        <div className={`flex justify-between items-center cursor-pointer select-none pb-2 border-b ${isLight ? 'border-black' : 'border-black/60'}`} onClick={() => setIsStrategyExpanded(!isStrategyExpanded)}>
           <div className="flex items-center gap-2">
             <Info className="w-4 h-4 text-[#4f8cff]" />
-            <span className={`text-[10px] font-extrabold uppercase tracking-widest ${isLight ? 'text-zinc-600' : 'text-zinc-300'}`}>
+            <span className={`text-[10px] font-extrabold uppercase tracking-widest ${isLight ? 'text-zinc-600' : 'text-[#4ADE80]'}`}>
               STRATEGY DECONSTRUCTION: WHY THESE ARE THE BEST ACTIVE TRADES
             </span>
           </div>
-          <div className={`flex items-center gap-1.5 py-0.5 px-2 rounded border ${isLight ? 'bg-zinc-50 border-zinc-200 text-zinc-850 font-bold' : 'bg-black/40 border-zinc-900 text-zinc-350'}`}>
+          <div className={`flex items-center gap-1.5 py-0.5 px-2 rounded border ${isLight ? 'bg-zinc-50 border-black text-zinc-850 font-bold' : 'bg-black/40 border-black text-zinc-350'}`}>
             <span className="text-[8px] font-black tracking-widest uppercase">
               {isStrategyExpanded ? 'HIDE MANUAL' : 'SHOW MANUAL'}
             </span>
@@ -1331,16 +1331,16 @@ export function DiscoveryView({
                       <span className="text-zinc-500">HORIZON:</span>
                       <span className={`font-bold ${c_textWhite}`}>{currentManualText.horizon}</span>
                     </div>
-                    <div className={`flex justify-between items-baseline font-mono border-t pt-1.5 ${isLight ? 'border-zinc-200' : 'border-zinc-900'}`}>
+                    <div className={`flex justify-between items-baseline font-mono border-t pt-1.5 ${isLight ? 'border-black' : 'border-black'}`}>
                       <span className="text-zinc-500">MATH SCANNER:</span>
                       <span className="text-[#4f8cff] font-bold text-[9px] uppercase">{currentManualText.mathTracking}</span>
                     </div>
-                    <div className={`flex justify-between items-baseline font-mono border-t pt-1.5 ${isLight ? 'border-zinc-200' : 'border-zinc-900'}`}>
+                    <div className={`flex justify-between items-baseline font-mono border-t pt-1.5 ${isLight ? 'border-black' : 'border-black'}`}>
                       <span className="text-zinc-500">CONFIDENCE:</span>
-                      <span className="text-emerald-500 font-bold text-[9px] uppercase">{currentManualText.confidenceTier}</span>
+                      <span className="text-[#4ADE80] font-bold text-[9px] uppercase">{currentManualText.confidenceTier}</span>
                     </div>
                   </div>
-                  <div className={`text-[8px] text-zinc-500 border-t pt-1 tracking-wide ${isLight ? 'border-zinc-200' : 'border-zinc-900/50'}`}>
+                  <div className={`text-[8px] text-zinc-500 border-t pt-1 tracking-wide ${isLight ? 'border-black' : 'border-black/50'}`}>
                     ⚠️ System updates parameters at 12,000 checks per node.
                   </div>
                 </div>
@@ -1355,12 +1355,12 @@ export function DiscoveryView({
       <div className={`w-full p-3.5 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-4 text-xs border ${c_glassBg}`}>
         <div className="flex items-center gap-3">
           <div className="relative">
-            <span className={`w-3 h-3 rounded-full bg-emerald-500 absolute block ${isMockScanning ? 'animate-ping opacity-75' : ''}`} />
-            <span className="w-3 h-3 rounded-full bg-emerald-400 border border-black relative block" />
+            <span className={`w-3 h-3 rounded-full bg-black/40 absolute block ${isMockScanning ? 'animate-ping opacity-75' : ''}`} />
+            <span className="w-3 h-3 rounded-full bg-black/40 border border-black relative block" />
           </div>
           <div className="text-left">
             <span className="text-[10px] text-zinc-500 block font-bold uppercase">SECURE PORT HARVEST SCANNER</span>
-            <span className={`text-[10.5px] font-black ${isMockScanning ? 'text-emerald-500 font-bold' : (isLight ? 'text-zinc-700 font-extrabold' : 'text-zinc-400')}`}>
+            <span className={`text-[10.5px] font-black ${isMockScanning ? 'text-[#4ADE80] font-bold' : (isLight ? 'text-zinc-700 font-extrabold' : 'text-zinc-400')}`}>
               STATUS: {lastScanMessage}
             </span>
           </div>
@@ -1371,13 +1371,13 @@ export function DiscoveryView({
           disabled={isMockScanning}
           className={`px-5 py-2.5 rounded-lg border text-[10px] font-extrabold uppercase tracking-widest cursor-pointer shadow-xl transition-all flex items-center gap-2 ${
             isMockScanning 
-              ? (isLight ? 'bg-zinc-200 text-zinc-400 border-zinc-200' : 'bg-zinc-950 text-zinc-650 border-zinc-900') 
-              : (isLight ? 'bg-zinc-850 text-white hover:bg-zinc-900 border-zinc-800 font-extrabold shadow-sm' : 'bg-white text-black hover:bg-zinc-200 border-white font-extrabold')
+              ? (isLight ? 'bg-black text-zinc-400 border-black' : 'bg-black text-zinc-650 border-black') 
+              : (isLight ? 'bg-black text-[#E5E5E5] hover:bg-black border-black font-extrabold shadow-sm' : 'bg-white text-black hover:bg-black border-white font-extrabold')
           }`}
         >
           {isMockScanning ? (
             <>
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-450" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#4ADE80]" />
               <span>SCANNING EXCURSIONS...</span>
             </>
           ) : (
@@ -1412,12 +1412,12 @@ export function DiscoveryView({
               {sortedTickers.map((ticker) => {
                 const tickerContracts = groupedByTickerAndSorted[ticker];
                 return (
-                  <div key={ticker} className={`space-y-3 p-4 rounded-xl relative overflow-hidden text-left border ${isLight ? 'bg-zinc-50 border-zinc-200' : 'bg-zinc-950/20 border-zinc-900'}`}>
+                  <div key={ticker} className={`space-y-3 p-4 rounded-xl relative overflow-hidden text-left border ${isLight ? 'bg-zinc-50 border-black' : 'bg-black/20 border-black'}`}>
                     {/* Glowing side anchor per ticker */}
                     <div className="absolute top-0 bottom-0 left-0 w-1 bg-gradient-to-b from-[#4f8cff]/20 to-transparent" />
 
                     {/* Ticker Section Title segment */}
-                    <div className={`flex items-center justify-between border-b pb-2 mb-1 pl-1 ${isLight ? 'border-zinc-200' : 'border-zinc-900/60'}`}>
+                    <div className={`flex items-center justify-between border-b pb-2 mb-1 pl-1 ${isLight ? 'border-black' : 'border-black/60'}`}>
                       <div className="flex items-center gap-2">
                         <span className={`text-xs font-black tracking-widest uppercase font-mono ${c_textWhite}`}>{ticker} REGIME SCAN</span>
                         <span className="bg-[#4f8cff]/10 border border-[#4f8cff]/20 text-[#4f8cff] text-[8px] font-bold px-1.5 py-0.2 rounded font-sans uppercase">
@@ -1432,17 +1432,17 @@ export function DiscoveryView({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                       {tickerContracts.map((c, idx) => {
                         const actionColor = c.action === 'ENTER' 
-                          ? 'text-[#00ff88] border-[#00ff88]/20 bg-[#00ff88]/5' 
+                          ? 'text-[#4ADE80] border-[#4ADE80]/20 bg-[#d4d4d8]/5' 
                           : c.action === 'SELL' 
-                            ? 'text-rose-400 border-rose-400/20 bg-rose-400/5' 
+                            ? 'text-[#F87171] border-rose-400/20 bg-rose-400/5' 
                             : 'text-amber-400 border-amber-400/20 bg-amber-400/5';
                         
                         const isFlashing = lastFlashingId === c.id;
                         const highlightBg = isFlashing 
-                          ? (flashDirection === 'up' ? 'bg-emerald-500/10 border-emerald-400/35' : 'bg-rose-500/10 border-rose-400/35')
+                          ? (flashDirection === 'up' ? 'bg-black/40 border-black' : 'bg-rose-500/10 border-rose-400/35')
                           : (isLight 
-                              ? 'bg-white hover:bg-zinc-50/50 hover:border-zinc-300 border-zinc-200 text-zinc-900 shadow-sm' 
-                              : 'bg-[#030303] hover:border-zinc-750 hover:bg-[#060606] border-zinc-900 text-zinc-100 shadow-xl');
+                              ? 'bg-white hover:bg-zinc-50/50 hover:border-black border-black text-zinc-900 shadow-sm' 
+                              : 'bg-black hover:border-black hover:bg-black border-black text-zinc-100 shadow-xl');
 
                         // Classification tags: Core vs Fast Scalps vs Rebound Recoveries
                         let classBadgeLabel = "💎 SWING POSITION";
@@ -1452,10 +1452,10 @@ export function DiscoveryView({
                           classBadgeStyle = "bg-amber-400/10 text-amber-300 border-amber-400/20";
                         } else if (c.shelf === 'invalidation') {
                           classBadgeLabel = "↩️ REBOUND RECOVERY";
-                          classBadgeStyle = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                          classBadgeStyle = "bg-rose-500/10 text-[#F87171] border-rose-500/20";
                         } else if (c.shelf === 'mispriced') {
                           classBadgeLabel = "💵 PRICING GAP EDGE";
-                          classBadgeStyle = "bg-emerald-500/10 text-[#00ff88] border-emerald-500/20";
+                          classBadgeStyle = "bg-black/40 text-[#d4d4d8] border-black";
                         }
 
                         // Strongest indicator of this group (top sorted card is ALWAYS idx === 0 within its ticker)
@@ -1480,7 +1480,7 @@ export function DiscoveryView({
                             className={`p-4 border rounded-xl flex flex-col gap-2.5 text-left relative overflow-hidden shadow-xl transition-all duration-300 cursor-pointer ${
                               isCardExpanded 
                                 ? `${highlightBg} ring-1 ring-zinc-700/50` 
-                                : `${isLight ? 'bg-white hover:bg-zinc-50 border-zinc-200' : 'bg-black/40 hover:bg-[#070709] border-zinc-900'} hover:border-zinc-700`
+                                : `${isLight ? 'bg-white hover:bg-zinc-50 border-black' : 'bg-black/40 hover:bg-black border-black'} hover:border-black`
                             }`}
                             onClick={(e) => {
                               setExpandedContracts(prev => ({
@@ -1492,7 +1492,7 @@ export function DiscoveryView({
                             
                             {/* Tiny neon glider strip */}
                             <div className={`absolute top-0 left-0 right-0 h-[2px] transition-colors duration-300 ${
-                              c.isCall ? 'bg-emerald-500/40' : 'bg-rose-500/40'
+                              c.isCall ? 'bg-black/40' : 'bg-rose-500/40'
                             }`} />
 
                             {/* Top Contract Badge & Header */}
@@ -1501,8 +1501,8 @@ export function DiscoveryView({
                                 <div className="flex items-center gap-1.5 flex-wrap">
                                   <span className={`text-xs font-black font-sans px-2.5 py-0.5 rounded-md border uppercase inline-block ${
                                     c.isCall 
-                                      ? 'bg-emerald-950/20 text-[#00ff88] border-emerald-900/45' 
-                                      : 'bg-rose-950/20 text-rose-400 border-rose-900/45'
+                                      ? 'bg-black/40 text-[#d4d4d8] border-black' 
+                                      : 'bg-rose-950/20 text-[#F87171] border-rose-900/45'
                                   }`}>
                                     {c.ticker} {c.strike}{c.isCall ? 'C' : 'P'}
                                   </span>
@@ -1533,7 +1533,7 @@ export function DiscoveryView({
                               <div className="text-right flex items-start gap-3">
                                 <div className="space-y-0.5">
                                   <span className="text-[7.5px] text-zinc-650 tracking-wider block font-bold uppercase">EXPECTED ARR</span>
-                                  <span className={`text-sm font-black tracking-tight ${c.health >= 55 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                  <span className={`text-sm font-black tracking-tight ${c.health >= 55 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                                     {c.expectedMove}
                                   </span>
                                 </div>
@@ -1549,15 +1549,15 @@ export function DiscoveryView({
 
                             {/* COMPRESSED GRID SEGMENT EXPANDED ONLY INLINE */}
                             {isCardExpanded && (
-                              <div className="space-y-3 mt-1 pt-3 border-t border-zinc-900/40 animate-fadeIn">
+                              <div className="space-y-3 mt-1 pt-3 border-t border-black/40 animate-fadeIn">
                                 {/* DOUBLE TARGETS (Institutional Swing vs Volatility Scalp Targets) */}
                                 <div className={`grid grid-cols-2 gap-2 p-2 rounded-lg text-center text-[10px] border ${c_pillBg}`}>
-                                  <div className={`border-r text-left pl-1 ${isLight ? 'border-zinc-200' : 'border-zinc-900'}`}>
+                                  <div className={`border-r text-left pl-1 ${isLight ? 'border-black' : 'border-black'}`}>
                                     <div className="text-[7px] text-zinc-550 uppercase tracking-widest font-black block">🎯 SWING TARGET</div>
                                     <span className={`font-extrabold font-mono block text-xs ${c_textWhite}`}>
                                       ${coreSwingTarget.toFixed(2)}
                                     </span>
-                                    <span className="text-[7.5px] text-emerald-500 font-bold font-mono">
+                                    <span className="text-[7.5px] text-[#4ADE80] font-bold font-mono">
                                       +{coreSwingGain}% GAIN
                                     </span>
                                   </div>
@@ -1582,19 +1582,19 @@ export function DiscoveryView({
                                 </div>
 
                                 {/* Short Analytical Narrative */}
-                                <p className={`text-[10px] font-sans tracking-wide leading-relaxed uppercase border-t pt-2.5 ${isLight ? 'border-zinc-200 text-zinc-600' : 'border-zinc-900/50 text-zinc-450'}`}>
+                                <p className={`text-[10px] font-sans tracking-wide leading-relaxed uppercase border-t pt-2.5 ${isLight ? 'border-black text-zinc-600' : 'border-black/50 text-zinc-450'}`}>
                                   {c.narrative}
                                 </p>
 
                                 {/* Quantitative Stats Matrix */}
-                                <div className={`border rounded-lg p-2.5 grid grid-cols-4 gap-2 text-center text-[10px] font-mono ${isLight ? 'bg-zinc-50 border-zinc-200 text-zinc-700' : 'bg-black/40 border-zinc-900/50 text-zinc-400'}`}>
+                                <div className={`border rounded-lg p-2.5 grid grid-cols-4 gap-2 text-center text-[10px] font-mono ${isLight ? 'bg-zinc-50 border-black text-zinc-700' : 'bg-black/40 border-black/50 text-zinc-400'}`}>
                                   <div>
                                     <span className="block text-[7.5px] text-zinc-550 mb-0.5 tracking-wider uppercase">DELTA</span>
-                                    <span className={`font-bold block ${c.isCall ? 'text-emerald-500/80' : 'text-rose-500/80'}`}>{c.delta}</span>
+                                    <span className={`font-bold block ${c.isCall ? 'text-[#4ADE80]' : 'text-rose-500/80'}`}>{c.delta}</span>
                                   </div>
                                   <div>
                                     <span className="block text-[7.5px] text-zinc-550 mb-0.5 tracking-wider uppercase">GAMMA</span>
-                                    <span className={`font-bold block ${isLight ? 'text-zinc-800' : 'text-white'}`}>{c.gamma}</span>
+                                    <span className={`font-bold block ${isLight ? 'text-zinc-800' : 'text-[#E5E5E5]'}`}>{c.gamma}</span>
                                   </div>
                                   <div>
                                     <span className="block text-[7.5px] text-zinc-550 mb-0.5 tracking-wider uppercase">THETA</span>
@@ -1607,7 +1607,7 @@ export function DiscoveryView({
                                 </div>
 
                                 {/* Pricing Segment */}
-                                <div className="flex justify-between items-center pt-2.5 border-t border-zinc-900/50 text-[10.5px]">
+                                <div className="flex justify-between items-center pt-2.5 border-t border-black/50 text-[10.5px]">
                                   <div className="space-y-0.5">
                                     <span className="text-[7.5px] text-zinc-650 uppercase block tracking-wider font-bold">SPREAD SENSITIVITY</span>
                                     <span className="text-zinc-500 font-mono font-bold block">
@@ -1620,8 +1620,8 @@ export function DiscoveryView({
                                       animate={isFlashing ? { scale: [1, 1.15, 1] } : {}}
                                       className={`text-xs font-black block transition-all duration-300 ${
                                         isFlashing 
-                                          ? (flashDirection === 'up' ? 'text-[#00ff88]' : 'text-rose-400')
-                                          : 'text-white'
+                                          ? (flashDirection === 'up' ? 'text-[#4ADE80]' : 'text-[#F87171]')
+                                          : 'text-[#E5E5E5]'
                                       }`}
                                     >
                                       ${c.price.toFixed(2)}
@@ -1636,7 +1636,7 @@ export function DiscoveryView({
                                     e.stopPropagation();
                                     handleSelectWithMatch(c.ticker, c.strike, c.isCall);
                                   }}
-                                  className="w-full py-2.5 bg-gradient-to-r from-zinc-900 to-black hover:from-white hover:to-white hover:text-black border border-zinc-900 text-[8.5px] text-zinc-400 hover:text-black font-extrabold uppercase tracking-widest rounded-md mt-1 transition-all duration-300 cursor-pointer flex items-center justify-center gap-1 shadow-md hover:shadow-lg hover:-translate-y-[1px]"
+                                  className="w-full py-2.5 bg-gradient-to-r from-zinc-900 to-black hover:from-white hover:to-white hover:text-black border border-black text-[8.5px] text-zinc-400 hover:text-black font-extrabold uppercase tracking-widest rounded-md mt-1 transition-all duration-300 cursor-pointer flex items-center justify-center gap-1 shadow-md hover:shadow-lg hover:-translate-y-[1px]"
                                 >
                                   <span>LAUNCH DEEP SKYEYES ASSESSMENT</span>
                                   <ArrowRight className="w-2.5 h-2.5" />
@@ -1645,15 +1645,15 @@ export function DiscoveryView({
                             )}
 
                             {/* Click to expand/collapse hint always visible at bottom */}
-                            <div className="flex justify-between items-center text-[7.5px] font-sans text-zinc-500 uppercase tracking-wider pt-2 border-t border-zinc-900/10 dark:border-zinc-900/20 w-full mt-2.5 select-none">
+                            <div className="flex justify-between items-center text-[7.5px] font-sans text-zinc-500 uppercase tracking-wider pt-2 border-t border-black/10 dark:border-black/20 w-full mt-2.5 select-none">
                               <span className="flex items-center gap-1 font-bold">
                                 {isCardExpanded ? (
                                   <>⚡ CLICK TO COLLAPSE</>
                                 ) : (
-                                  <>⚡ CLICK TO EXPAND ↓</>
+                                  <>⚡ CLICK TO EXPAND </>
                                 )}
                               </span>
-                              <span className="flex items-center gap-0.5 hover:text-zinc-300">
+                              <span className="flex items-center gap-0.5 hover:text-[#4ADE80]">
                                 {isCardExpanded ? "COLLAPSE" : "DETAILS"}
                                 <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 transition-transform duration-300 ${isCardExpanded ? 'rotate-180 text-amber-500' : ''}`} />
                               </span>
@@ -1669,7 +1669,7 @@ export function DiscoveryView({
             </AnimatePresence>
 
             {filteredContracts.length === 0 && (
-              <div className={`border p-8 rounded-xl text-center text-zinc-500 uppercase text-xs space-y-2 ${isLight ? 'bg-[#f4f4f5] border-zinc-200' : 'bg-[#050505] border-zinc-900'}`}>
+              <div className={`border p-8 rounded-xl text-center text-zinc-500 uppercase text-xs space-y-2 ${isLight ? 'bg-[#f4f4f5] border-black' : 'bg-black border-black'}`}>
                 <ShieldAlert className="w-8 h-8 text-zinc-500 mx-auto" />
                 <p className={`font-extrabold tracking-widest text-[10px] ${c_textWhite}`}>No active scanner signals discovered</p>
                 <p className="text-[9px] text-zinc-500 leading-snug font-sans uppercase">
@@ -1688,14 +1688,14 @@ export function DiscoveryView({
                 Slayer.trade models automatically weigh dealer positioning scores (DEX/GEX), expected moves, and continuous calibration matrices across 1,248 concurrent options contracts. Select details of any contract block above to inspect dynamic target coordinates.
               </p>
             </div>
-            <div className={`flex gap-4 shrink-0 text-left border-t md:border-t-0 md:border-l pt-3 md:pt-0 md:pl-5 ${isLight ? 'border-zinc-200' : 'border-zinc-900/60'}`}>
+            <div className={`flex gap-4 shrink-0 text-left border-t md:border-t-0 md:border-l pt-3 md:pt-0 md:pl-5 ${isLight ? 'border-black' : 'border-black/60'}`}>
               <div>
                 <span className="text-[7px] text-zinc-500 uppercase font-black tracking-widest block">ENTER SIGNAL RATIO</span>
                 <span className={`text-sm font-black ${c_textWhite}`}>{((metricsOverview.enterCount / metricsOverview.totalCount) * 100).toFixed(1)}%</span>
               </div>
               <div>
                 <span className="text-[7px] text-zinc-500 uppercase font-black tracking-widest block">EXTREME NOTIONAL</span>
-                <span className="text-sm font-black text-emerald-500">+{metricsOverview.extremeEV} Blocks</span>
+                <span className="text-sm font-black text-[#4ADE80]">+{metricsOverview.extremeEV} Blocks</span>
               </div>
             </div>
           </div>
@@ -1712,8 +1712,8 @@ export function DiscoveryView({
             
             <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 blur-2xl pointer-events-none" />
 
-            <div className={`flex items-center gap-2 border-b pb-2 ${isLight ? 'border-zinc-200' : 'border-zinc-900'}`}>
-              <Flame className="w-4 h-4 text-rose-400 animate-pulse" />
+            <div className={`flex items-center gap-2 border-b pb-2 ${isLight ? 'border-black' : 'border-black'}`}>
+              <Flame className="w-4 h-4 text-[#F87171] animate-pulse" />
               <h2 className={`text-[10.5px] font-black uppercase tracking-widest ${c_textWhite}`}>
                 LARGEST WHALE DETECTIONS
               </h2>
@@ -1725,13 +1725,13 @@ export function DiscoveryView({
               <div className={`border p-2.5 rounded-lg flex justify-between items-center text-[10px] ${c_pillBg}`}>
                 <div className="space-y-0.5">
                   <span className={`text-[7px] uppercase block font-black ${isLight ? 'text-zinc-500' : 'text-zinc-650'}`}>LARGEST BULLISH BLOCK</span>
-                  <span className="text-[#00ff88] font-bold block">SPX 7700C (Call)</span>
+                  <span className="text-[#d4d4d8] font-bold block">SPX 7700C (Call)</span>
                   <span className={`text-[8px] font-sans uppercase ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>Premium: $14.2M Notional</span>
                 </div>
                 <div className="text-right space-y-0.5">
                   <span className={`text-[7px] block uppercase font-bold ${isLight ? 'text-zinc-500' : 'text-zinc-650'}`}>DEALER IMPACT</span>
                   <span className={`block font-black font-mono ${c_textWhite}`}>CRITICAL</span>
-                  <span className="text-[8.5px] px-1 py-0.2 bg-emerald-500/10 border border-emerald-500/20 text-[#00ff88] rounded font-bold">HIGH DELTA</span>
+                  <span className="text-[8.5px] px-1 py-0.2 bg-black/40 border border-black text-[#d4d4d8] rounded font-bold">HIGH DELTA</span>
                 </div>
               </div>
 
@@ -1739,7 +1739,7 @@ export function DiscoveryView({
               <div className={`border p-2.5 rounded-lg flex justify-between items-center text-[10px] ${c_pillBg}`}>
                 <div className="space-y-0.5">
                   <span className={`text-[7px] uppercase block font-black ${isLight ? 'text-zinc-500' : 'text-zinc-650'}`}>LARGEST HEDGE PUT Sweep</span>
-                  <span className="text-rose-400 font-bold block">SPX 7500P (Put)</span>
+                  <span className="text-[#F87171] font-bold block">SPX 7500P (Put)</span>
                   <span className={`text-[8px] font-sans uppercase ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>Premium: $22.4M Notional</span>
                 </div>
                 <div className="text-right space-y-0.5">
@@ -1770,7 +1770,7 @@ export function DiscoveryView({
           {/* B. INSTITUTIONAL FLOW FEED (REAL-TIME SCROLLING WORKSPACE) */}
           <div className={`border rounded-xl p-4.5 text-left relative overflow-hidden shadow-2xl flex flex-col gap-3.5 ${c_cardBg}`}>
             
-            <div className={`flex items-center justify-between border-b pb-2 ${isLight ? 'border-zinc-200' : 'border-zinc-900'}`}>
+            <div className={`flex items-center justify-between border-b pb-2 ${isLight ? 'border-black' : 'border-black'}`}>
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#4f8cff] animate-ping absolute" />
                 <Database className="w-4 h-4 text-[#4f8cff] relative z-10" />
@@ -1797,7 +1797,7 @@ export function DiscoveryView({
                       animate={{ opacity: 1, x: 0, height: 'auto' }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className={`py-2.5 border rounded-lg px-2.5 transition-colors flex flex-col gap-1 text-[9.5px] ${isLight ? 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200' : 'bg-black/40 border-zinc-900/40 hover:bg-black/60'}`}
+                      className={`py-2.5 border rounded-lg px-2.5 transition-colors flex flex-col gap-1 text-[9.5px] ${isLight ? 'bg-zinc-50 hover:bg-black border-black' : 'bg-black/40 border-black/40 hover:bg-black/60'}`}
                     >
                       <div className="flex justify-between items-center text-[9px]">
                         <div className="flex items-center gap-1.5">
@@ -1808,7 +1808,7 @@ export function DiscoveryView({
                             {log.side.toUpperCase()}
                           </span>
                         </div>
-                        <span className={`font-mono font-extrabold ${isBullish ? 'text-emerald-500' : 'text-amber-500'}`}>
+                        <span className={`font-mono font-extrabold ${isBullish ? 'text-[#4ADE80]' : 'text-amber-500'}`}>
                           {log.action}
                         </span>
                       </div>
@@ -1817,14 +1817,14 @@ export function DiscoveryView({
                         <span className={`text-[10.5px] ${c_textWhite}`}>
                           {log.ticker} {log.strike}{log.type}
                         </span>
-                        <span className={isBullish ? 'text-emerald-550' : 'text-amber-650'}>
+                        <span className={isBullish ? 'text-[#4ADE80]' : 'text-amber-650'}>
                           {log.premium}
                         </span>
                       </div>
 
-                      <div className={`flex justify-between items-center text-[8.5px] text-zinc-550 pt-0.5 border-t border-dashed ${isLight ? 'border-zinc-200' : 'border-zinc-950'}`}>
+                      <div className={`flex justify-between items-center text-[8.5px] text-zinc-550 pt-0.5 border-t border-dashed ${isLight ? 'border-black' : 'border-black'}`}>
                         <span>SIZE: {log.size}</span>
-                        <span>BIAS: <span className={isBullish ? 'text-emerald-500/80 font-bold' : 'text-zinc-500 font-bold'}>{log.tag}</span></span>
+                        <span>BIAS: <span className={isBullish ? 'text-[#4ADE80] font-bold' : 'text-zinc-500 font-bold'}>{log.tag}</span></span>
                       </div>
                     </motion.div>
                   );
@@ -1833,7 +1833,7 @@ export function DiscoveryView({
             </div>
 
             {/* Bottom active status ticker */}
-            <div className={`text-[7.5px] p-2 rounded border font-black flex justify-between items-center uppercase ${isLight ? 'text-zinc-600 bg-zinc-100 border-zinc-200' : 'text-zinc-500 bg-black/80 border-zinc-950'}`}>
+            <div className={`text-[7.5px] p-2 rounded border font-black flex justify-between items-center uppercase ${isLight ? 'text-zinc-600 bg-black border-black' : 'text-zinc-500 bg-black/80 border-black'}`}>
               <span>STREAMING ACTIVE</span>
               <span className="animate-pulse">● FEED ONLINE</span>
             </div>

@@ -313,25 +313,25 @@ export function SkyseyeAlertHub() {
   return (
     <div 
       id="skyseye-alert-container" 
-      className="fixed bottom-6 right-6 z-[120] flex flex-col gap-3 max-w-sm w-[350px] pointer-events-auto font-mono selection:bg-emerald-500/30"
+      className="fixed bottom-6 right-6 z-[120] flex flex-col gap-3 max-w-sm w-[350px] pointer-events-auto font-mono selection:bg-[#4ADE80] text-black/30"
     >
       <AnimatePresence mode="popLayout">
         {toasts.map((toast) => {
           // Color schemes based on rating
-          let bgClass = 'bg-[#060608]/95 border-zinc-900 shadow-zinc-950/80';
+          let bgClass = 'bg-black/95 border-black shadow-zinc-950/80';
           let borderLeftGlow = 'border-l-indigo-500';
           let accentText = 'text-indigo-400';
           let glowIntensity = 'shadow-[0_8px_32px_rgba(0,0,0,0.7)]';
           
           if (toast.rating === 'GOOD') {
-            bgClass = 'bg-[#040906]/95 border-emerald-950/60';
-            borderLeftGlow = 'border-l-emerald-500';
-            accentText = 'text-emerald-400';
-            glowIntensity = 'shadow-[0_12px_44px_rgba(16,185,129,0.12),0_8px_24px_rgba(0,0,0,0.8)]';
+            bgClass = 'bg-black/95 border-black';
+            borderLeftGlow = 'border-l-zinc-300';
+            accentText = 'text-[#4ADE80]';
+            glowIntensity = 'shadow-[0_12px_44px_rgba(34,211,238,0.12),0_8px_24px_rgba(0,0,0,0.8)]';
           } else if (toast.rating === 'WEAK') {
-            bgClass = 'bg-[#090505]/95 border-rose-950/60';
+            bgClass = 'bg-black/95 border-[#F87171]/50/60';
             borderLeftGlow = 'border-l-rose-500';
-            accentText = 'text-rose-400';
+            accentText = 'text-[#F87171]';
             glowIntensity = 'shadow-[0_12px_44px_rgba(239,68,68,0.12),0_8px_24px_rgba(0,0,0,0.8)]';
           }
 
@@ -343,7 +343,7 @@ export function SkyseyeAlertHub() {
               exit={{ opacity: 0, scale: 0.9, x: 10, transition: { duration: 0.2 } }}
               layout
               onClick={() => handleAlertClick(toast)}
-              className={`border border-zinc-900 hover:border-zinc-700/60 transition-all duration-150 backdrop-blur-xl p-4 rounded-sm flex flex-col gap-3 border-l-4 ${borderLeftGlow} ${bgClass} ${glowIntensity} relative group select-none cursor-pointer`}
+              className={`border border-black hover:border-black transition-all duration-150 backdrop-blur-xl p-4 rounded-sm flex flex-col gap-3 border-l-4 ${borderLeftGlow} ${bgClass} ${glowIntensity} relative group select-none cursor-pointer`}
             >
               {/* Close button */}
               <button 
@@ -351,7 +351,7 @@ export function SkyseyeAlertHub() {
                   e.stopPropagation(); // Prevent trigger navigation
                   removeToast(toast.id);
                 }}
-                className="absolute top-2 right-2 p-0.5 text-zinc-500 hover:text-white rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                className="absolute top-2 right-2 p-0.5 text-zinc-500 hover:text-[#E5E5E5] rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -361,10 +361,10 @@ export function SkyseyeAlertHub() {
                 <div className="flex items-center gap-2">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
                     toast.rating === 'GOOD' 
-                      ? 'bg-emerald-500/10 border border-emerald-500/35 text-emerald-400' 
+                      ? 'bg-black/40 border border-black text-[#4ADE80]' 
                       : toast.rating === 'WEAK' 
-                        ? 'bg-rose-500/10 border border-rose-500/35 text-rose-400' 
-                        : 'bg-zinc-800/10 border border-zinc-700/30 text-zinc-400'
+                        ? 'bg-rose-500/10 border border-rose-500/35 text-[#F87171]' 
+                        : 'bg-black/10 border border-black text-zinc-400'
                   }`}>
                     {toast.rating === 'GOOD' ? (
                       <Sparkles className="w-2.5 h-2.5" />
@@ -375,7 +375,7 @@ export function SkyseyeAlertHub() {
                     )}
                   </div>
                   <div className="flex flex-col text-left">
-                    <span className="text-[10px] font-black text-white/95 uppercase tracking-widest flex items-center gap-1.5">
+                    <span className="text-[10px] font-black text-[#E5E5E5]/95 uppercase tracking-widest flex items-center gap-1.5">
                       {toast.rating === 'GOOD' ? 'OPTIMAL INTEL TRIGGER' : 'CONTRACT FEED SYNCED'}
                     </span>
                     <span className="text-[8px] text-zinc-500 tracking-wider font-mono">
@@ -387,24 +387,24 @@ export function SkyseyeAlertHub() {
                 {/* Rating Badge */}
                 <div className={`px-2 py-0.5 border text-[8.5px] font-black tracking-widest rounded-sm uppercase italic shrink-0 ${
                   toast.rating === 'GOOD' 
-                    ? 'border-emerald-500/30 bg-emerald-500/10 text-[#00ff88]' 
+                    ? 'border-black bg-black/40 text-[#4ADE80]' 
                     : toast.rating === 'WEAK'
-                      ? 'border-rose-500/30 bg-rose-500/10 text-rose-400'
-                      : 'border-zinc-800/80 bg-zinc-950 text-zinc-400'
+                      ? 'border-rose-500/30 bg-rose-500/10 text-[#F87171]'
+                      : 'border-black/80 bg-black text-zinc-400'
                 }`}>
                   {toast.rating === 'GOOD' ? '★ ENTER' : toast.rating === 'WEAK' ? '⚠ AVOID' : '✦ HOLD'}
                 </div>
               </div>
 
               {/* Main Content Info */}
-              <div className="bg-black/40 border border-zinc-900/50 rounded-sm p-2.5 space-y-1.5 text-left">
+              <div className="bg-black/40 border border-black/50 rounded-sm p-2.5 space-y-1.5 text-left">
                 <div className="flex items-center justify-between">
                   {toast.type === 'MULTIPLE' ? (
-                    <span className="text-white text-xs font-black tracking-widest font-mono animate-pulse">
+                    <span className="text-[#E5E5E5] text-xs font-black tracking-widest font-mono animate-pulse">
                       MULTIPLE TRADES FOUND
                     </span>
                   ) : (
-                    <span className="text-white text-xs font-black tracking-widest font-mono">
+                    <span className="text-[#E5E5E5] text-xs font-black tracking-widest font-mono">
                       {toast.ticker} {toast.strike}{toast.type}
                     </span>
                   )}
@@ -420,11 +420,11 @@ export function SkyseyeAlertHub() {
                 </div>
                 
                 {/* Visual score bar */}
-                <div className="w-full bg-zinc-900/80 h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-black/80 h-1.5 rounded-full overflow-hidden">
                   <div 
                     className={`h-full rounded-full transition-all duration-500 ${
                       toast.rating === 'GOOD' 
-                        ? 'bg-emerald-400' 
+                        ? 'bg-black/40' 
                         : toast.rating === 'WEAK' 
                           ? 'bg-rose-500' 
                           : 'bg-indigo-400'
@@ -435,15 +435,15 @@ export function SkyseyeAlertHub() {
 
                 {/* Quantitative statistics / Summary list */}
                 {toast.type === 'MULTIPLE' ? (
-                  <div className="text-[9.5px] font-mono text-zinc-300 border-t border-zinc-900/60 pt-2 mt-1 leading-normal max-h-[60px] overflow-y-auto">
-                    <span className="text-emerald-400 font-bold block mb-1">► DETECTED INSTANT SELECTION OVER-FLOW:</span>
+                  <div className="text-[9.5px] font-mono text-[#4ADE80] border-t border-black/60 pt-2 mt-1 leading-normal max-h-[60px] overflow-y-auto">
+                    <span className="text-[#4ADE80] font-bold block mb-1">► DETECTED INSTANT SELECTION OVER-FLOW:</span>
                     <span className="text-zinc-400 block">{toast.tradesSummary}</span>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[8.5px] font-mono border-t border-zinc-900/60 pt-2 mt-1">
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[8.5px] font-mono border-t border-black/60 pt-2 mt-1">
                     <div className="flex justify-between">
                       <span className="text-zinc-500">Premium Estim:</span>
-                      <span className="text-zinc-300 font-bold">${toast.price.toFixed(2)}</span>
+                      <span className="text-[#4ADE80] font-bold">${toast.price.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-zinc-500">Expected Move:</span>
@@ -456,19 +456,19 @@ export function SkyseyeAlertHub() {
               {/* Action interpretation message (Micro AI commentary) */}
               <div className="text-[9px] text-zinc-400 text-left leading-relaxed font-sans px-0.5">
                 {toast.type === 'MULTIPLE' ? (
-                  <span className="text-emerald-300/90 font-mono font-medium">
+                  <span className="text-[#4ADE80] font-mono font-medium">
                     ⚡ <strong>Multi-trigger event detected.</strong> Click here to open Slayer Cockpit and inspect all active setups.
                   </span>
                 ) : toast.rating === 'GOOD' ? (
-                  <span className="text-emerald-300/90 font-mono font-medium">
+                  <span className="text-[#4ADE80] font-mono font-medium">
                     ⚡ <strong>Bayesian drift confirms edge.</strong> Click to inspect. Dealers have heavy delta support.
                   </span>
                 ) : toast.rating === 'WEAK' ? (
-                  <span className="text-rose-300/90 font-mono font-medium">
+                  <span className="text-[#F87171]/90 font-mono font-medium">
                     ⚠ <strong>Low positioning support.</strong> Click to view. Hedging limits upside margins.
                   </span>
                 ) : (
-                  <span className="text-zinc-300/90 font-mono font-medium text-left">
+                  <span className="text-[#4ADE80]/90 font-mono font-medium text-left">
                     ✦ <strong>In range consolidation.</strong> Click to inspect. Balanced call/put ratio.
                   </span>
                 )}

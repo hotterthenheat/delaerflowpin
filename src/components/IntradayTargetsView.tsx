@@ -54,23 +54,23 @@ export function IntradayTargetsView({ profile, ticker, decimals }: IntradayTarge
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
          <div>
            <h2 className="text-[13px] font-black tracking-widest text-[#e4e4e7] uppercase flex items-center gap-2">
-             <Target className="w-4 h-4 text-emerald-400" />
+             <Target className="w-4 h-4 text-[#4ADE80]" />
              Strategic Intraday Nodes
            </h2>
            <p className="text-[9px] text-zinc-500 uppercase tracking-widest mt-1">
              Algorithmic isolation of high-magnetism strikes based on order flow & dealer repositioning.
            </p>
          </div>
-         <div className="bg-[#0c0c0e] border border-zinc-900 px-3.5 py-2 rounded-lg flex items-center gap-3">
+         <div className="bg-black border border-black px-3.5 py-2 rounded-lg flex items-center gap-3">
            <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest flex items-center gap-1.5">
              <Activity className="w-3 h-3 text-sky-500" /> Active Spot
            </span>
-           <span className="text-[13px] font-mono font-bold text-white">${spot.toFixed(decimals)}</span>
+           <span className="text-[13px] font-mono font-bold text-[#E5E5E5]">${spot.toFixed(decimals)}</span>
          </div>
       </div>
       
       {targets.length === 0 ? (
-        <div className="py-16 text-center bg-black/40 border border-zinc-900 rounded-lg flex flex-col items-center justify-center">
+        <div className="py-16 text-center bg-black/40 border border-black rounded-lg flex flex-col items-center justify-center">
           <Activity className="w-8 h-8 text-zinc-800 animate-pulse mb-3" />
           <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">No Convergence Nodes Detected</div>
         </div>
@@ -81,21 +81,21 @@ export function IntradayTargetsView({ profile, ticker, decimals }: IntradayTarge
             const distancePct = Math.abs(t.strike - spot) / spot;
             
             let status = 'HOLDING';
-            let statusColorClass = 'text-emerald-400';
-            let statusBgClass = 'bg-emerald-500/10 border-emerald-500/20';
+            let statusColorClass = 'status-holding';
+            let statusBgClass = '';
 
             if (distancePct < 0.002) {
               status = 'TESTING';
-              statusColorClass = 'text-amber-400';
-              statusBgClass = 'bg-amber-500/10 border-amber-500/20';
+              statusColorClass = 'status-testing';
+              statusBgClass = '';
             } else if ((isDominantCall && spot > t.strike) || (!isDominantCall && spot < t.strike)) {
               status = 'FAILING';
-              statusColorClass = 'text-rose-400';
-              statusBgClass = 'bg-rose-500/10 border-rose-500/20';
+              statusColorClass = 'status-failing';
+              statusBgClass = '';
             } else {
               status = 'HOLDING';
-              statusColorClass = 'text-sky-400';
-              statusBgClass = 'bg-sky-500/10 border-sky-500/20';
+              statusColorClass = 'status-holding';
+              statusBgClass = '';
             }
 
             const rawCall = Math.abs(t.callGex || 0);
@@ -107,16 +107,16 @@ export function IntradayTargetsView({ profile, ticker, decimals }: IntradayTarge
             const accentColor = isDominantCall ? 'emerald' : 'rose';
             
             return (
-              <div key={t.strike} className={`bg-[#0c0c0e]/90 border border-zinc-900 overflow-hidden relative rounded-xl hover:border-${accentColor}-500/30 transition-all duration-300 group`}>
+              <div key={t.strike} className={`bg-black/90 border border-black overflow-hidden relative rounded-xl hover:border-${accentColor}-500/30 transition-all duration-300 group`}>
                 {/* Top thin accent line */}
-                <div className={`absolute top-0 left-0 right-0 h-[2px] ${isDominantCall ? 'bg-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500/80 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`} />
+                <div className={`absolute top-0 left-0 right-0 h-[2px] ${isDominantCall ? 'bg-black/40 shadow-[0_0_8px_rgba(34,211,238,0.5)]' : 'bg-rose-500/80 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`} />
                 
                 <div className="p-4 flex flex-col h-full">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <div className="text-[17px] font-mono font-black text-white relative inline-block drop-shadow-md">
+                      <div className="text-[17px] font-mono font-black text-[#E5E5E5] relative inline-block drop-shadow-md">
                         ${t.strike.toFixed(decimals)}
-                        {idx === 0 && <span className="absolute -top-1 -right-3 w-2 h-2 bg-amber-500 rounded-full border border-[#0c0c0e]" />}
+                        {idx === 0 && <span className="absolute -top-1 -right-3 w-2 h-2 bg-amber-500 rounded-full border border-black" />}
                       </div>
                       <div className="text-[8.5px] font-black uppercase tracking-widest text-zinc-500 mt-0.5">
                         {t.distanceBps.toFixed(0)} bps {t.isAboveSpot ? 'Above Spot' : 'Below Spot'}
@@ -128,40 +128,40 @@ export function IntradayTargetsView({ profile, ticker, decimals }: IntradayTarge
                   </div>
 
                   <div className="mb-5 flex-1">
-                     <span className={`text-[9.5px] uppercase font-black tracking-widest flex items-center gap-1.5 bg-[#08080a] border border-zinc-900 px-2.5 py-1.5 rounded-md inline-flex ${isDominantCall ? 'text-emerald-450 border-emerald-950/40' : 'text-rose-450 border-rose-950/40'}`}>
+                     <span className={`text-[9.5px] uppercase font-black tracking-widest flex items-center gap-1.5 bg-black border border-black px-2.5 py-1.5 rounded-md inline-flex ${isDominantCall ? 'text-[#4ADE80] border-black' : 'text-[#F87171] border-[#F87171]/50/40'}`}>
                        {isDominantCall ? 'Upside Gamma Target' : 'Downside Floor Zone'}
                      </span>
                   </div>
 
                   {/* Micro-meter for Call vs Put Distribution */}
-                  <div className="space-y-2 mb-4 bg-[#08080a] border border-zinc-900/60 p-2.5 rounded-lg">
+                  <div className="space-y-2 mb-4 bg-black border border-black/60 p-2.5 rounded-lg">
                     <div className="flex justify-between text-[8px] font-mono text-zinc-500 uppercase font-bold">
                        <span>Call Vol</span>
                        <span>Put Vol</span>
                     </div>
-                    <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden flex shadow-inner">
-                       <div style={{width: `${callPct}%`}} className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                    <div className="h-1.5 w-full bg-black rounded-full overflow-hidden flex shadow-inner">
+                       <div style={{width: `${callPct}%`}} className="h-full bg-black/40 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                        <div style={{width: `${putPct}%`}} className="h-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]" />
                     </div>
                     <div className="flex justify-between text-[8.5px] font-mono font-black">
-                       <span className="text-emerald-400">{rawCall >= 1e9 ? fmtBn(rawCall) : fmtMn(rawCall)}</span>
-                       <span className="text-rose-400">{rawPut >= 1e9 ? fmtBn(rawPut) : fmtMn(rawPut)}</span>
+                       <span className="text-[#4ADE80]">{rawCall >= 1e9 ? fmtBn(rawCall) : fmtMn(rawCall)}</span>
+                       <span className="text-[#F87171]">{rawPut >= 1e9 ? fmtBn(rawPut) : fmtMn(rawPut)}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between mt-auto bg-black/60 border border-zinc-800/80 rounded-md p-2 relative z-10 overflow-hidden">
-                     <div className={`absolute inset-0 opacity-10 ${t.netGex > 0 ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                  <div className="flex items-center justify-between mt-auto bg-black/60 border border-black/80 rounded-md p-2 relative z-10 overflow-hidden">
+                     <div className={`absolute inset-0 opacity-10 ${t.netGex > 0 ? 'bg-black/40' : 'bg-rose-500'}`} />
                      <span className="text-[8px] font-black uppercase text-zinc-400 tracking-widest flex items-center gap-1.5">
                         <Zap className="w-3 h-3 text-zinc-500" /> Net Delta Force
                      </span>
-                     <span className={`text-[12px] font-mono font-black ${t.netGex > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                     <span className={`text-[12px] font-mono font-black ${t.netGex > 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                         {t.netGex >= 1e9 || t.netGex <= -1e9 ? fmtBn(t.netGex) : fmtMn(t.netGex)}
                      </span>
                   </div>
                 </div>
                 
                 {/* Background resonance glow */}
-                <div className={`absolute -bottom-6 -right-6 w-24 h-24 rounded-full blur-[32px] opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity duration-500 ${isDominantCall ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                <div className={`absolute -bottom-6 -right-6 w-24 h-24 rounded-full blur-[32px] opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity duration-500 ${isDominantCall ? 'bg-black/40' : 'bg-rose-500'}`} />
               </div>
             );
           })}

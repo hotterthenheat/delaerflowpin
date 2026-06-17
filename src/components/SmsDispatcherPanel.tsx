@@ -96,14 +96,14 @@ export function SmsDispatcherPanel({
   }, [dispatchLogs]);
 
   return (
-    <div className="bg-[#121214] border border-[#2A2A2D] rounded-sm font-mono p-5 overflow-hidden shadow-lg h-full flex flex-col justify-between">
+    <div className="bg-black border border-black rounded-sm font-mono p-5 overflow-hidden shadow-lg h-full flex flex-col justify-between">
       <div>
-        <div className="flex items-center justify-between border-b border-[#2A2A2D] pb-3 mb-4">
+        <div className="flex items-center justify-between border-b border-black pb-3 mb-4">
           <div className="flex items-center gap-1.5">
-            <Smartphone className="w-4 h-4 text-emerald-450 animate-pulse" />
+            <Smartphone className="w-4 h-4 text-[#4ADE80] animate-pulse" />
             <span className="text-xs tracking-[0.2em] font-bold text-[#E0E0E0]">DIRECT SMS DISPATCH COCKPIT</span>
           </div>
-          <span className="text-[9px] text-[#888888] font-bold uppercase select-none border border-zinc-800 px-2 bg-black/40 py-0.5">V10 MOBILITY EDGE</span>
+          <span className="text-[9px] text-[#888888] font-bold uppercase select-none border border-black px-2 bg-black/40 py-0.5">V10 MOBILITY EDGE</span>
         </div>
 
         <p className="text-[11px] text-zinc-400 leading-normal mb-4 font-sans">
@@ -111,7 +111,7 @@ export function SmsDispatcherPanel({
         </p>
 
         {/* Input area */}
-        <div className="bg-black/40 border border-[#1A1A1D] p-4 rounded-sm mb-4">
+        <div className="bg-black/40 border border-black p-4 rounded-sm mb-4">
           <div className="flex flex-col gap-2.5">
             <label className="text-[10px] text-zinc-500 uppercase font-bold">DEVICE REGISTER (MOBILE PHONE NUMBER)</label>
             <div className="flex gap-2">
@@ -123,21 +123,21 @@ export function SmsDispatcherPanel({
                   value={phoneNumber}
                   onChange={handlePhoneChange}
                   disabled={isDispatching}
-                  className="w-full bg-[#09090b] text-white border border-[#2A2A2D] focus:border-emerald-500 rounded-sm py-1.5 pl-8 pr-3 text-xs focus:outline-none transition-all font-mono"
+                  className="w-full bg-black text-[#E5E5E5] border border-black focus:border-black rounded-sm py-1.5 pl-8 pr-3 text-xs focus:outline-none transition-all font-mono"
                 />
               </div>
 
               <button
                 onClick={handleSendSMS}
                 disabled={isDispatching || phoneNumber.length < 10}
-                className="px-4 py-1.5 bg-emerald-950 border border-emerald-950 hover:border-emerald-400 text-emerald-400 font-bold uppercase rounded-sm cursor-pointer disabled:opacity-40 disabled:hover:border-transparent transition-all text-xs flex items-center gap-1 shrink-0"
+                className="px-4 py-1.5 bg-black/40 border border-black hover:border-black text-[#4ADE80] font-bold uppercase rounded-sm cursor-pointer disabled:opacity-40 disabled:hover:border-transparent transition-all text-xs flex items-center gap-1 shrink-0"
               >
                 {isDispatching ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                 <span>{isDispatching ? 'ROUTING' : 'DISPATCH'}</span>
               </button>
             </div>
             {phoneNumber.length > 0 && phoneNumber.length < 14 && (
-              <span className="text-[9px] text-rose-450 flex items-center gap-1 mt-0.5">
+              <span className="text-[9px] text-[#F87171] flex items-center gap-1 mt-0.5">
                 <AlertCircle className="w-3" /> Minimum 10 digits required for telecom routing
               </span>
             )}
@@ -146,14 +146,14 @@ export function SmsDispatcherPanel({
 
         {/* Twilio Handshake Debug Logs */}
         {dispatchLogs.length > 0 && (
-          <div className="bg-black border border-zinc-900 rounded-sm p-3 mb-4 h-[120px] overflow-y-auto custom-scrollbar text-[9px] leading-relaxed text-zinc-400 select-text">
-            <div className="text-zinc-550 border-b border-zinc-950 pb-1 mb-1 font-bold tracking-wider text-[8px] uppercase">
+          <div className="bg-black border border-black rounded-sm p-3 mb-4 h-[120px] overflow-y-auto custom-scrollbar text-[9px] leading-relaxed text-zinc-400 select-text">
+            <div className="text-zinc-550 border-b border-black pb-1 mb-1 font-bold tracking-wider text-[8px] uppercase">
               DEVIATION SMS DISPATCH PIPELINE LOGS
             </div>
             {dispatchLogs.map((log, i) => {
               const isLast = i === dispatchLogs.length - 1;
               return (
-                <div key={i} className={`${isLast ? 'text-emerald-400 font-semibold' : 'text-zinc-400'}`}>
+                <div key={i} className={`${isLast ? 'text-[#4ADE80] font-semibold' : 'text-zinc-400'}`}>
                   {log}
                 </div>
               );
@@ -168,9 +168,9 @@ export function SmsDispatcherPanel({
         <div className="text-[8.5px] uppercase text-zinc-650 font-bold mb-1.5 select-none text-center">
           📱 SIMULATED SUBSCRIBER MESSAGE PREVIEW
         </div>
-        <div className="bg-[#09090b] border border-zinc-900 rounded-sm p-3 font-sans relative overflow-hidden min-h-[92px]">
+        <div className="bg-black border border-black rounded-sm p-3 font-sans relative overflow-hidden min-h-[92px]">
           {/* Top Status Bar of Phone */}
-          <div className="flex justify-between items-center text-[8px] text-zinc-550 font-mono tracking-tighter border-b border-zinc-950 pb-1 mb-2">
+          <div className="flex justify-between items-center text-[8px] text-zinc-550 font-mono tracking-tighter border-b border-black pb-1 mb-2">
             <span>SLAYER MOBILE HUB</span>
             <div className="flex gap-1.5 items-center">
               <span>LTE</span>
@@ -181,9 +181,9 @@ export function SmsDispatcherPanel({
           {sentAlerts.length > 0 ? (
             <div className="flex flex-col gap-2">
               {sentAlerts.slice(0, 1).map((alert, idx) => (
-                <div key={idx} className="bg-[#1C1C1E] text-white p-2.5 rounded-lg text-[10px] leading-snug w-[92%] ml-auto shadow-md border border-zinc-850 animate-slideUp relative">
+                <div key={idx} className="bg-black text-[#E5E5E5] p-2.5 rounded-lg text-[10px] leading-snug w-[92%] ml-auto shadow-md border border-black animate-slideUp relative">
                   <span className="absolute -left-10 text-[8px] font-mono text-zinc-600 top-1">{alert.timestamp}</span>
-                  <div className="font-semibold font-mono text-[9px] text-[#10B981] mb-0.5">SLAYER.TRADE</div>
+                  <div className="font-semibold font-mono text-[9px] text-[#4ADE80] mb-0.5">SLAYER.TRADE</div>
                   {alert.message}
                 </div>
               ))}

@@ -425,13 +425,13 @@ export function MicrostructureLabView() {
     <div className="w-full flex flex-col space-y-6" id="dealerflow-microlab-view">
       
       {/* 25-STEP RECURSIVE HEDGING CASCADE CARD */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Plotting Column */}
-        <div className="xl:col-span-2 bg-[#060608]/90 p-5 rounded-lg border border-zinc-900 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+        <div className="lg:col-span-2 bg-black/90 p-5 rounded-lg border border-black shadow-2xl relative overflow-hidden flex flex-col justify-between">
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-900/40 pb-3 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/40 pb-3 mb-4">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
               <div className="font-sans font-black text-xs tracking-widest text-zinc-100 uppercase">
@@ -441,14 +441,14 @@ export function MicrostructureLabView() {
             
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5 font-mono text-[9px] text-zinc-450 uppercase">
-                <Clock className="w-3 h-3 text-cyan-400" />
+                <Clock className="w-3 h-3 text-[#4ADE80]" />
                 Time: {formatTime(timeMin)}
               </span>
               <span className="text-zinc-800">|</span>
               <span className={`px-2 py-0.5 rounded-sm font-mono text-[8.5px] font-black border ${
                 detailedSimulation.fragility > 70 
                   ? 'bg-rose-950/20 border-rose-900 text-rose-455 animate-pulse' 
-                  : 'bg-zinc-950 border-zinc-850 text-emerald-400'
+                  : 'bg-black border-black text-[#4ADE80]'
               }`}>
                 FRAGILITY: {detailedSimulation.fragility}%
               </span>
@@ -456,7 +456,7 @@ export function MicrostructureLabView() {
           </div>
 
           {/* SVG Canvas for cascade vectors path mapping */}
-          <div className="w-full bg-[#030304] border border-zinc-950 rounded-md p-2.5 relative flex items-center justify-center min-h-[220px]">
+          <div className="w-full bg-black border border-black rounded-md p-2.5 relative flex items-center justify-center min-h-[220px]">
             {/* Gridlines */}
             <div className="absolute inset-0 grid grid-cols-6 grid-rows-4 pointer-events-none opacity-[0.02]">
               {[...Array(24)].map((_, i) => (
@@ -477,8 +477,8 @@ export function MicrostructureLabView() {
             )}
 
             {pineState.isAirPocket && (
-              <div className="absolute bottom-4 right-6 bg-[#ff453a]/10 border border-rose-500/20 rounded px-2 py-1 text-left select-none animate-pulse z-10">
-                <div className="flex items-center gap-1 font-mono text-[8px] text-rose-400 font-extrabold uppercase">
+              <div className="absolute bottom-4 right-6 bg-[#F87171]/10 border border-rose-500/20 rounded px-2 py-1 text-left select-none animate-pulse z-10">
+                <div className="flex items-center gap-1 font-mono text-[8px] text-[#F87171] font-extrabold uppercase">
                   <AlertTriangle className="w-2.5 h-2.5" /> AIR POCKET DETECTED
                 </div>
                 <div className="text-[7.5px] text-zinc-550 font-mono mt-0.5 uppercase">
@@ -493,7 +493,7 @@ export function MicrostructureLabView() {
                 {/* SVG Line path drawing */}
                 <polyline
                   fill="none"
-                  stroke={detailedSimulation.flow >= 0 ? '#10b981' : '#f43f5e'}
+                  stroke={detailedSimulation.flow >= 0 ? '#4ADE80' : '#f43f5e'}
                   strokeWidth="2.5"
                   points={pathwayPoints}
                   strokeDasharray="1000"
@@ -518,7 +518,7 @@ export function MicrostructureLabView() {
                         cx={cx}
                         cy={cy}
                         r="3.5"
-                        className={`${detailedSimulation.flow >= 0 ? 'fill-emerald-400' : 'fill-rose-400'} stroke-[#030304] stroke-2`}
+                        className={`${detailedSimulation.flow >= 0 ? 'fill-[#4ADE80]' : 'fill-rose-400'} stroke-[#030304] stroke-2`}
                       />
                       <text
                         x={cx}
@@ -544,33 +544,33 @@ export function MicrostructureLabView() {
 
           {/* Quick Metrics Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 w-full">
-            <div className="bg-[#0b0c0e] border border-zinc-900/60 rounded p-2.5 text-left">
+            <div className="bg-black border border-black/60 rounded p-2.5 text-left">
               <span className="text-[7.5px] text-zinc-550 font-extrabold uppercase tracking-widest block">Net Delta Exposure</span>
-              <span className={`text-xs font-black font-mono block mt-1 ${detailedSimulation.netDelta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <span className={`text-xs font-black font-mono block mt-1 ${detailedSimulation.netDelta >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                 {detailedSimulation.netDelta.toLocaleString(undefined, { maximumFractionDigits: 0 })}
               </span>
               <span className="text-[6.5px] text-[#38bdf8] block tracking-wider uppercase font-mono mt-0.5">MM DELTA HEDGE</span>
             </div>
 
-            <div className="bg-[#0b0c0e] border border-zinc-900/60 rounded p-2.5 text-left">
+            <div className="bg-black border border-black/60 rounded p-2.5 text-left">
               <span className="text-[7.5px] text-zinc-550 font-extrabold uppercase tracking-widest block">Gamma Imbalance Coefficient</span>
-              <span className={`text-xs font-black font-mono block mt-1 ${detailedSimulation.netGamma >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <span className={`text-xs font-black font-mono block mt-1 ${detailedSimulation.netGamma >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                 {detailedSimulation.netGamma.toLocaleString(undefined, { maximumFractionDigits: 1 })}
               </span>
               <span className="text-[6.5px] text-[#38bdf8] block tracking-wider uppercase font-mono mt-0.5">MM GAMMA STABILITY</span>
             </div>
 
-            <div className="bg-[#0b0c0e] border border-zinc-900/60 rounded p-2.5 text-left">
+            <div className="bg-black border border-black/60 rounded p-2.5 text-left">
               <span className="text-[7.5px] text-zinc-550 font-extrabold uppercase tracking-widest block">Vanna Covariance Drift</span>
-              <span className={`text-xs font-black font-mono block mt-1 ${detailedSimulation.netVanna >= 0 ? 'text-teal-400' : 'text-rose-350'}`}>
+              <span className={`text-xs font-black font-mono block mt-1 ${detailedSimulation.netVanna >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                 {detailedSimulation.netVanna.toLocaleString(undefined, { maximumFractionDigits: 1 })}
               </span>
               <span className="text-[6.5px] text-[#38bdf8] block tracking-wider uppercase font-mono mt-0.5">IV SHIFT SENSITIVITY</span>
             </div>
 
-            <div className="bg-[#0b0c0e] border border-zinc-900/60 rounded p-2.5 text-left">
+            <div className="bg-black border border-black/60 rounded p-2.5 text-left">
               <span className="text-[7.5px] text-zinc-550 font-extrabold uppercase tracking-widest block">Terminal Hedging Flow</span>
-              <span className={`text-xs font-black font-mono block mt-1 ${detailedSimulation.flow >= 0 ? 'text-emerald-400' : 'text-rose-300'}`}>
+              <span className={`text-xs font-black font-mono block mt-1 ${detailedSimulation.flow >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                 ${(detailedSimulation.flow / 1_000_000).toFixed(2)}M
               </span>
               <span className="text-[6.5px] text-[#38bdf8] block tracking-wider uppercase font-mono mt-0.5">SQUEEZE DURATION DRIVER</span>
@@ -580,13 +580,13 @@ export function MicrostructureLabView() {
         </div>
 
         {/* Sliders Calibration Panel */}
-        <div className="bg-[#060608]/90 p-5 rounded-lg border border-zinc-900 shadow-2xl relative overflow-hidden text-left flex flex-col justify-between">
+        <div className="bg-black/90 p-5 rounded-lg border border-black shadow-2xl relative overflow-hidden text-left flex flex-col justify-between">
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
           
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-900/40 pb-3 mb-1">
+            <div className="flex items-center justify-between border-b border-black/40 pb-3 mb-1">
               <div className="flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-cyan-400" />
+                <Sliders className="w-4 h-4 text-[#4ADE80]" />
                 <div className="font-sans font-black text-xs tracking-widest text-zinc-100 uppercase">
                   Cascade Control Deck
                 </div>
@@ -596,8 +596,8 @@ export function MicrostructureLabView() {
               <button
                 type="button"
                 onClick={() => setIsPlaying(!isPlaying)}
-                className={`p-1 rounded bg-[#030304] border ${
-                  isPlaying ? 'border-emerald-500 text-emerald-400' : 'border-zinc-800 text-zinc-500 hover:text-zinc-300'
+                className={`p-1 rounded bg-black border ${
+                  isPlaying ? 'border-black text-[#4ADE80]' : 'border-black text-zinc-500 hover:text-[#4ADE80]'
                 } transition-all cursor-pointer`}
                 title={isPlaying ? "Pause Real-Time Simulation Feed" : "Start Live Autoplay Ticks"}
               >
@@ -609,7 +609,7 @@ export function MicrostructureLabView() {
             <div className="space-y-1">
               <div className="flex justify-between items-center text-[8.5px] font-mono">
                 <span className="text-zinc-450 font-extrabold uppercase">Underlying Spot (S_0)</span>
-                <span className="text-white font-black">${spot.toFixed(2)}</span>
+                <span className="text-[#E5E5E5] font-black">${spot.toFixed(2)}</span>
               </div>
               <input
                 type="range"
@@ -626,7 +626,7 @@ export function MicrostructureLabView() {
             <div className="space-y-1">
               <div className="flex justify-between items-center text-[8.5px] font-mono">
                 <span className="text-zinc-450 font-extrabold uppercase">Session Minute Clock</span>
-                <span className="text-white font-black">{timeMin} mins</span>
+                <span className="text-[#E5E5E5] font-black">{timeMin} mins</span>
               </div>
               <input
                 type="range"
@@ -659,8 +659,8 @@ export function MicrostructureLabView() {
                     onClick={() => setEventMode(mode.value as any)}
                     className={`py-1.5 text-[8px] font-black uppercase tracking-wider font-mono rounded cursor-pointer border transition-all ${
                       eventMode === mode.value 
-                        ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.06)]' 
-                        : 'bg-zinc-950 border-zinc-900 text-zinc-600 hover:text-zinc-400'
+                        ? 'bg-black/40 text-[#4ADE80] border-[#4ADE80]/40 shadow-[0_0_8px_rgba(6,182,212,0.06)]' 
+                        : 'bg-black border-black text-zinc-600 hover:text-zinc-400'
                     }`}
                   >
                     {mode.label}
@@ -673,13 +673,13 @@ export function MicrostructureLabView() {
             </div>
 
             {/* Selector 4: MOC Imbalance parameters */}
-            <div className="grid grid-cols-2 gap-3 border-t border-zinc-900/60 pt-3">
+            <div className="grid grid-cols-2 gap-3 border-t border-black/60 pt-3">
               <div className="space-y-1 text-left">
                 <span className="text-[8.5px] text-zinc-440 font-bold uppercase block tracking-wider">MOC Side</span>
                 <select
                   value={mocSide}
                   onChange={(e) => setMocSide(e.target.value as any)}
-                  className="w-full bg-zinc-950 border border-zinc-900 py-1 px-2 text-[9px] font-mono text-zinc-300 rounded focus:border-cyan-500/40 select-none outline-none cursor-pointer"
+                  className="w-full mirror-panel py-1 px-2 text-[9px] font-mono text-[#4ADE80] rounded focus:border-[#4ADE80]/40 select-none outline-none cursor-pointer"
                 >
                   <option value="neutral">NEUTRAL</option>
                   <option value="buy">BUY IMBALANCE</option>
@@ -695,29 +695,29 @@ export function MicrostructureLabView() {
                   min="0"
                   value={mocSize}
                   onChange={(e) => setMocSize(Math.max(0, Number(e.target.value)))}
-                  className="w-full bg-zinc-950 border border-zinc-900 py-1 px-2 text-[9px] font-mono text-zinc-300 rounded focus:border-cyan-500/40 select-none outline-none"
+                  className="w-full mirror-panel py-1 px-2 text-[9px] font-mono text-[#4ADE80] rounded focus:border-[#4ADE80]/40 select-none outline-none"
                 />
               </div>
             </div>
 
             {detailedSimulation.mocData.active ? (
-              <div className="bg-[#1e1509]/30 border border-amber-900/40 p-2 rounded flex items-center gap-2 mt-2">
+              <div className="bg-black/30 border border-amber-900/40 p-2 rounded flex items-center gap-2 mt-2">
                 <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 <span className="text-[8px] font-mono leading-normal text-amber-400/90 uppercase">
-                  MOC Imbalance Active (Power Hour). Delta Flow Injection: <strong className="text-white">${(detailedSimulation.mocData.delta_dollars / 1_000_000).toFixed(0)}M</strong> (Multiplier: {detailedSimulation.mocData.multiplier.toFixed(2)}x)
+                  MOC Imbalance Active (Power Hour). Delta Flow Injection: <strong className="text-[#E5E5E5]">${(detailedSimulation.mocData.delta_dollars / 1_000_000).toFixed(0)}M</strong> (Multiplier: {detailedSimulation.mocData.multiplier.toFixed(2)}x)
                 </span>
               </div>
             ) : (
-              <div className="bg-zinc-955/20 border border-zinc-900/60 p-2 rounded text-zinc-500 text-[8px] italic text-center">
+              <div className="bg-black border border-black/60 p-2 rounded text-zinc-500 text-[8px] italic text-center">
                 MOC processing offline (Strictly active between 15:50 and 16:00 EST above ${DealerFlowPhysics.MOC_IMBALANCE_THRESHOLD / 1_000_000}M).
               </div>
             )}
           </div>
 
-          <div className="border-t border-zinc-900/60 pt-4 mt-4 flex items-center justify-between text-[8px] font-mono text-zinc-500">
+          <div className="border-t border-black/60 pt-4 mt-4 flex items-center justify-between text-[8px] font-mono text-zinc-500">
             <span>STRICT FORMULA (CASCADE.py) ENFORCED</span>
             <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-black/40" />
               <span>STABILITY CHECKS PASSED</span>
             </div>
           </div>
@@ -726,13 +726,13 @@ export function MicrostructureLabView() {
       </div>
 
       {/* DETAILED INTERACTIVE TABS VIEW (CONSOLE TRACES, GEX SENSITIVITY OR CAMPAIGN SOLVERS) */}
-      <div className="bg-[#060608]/90 rounded-lg border border-zinc-900 shadow-2xl relative overflow-hidden text-left flex flex-col p-5">
+      <div className="bg-black/90 rounded-lg border border-black shadow-2xl relative overflow-hidden text-left flex flex-col p-5">
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
         
         {/* Tab Selector Headers */}
-        <div className="flex items-center justify-between border-b border-zinc-900 pb-3 mb-5">
+        <div className="flex items-center justify-between border-b border-black pb-3 mb-5">
           <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-cyan-400" />
+            <Activity className="w-4 h-4 text-[#4ADE80]" />
             <div className="font-sans font-black text-xs tracking-widest text-[#FFFFFF] uppercase">
               Microstructure Deep Quant Analytics View
             </div>
@@ -752,11 +752,11 @@ export function MicrostructureLabView() {
                   onClick={() => setLabTab(tab.id as any)}
                   className={`flex items-center gap-1 px-3 py-1.5 text-[8.5px] font-bold font-mono uppercase tracking-wider rounded border transition-all cursor-pointer ${
                     labTab === tab.id 
-                      ? 'bg-cyan-500/10 border-cyan-500/30 text-white shadow-[0_0_8px_rgba(6,182,212,0.08)]' 
-                      : 'bg-zinc-950 border-zinc-900 text-zinc-500 hover:text-zinc-300'
+                      ? 'bg-black/40 border-[#4ADE80]/30 text-[#E5E5E5] shadow-[0_0_8px_rgba(6,182,212,0.08)]' 
+                      : 'bg-black border-black text-zinc-500 hover:text-[#4ADE80]'
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5 shrink-0 text-cyan-400" />
+                  <Icon className="w-3.5 h-3.5 shrink-0 text-[#4ADE80]" />
                   {tab.label}
                 </button>
               );
@@ -782,13 +782,13 @@ export function MicrostructureLabView() {
                       key={key}
                       type="button"
                       onClick={() => handleLoadScenario(key as any)}
-                      className="w-full bg-[#030304] border border-zinc-905 hover:border-cyan-500/40 p-3 rounded text-left transition-all group flex flex-col space-y-1 cursor-pointer select-none"
+                      className="w-full bg-black border border-black hover:border-[#4ADE80]/40 p-3 rounded text-left transition-all group flex flex-col space-y-1 cursor-pointer select-none"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-mono text-[9px] font-black text-zinc-100 group-hover:text-cyan-400 uppercase tracking-wide">
+                        <span className="font-mono text-[9px] font-black text-zinc-100 group-hover:text-[#4ADE80] uppercase tracking-wide">
                           {item.name}
                         </span>
-                        <Zap className="w-3 h-3 text-cyan-400 opacity-60 group-hover:opacity-100" />
+                        <Zap className="w-3 h-3 text-[#4ADE80] opacity-60 group-hover:opacity-100" />
                       </div>
                       <p className="text-[8.5px] text-zinc-500 leading-normal font-sans">
                         {item.desc}
@@ -798,8 +798,8 @@ export function MicrostructureLabView() {
                 </div>
               </div>
 
-              <div className="p-3 rounded bg-zinc-950 border border-zinc-900 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="p-3 rounded mirror-panel flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#4ADE80] shrink-0" />
                 <span className="text-[8px] font-mono text-zinc-450 tracking-wide uppercase leading-normal">
                   Scenarios load genuine contract matrices directly matching the exact SVI and local volatility equations.
                 </span>
@@ -813,8 +813,8 @@ export function MicrostructureLabView() {
                 <span className="text-[7.5px] text-zinc-550 font-mono">25-STEP EVAL VECTOR TRACE</span>
               </div>
 
-              <div className="bg-[#030304] border border-zinc-900 rounded p-4 h-[240px] overflow-y-auto font-mono text-[9px] text-zinc-300 space-y-1.5 scrollbar-thin select-text">
-                <div className="text-cyan-400 font-extrabold select-none border-b border-zinc-900/60 pb-1.5 mb-2 flex items-center justify-between">
+              <div className="bg-black border border-black rounded p-4 h-[240px] overflow-y-auto font-mono text-[9px] text-[#4ADE80] space-y-1.5 scrollbar-thin select-text">
+                <div className="text-[#4ADE80] font-extrabold select-none border-b border-black/60 pb-1.5 mb-2 flex items-center justify-between">
                   <span>ARBOR INST. COMPUTING ENGINE [BUILD V1.107]</span>
                   <span>UTC TIME: 22:15:40</span>
                 </div>
@@ -823,14 +823,14 @@ export function MicrostructureLabView() {
                   const absoluteChange = Math.abs(log.spotPrice - spot);
                   const dirText = log.dealerFlow >= 0 ? 'BUY BACK' : 'LIQUIDATE';
                   const flowSign = log.dealerFlow >= 0 ? '+' : '';
-                  const arrow = log.spotPrice >= spot ? '▲' : '▼';
+                  const arrow = log.spotPrice >= spot ? '' : '';
                   
                   return (
-                    <div key={log.step} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-zinc-950 p-1 rounded transition-colors">
+                    <div key={log.step} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-black p-1 rounded transition-colors">
                       <div className="flex items-center gap-2">
                         <span className="text-zinc-650">[Step {log.step.toString().padStart(2, '0')}]</span>
-                        <span className="text-zinc-200">Spot: <strong className="text-white">${log.spotPrice.toFixed(2)}</strong></span>
-                        <span className={`text-[8.5px] font-bold ${log.spotPrice >= spot ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        <span className="text-zinc-200">Spot: <strong className="text-[#E5E5E5]">${log.spotPrice.toFixed(2)}</strong></span>
+                        <span className={`text-[8.5px] font-bold ${log.spotPrice >= spot ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                           {arrow} ${absoluteChange.toFixed(2)}
                         </span>
                       </div>
@@ -838,11 +838,11 @@ export function MicrostructureLabView() {
                       <div className="flex items-center gap-3">
                         <span className="text-zinc-500">Vol impact: <span className="text-zinc-350">{log.impact >= 0 ? '+' : ''}{(log.impact * 100).toFixed(4)}%</span></span>
                         <span className={`px-1 rounded-xs text-[7.5px] font-black ${
-                          log.dominantGreek === 'GAMMA' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-teal-500/10 text-teal-400'
+                          log.dominantGreek === 'GAMMA' ? 'bg-black/40 text-[#4ADE80]' : 'bg-black text-[#4ADE80]'
                         }`}>
                           {log.dominantGreek}
                         </span>
-                        <span className={`font-semibold ${log.dealerFlow >= 0 ? 'text-emerald-400' : 'text-rose-455'}`}>
+                        <span className={`font-semibold ${log.dealerFlow >= 0 ? 'text-[#4ADE80]' : 'text-rose-455'}`}>
                           {flowSign}${(log.dealerFlow / 1_000_000).toFixed(2)}M {dirText}
                         </span>
                       </div>
@@ -850,7 +850,7 @@ export function MicrostructureLabView() {
                   );
                 })}
                 
-                <div className="text-emerald-450 border-t border-zinc-900/60 pt-2 mt-2 font-bold select-none flex items-center justify-between">
+                <div className="text-[#4ADE80] border-t border-black/60 pt-2 mt-2 font-bold select-none flex items-center justify-between">
                   <span>&gt; CASCADE COMPUTATION TERMINATED. CONVERGENCE CONSTRAINTS SOLVED.</span>
                   <span className="text-zinc-550 text-[8px]">TOTAL FLOW: ${(detailedSimulation.flow / 1_000_000).toFixed(2)}M</span>
                 </div>
@@ -863,7 +863,7 @@ export function MicrostructureLabView() {
         {/* TAB 2: GEX SENSITIVITY CURVE PAYOFF PROFILE PLOTTER */}
         {labTab === 'gex_chart' && (
           <div className="space-y-4 animate-fadeIn" id="gex-sensitivity-curve-container">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-zinc-900/40 pb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-black/40 pb-2">
               <div>
                 <span className="text-[10px] text-zinc-100 font-black tracking-wider uppercase block">Gamma Exposure (GEX) Sensitivity Curve</span>
                 <p className="text-[9px] text-zinc-450 leading-relaxed max-w-xl">
@@ -871,26 +871,26 @@ export function MicrostructureLabView() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 font-mono text-[8.5px] bg-[#030304] border border-zinc-900 px-3 py-2 rounded">
+              <div className="flex items-center gap-3 font-mono text-[8.5px] bg-black border border-black px-3 py-2 rounded">
                 <span className="text-zinc-400">ESTIMATED FLIP POINT:</span>
                 <span className="text-amber-400 font-extrabold font-mono">${gexSensitivityArray.flipLevel.toFixed(1)}</span>
                 <span className="text-zinc-550">|</span>
                 <span className="text-zinc-400">CURRENT REGIME:</span>
-                <span className={`font-black ${detailedSimulation.netGamma >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                <span className={`font-black ${detailedSimulation.netGamma >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                   {detailedSimulation.netGamma >= 0 ? 'POSITIVE GAMMA' : 'NEGATIVE GAMMA'}
                 </span>
               </div>
             </div>
 
             {/* Custom SVG Line Chart for GEX Payoff Profile */}
-            <div className="w-full bg-[#030304] border border-zinc-950 rounded p-4 relative min-h-[220px] flex items-center justify-center">
+            <div className="w-full bg-black border border-black rounded p-4 relative min-h-[220px] flex items-center justify-center">
               
               {/* Zero Line horizontal separator */}
-              <div className="absolute left-0 right-0 h-[1.5px] bg-zinc-800 pointer-events-none opacity-40 z-0 top-[110px]" />
+              <div className="absolute left-0 right-0 h-[1.5px] bg-black pointer-events-none opacity-40 z-0 top-[110px]" />
               
               {/* Vertical dotted Line representing Current Spot Price */}
-              <div className="absolute bottom-0 top-0 w-[1px] border-l border-dashed border-cyan-500/50 pointer-events-none z-0 left-[50%]" />
-              <div className="absolute top-2 left-[50.5%] font-mono text-[6.5px] text-cyan-400 font-black uppercase tracking-widest pointer-events-none select-none">
+              <div className="absolute bottom-0 top-0 w-[1px] border-l border-dashed border-[#4ADE80]/50 pointer-events-none z-0 left-[50%]" />
+              <div className="absolute top-2 left-[50.5%] font-mono text-[6.5px] text-[#4ADE80] font-black uppercase tracking-widest pointer-events-none select-none">
                 SPOT
               </div>
 
@@ -937,7 +937,7 @@ export function MicrostructureLabView() {
                               cx={x}
                               cy={y}
                               r={isSpotNear ? '5' : '3.5'}
-                              className={`${p.gex >= 0 ? 'fill-emerald-400' : 'fill-rose-455'} stroke-black stroke-2 hover:r-6 cursor-pointer`}
+                              className={`${p.gex >= 0 ? 'fill-[#4ADE80]' : 'fill-rose-455'} stroke-black stroke-2 hover:r-6 cursor-pointer`}
                             >
                               <title>{`Price $${p.price} | GEX: ${p.gex.toLocaleString()}`}</title>
                             </circle>
@@ -962,7 +962,7 @@ export function MicrostructureLabView() {
               </svg>
 
               <div className="absolute left-4 top-4 font-mono text-[8px] text-zinc-500 flex flex-col uppercase">
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> POSITIVE GEX REGIME [STABLE]</span>
+                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-black/40" /> POSITIVE GEX REGIME [STABLE]</span>
                 <span className="flex items-center gap-1 mt-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-455" /> NEGATIVE GEX REGIME [VOLATILITY SQUEEZE]</span>
               </div>
 
@@ -976,13 +976,13 @@ export function MicrostructureLabView() {
 
         {/* TAB 3: CAMPAIGNS & DIVERGENCE SYSTEMS */}
         {labTab === 'campaigns' && (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 animate-fadeIn">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
             
             {/* Module A: Structural Campaign State Machine */}
-            <div className="bg-[#030304] p-4 rounded-lg border border-zinc-905 text-left flex flex-col justify-between">
+            <div className="bg-black p-4 rounded-lg border border-black text-left flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2 border-b border-zinc-900 pb-2 mb-3">
-                  <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+                <div className="flex items-center gap-2 border-b border-black pb-2 mb-3">
+                  <Cpu className="w-3.5 h-3.5 text-[#4ADE80]" />
                   <span className="font-mono text-[9px] font-black text-zinc-100 uppercase tracking-widest">Campaign State Machine Solver</span>
                 </div>
 
@@ -991,20 +991,20 @@ export function MicrostructureLabView() {
                 </p>
 
                 {/* Visual State Ring / Indicator bar */}
-                <div className="p-3 rounded bg-[#060608]/90 border border-zinc-900 flex items-center justify-between mb-4 relative overflow-hidden select-none">
-                  <div className="absolute top-0 right-0 h-full w-1.5 bg-cyan-500" />
+                <div className="p-3 rounded bg-black/90 border border-black flex items-center justify-between mb-4 relative overflow-hidden select-none">
+                  <div className="absolute top-0 right-0 h-full w-1.5 bg-[#4ADE80]" />
                   <div>
                     <span className="text-[7.5px] text-zinc-500 font-black block tracking-widest uppercase">SOLVED CAMPAIGN STATE</span>
-                    <span className="text-xs font-black text-white font-mono uppercase tracking-wider block mt-0.5">
+                    <span className="text-xs font-black text-[#E5E5E5] font-mono uppercase tracking-wider block mt-0.5">
                       {activeCampaignState.state}
                     </span>
-                    <span className="text-[7.5px] text-cyan-400 font-mono uppercase mt-1 block">
+                    <span className="text-[7.5px] text-[#4ADE80] font-mono uppercase mt-1 block">
                       OI Accel a_oi: {activeCampaignState.a_oi >= 0 ? '+' : ''}{activeCampaignState.a_oi.toLocaleString()} • Flow Velocity v_flow: {activeCampaignState.v_flow >= 0 ? '+' : ''}{activeCampaignState.v_flow.toLocaleString()} 
                     </span>
                   </div>
                   <div className="text-right">
                     <span className="text-[7.5px] text-zinc-500 font-black block tracking-widest uppercase">COMPLETION STICKER</span>
-                    <span className="text-xs font-black text-cyan-400 font-mono block mt-0.5">
+                    <span className="text-xs font-black text-[#4ADE80] font-mono block mt-0.5">
                       {activeCampaignState.completion}%
                     </span>
                   </div>
@@ -1014,7 +1014,7 @@ export function MicrostructureLabView() {
                 <div className="space-y-3.5">
                   <span className="text-[8px] text-zinc-450 font-black tracking-widest uppercase block mb-1">Position History Tracker Tuning</span>
                   
-                  <div className="bg-[#060608]/40 border border-zinc-900/50 rounded p-3 space-y-2">
+                  <div className="bg-black/40 border border-black/50 rounded p-3 space-y-2">
                     <div className="flex justify-between items-center text-[8.5px] font-mono">
                       <span className="text-zinc-500 uppercase">1. Max Core Contract Capacity</span>
                       <input 
@@ -1022,11 +1022,11 @@ export function MicrostructureLabView() {
                         step="500000"
                         value={maxCapacity} 
                         onChange={(e) => setMaxCapacity(Math.max(1000000, Number(e.target.value)))}
-                        className="bg-zinc-950 border border-zinc-800 text-[9px] px-1 py-0.5 w-24 text-right rounded font-mono text-white select-none outline-none"
+                        className="mirror-panel text-[9px] px-1 py-0.5 w-24 text-right rounded font-mono text-[#E5E5E5] select-none outline-none"
                       />
                     </div>
 
-                    <div className="grid grid-cols-5 gap-2 pt-2 border-t border-zinc-900/60">
+                    <div className="grid grid-cols-5 gap-2 pt-2 border-t border-black/60">
                       {oiHist.map((val, idx) => (
                         <div key={`oi-${idx}`} className="text-center space-y-1">
                           <span className="text-[7px] text-zinc-550 block uppercase font-mono">OI [t-{4-idx}]</span>
@@ -1035,7 +1035,7 @@ export function MicrostructureLabView() {
                             step="100000"
                             value={val}
                             onChange={(e) => updateHistory(idx, 'oi', Number(e.target.value))}
-                            className="bg-zinc-950 border border-zinc-900 text-white font-mono text-[8px] py-1 px-0.5 w-full text-center rounded outline-none"
+                            className="mirror-panel text-[#E5E5E5] font-mono text-[8px] py-1 px-0.5 w-full text-center rounded outline-none"
                           />
                         </div>
                       ))}
@@ -1050,7 +1050,7 @@ export function MicrostructureLabView() {
                             step="2000000"
                             value={val}
                             onChange={(e) => updateHistory(idx, 'flow', Number(e.target.value))}
-                            className="bg-zinc-950 border border-zinc-900 text-white font-mono text-[8px] py-1 px-0.5 w-full text-center rounded outline-none"
+                            className="mirror-panel text-[#E5E5E5] font-mono text-[8px] py-1 px-0.5 w-full text-center rounded outline-none"
                           />
                         </div>
                       ))}
@@ -1059,16 +1059,16 @@ export function MicrostructureLabView() {
                 </div>
               </div>
 
-              <div className="border-t border-zinc-900/60 pt-3 mt-4 text-[7px] text-zinc-550 font-mono text-right uppercase block">
+              <div className="border-t border-black/60 pt-3 mt-4 text-[7px] text-zinc-550 font-mono text-right uppercase block">
                 STATE_ENGINES.py / Campaign Machine solver
               </div>
             </div>
 
             {/* Module B: Event Divergence & Sentiment Collisions */}
-            <div className="bg-[#030304] p-4 rounded-lg border border-zinc-905 text-left flex flex-col justify-between">
+            <div className="bg-black p-4 rounded-lg border border-black text-left flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2 border-b border-zinc-900 pb-2 mb-3">
-                  <AlertTriangle className="w-3.5 h-3.5 text-cyan-400" />
+                <div className="flex items-center gap-2 border-b border-black pb-2 mb-3">
+                  <AlertTriangle className="w-3.5 h-3.5 text-[#4ADE80]" />
                   <span className="font-mono text-[9px] font-black text-zinc-100 uppercase tracking-widest">Event Positioning Divergence Engine</span>
                 </div>
 
@@ -1078,7 +1078,7 @@ export function MicrostructureLabView() {
 
                 {/* Layout Toggles */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <div className="bg-zinc-950/80 p-3 rounded border border-zinc-900">
+                  <div className="bg-black/80 p-3 rounded border border-black">
                     <span className="text-[8px] text-zinc-550 font-black tracking-wider block uppercase mb-1.5">Pre-Event Positioning Sentiment</span>
                     <div className="flex gap-1">
                       {(['bullish', 'neutral', 'bearish'] as const).map(val => (
@@ -1088,8 +1088,8 @@ export function MicrostructureLabView() {
                           onClick={() => setPreEventPos(val)}
                           className={`flex-1 py-1 font-mono text-[8px] font-black uppercase rounded cursor-pointer border transition-colors ${
                             preEventPos === val 
-                              ? 'bg-[#10b981]/10 text-emerald-400 border-emerald-500/40' 
-                              : 'bg-zinc-900 border-zinc-850 text-zinc-500 hover:text-zinc-400'
+                              ? 'bg-black/10 text-[#4ADE80] border-black' 
+                              : 'bg-black border-black text-zinc-500 hover:text-zinc-400'
                           }`}
                         >
                           {val}
@@ -1098,7 +1098,7 @@ export function MicrostructureLabView() {
                     </div>
                   </div>
 
-                  <div className="bg-zinc-950/80 p-3 rounded border border-zinc-900">
+                  <div className="bg-black/80 p-3 rounded border border-black">
                     <span className="text-[8px] text-zinc-550 font-black tracking-wider block uppercase mb-1.5">Headline Result Outcome</span>
                     <div className="flex gap-1">
                       {(['bullish', 'neutral', 'bearish'] as const).map(val => (
@@ -1108,8 +1108,8 @@ export function MicrostructureLabView() {
                           onClick={() => setHeadlineRes(val)}
                           className={`flex-1 py-1 font-mono text-[8px] font-black uppercase rounded cursor-pointer border transition-colors ${
                             headlineRes === val 
-                              ? 'bg-[#ff453a]/10 text-rose-400 border-red-900/40' 
-                              : 'bg-zinc-900 border-zinc-850 text-zinc-500 hover:text-zinc-400'
+                              ? 'bg-[#F87171]/10 text-[#F87171] border-red-900/40' 
+                              : 'bg-black border-black text-zinc-500 hover:text-zinc-400'
                           }`}
                         >
                           {val}
@@ -1121,7 +1121,7 @@ export function MicrostructureLabView() {
 
                 {/* Results Grid displays */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-[#0b0c0e] border border-zinc-900 p-2.5 rounded text-center">
+                  <div className="bg-black border border-black p-2.5 rounded text-center">
                     <span className="text-[7px] text-zinc-550 font-bold block uppercase tracking-wider">Unwind Risk Level</span>
                     <span className={`text-xs font-mono font-black block mt-1 uppercase ${
                       eventDivergenceState.unwind_risk === 'Extreme' 
@@ -1134,14 +1134,14 @@ export function MicrostructureLabView() {
                     </span>
                   </div>
 
-                  <div className="bg-[#0b0c0e] border border-zinc-900 p-2.5 rounded text-center">
+                  <div className="bg-black border border-black p-2.5 rounded text-center">
                     <span className="text-[7px] text-zinc-550 font-bold block uppercase tracking-wider">Vanna Vol Shock</span>
                     <span className="text-xs font-mono text-[#38bdf8] font-black block mt-1">
                       {eventDivergenceState.vanna_shock.toFixed(1)}x
                     </span>
                   </div>
 
-                  <div className="bg-[#0b0c0e] border border-zinc-900 p-2.5 rounded text-center">
+                  <div className="bg-black border border-black p-2.5 rounded text-center">
                     <span className="text-[7px] text-zinc-550 font-bold block uppercase tracking-wider">Divergence Index</span>
                     <span className="text-xs font-mono text-zinc-200 font-black block mt-1">
                       {eventDivergenceState.divergence > 0 ? '+' : ''}{eventDivergenceState.divergence}
@@ -1151,14 +1151,14 @@ export function MicrostructureLabView() {
 
                 {eventDivergenceState.unwind_risk !== 'Low' && (
                   <div className="bg-rose-950/10 border border-red-955/40 p-2 rounded mt-3 text-left animate-fadeIn">
-                    <span className="text-[7.5px] font-mono text-rose-400 leading-tight uppercase block font-semibold">
+                    <span className="text-[7.5px] font-mono text-[#F87171] leading-tight uppercase block font-semibold">
                       ⚡ SHOCK COLLISION IN PROGRESS: Marketmakers suffering rapid pricing resets. Delta gravity multipliers are boosted by {eventDivergenceState.vanna_shock.toFixed(1)}x!
                     </span>
                   </div>
                 )}
               </div>
 
-              <div className="border-t border-zinc-900/60 pt-3 mt-4 text-[7px] text-zinc-550 font-mono text-right uppercase block">
+              <div className="border-t border-black/60 pt-3 mt-4 text-[7px] text-zinc-550 font-mono text-right uppercase block">
                 STATE_ENGINES.py / Event Divergence Machine
               </div>
             </div>
@@ -1169,12 +1169,12 @@ export function MicrostructureLabView() {
       </div>
 
       {/* OPTIONS LIST CONFIGURATOR CARD */}
-      <div className="bg-[#060608]/90 p-5 rounded-lg border border-zinc-900 shadow-2xl relative text-left">
+      <div className="bg-black/90 p-5 rounded-lg border border-black shadow-2xl relative text-left">
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
         
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-900/40 pb-3 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/40 pb-3 mb-4">
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-cyan-400" />
+            <Layers className="w-4 h-4 text-[#4ADE80]" />
             <div className="font-sans font-black text-xs tracking-widest text-[#FFFFFF] uppercase">
               Microstructure Options Chain Configurator
             </div>
@@ -1185,7 +1185,7 @@ export function MicrostructureLabView() {
         </div>
 
         {/* Input adding grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 bg-black/40 border border-zinc-900/60 p-3 rounded mb-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 bg-black/40 border border-black/60 p-3 rounded mb-4 items-end">
           <div className="space-y-1">
             <span className="text-[7.5px] text-zinc-450 font-black uppercase tracking-wider block">Strike Price ($)</span>
             <input
@@ -1193,18 +1193,18 @@ export function MicrostructureLabView() {
               placeholder="e.g. 5000"
               value={newStrike}
               onChange={(e) => setNewStrike(e.target.value)}
-              className="bg-zinc-950 border border-zinc-900 text-zinc-300 font-mono text-xs p-1.5 w-full rounded focus:border-cyan-500/40 select-none outline-none"
+              className="mirror-panel text-[#4ADE80] font-mono text-xs p-1.5 w-full rounded focus:border-[#4ADE80]/40 select-none outline-none"
             />
           </div>
 
           <div className="space-y-1">
             <span className="text-[7.5px] text-zinc-450 font-black uppercase tracking-wider block">Option Type</span>
-            <div className="flex border border-zinc-900 rounded bg-zinc-950 overflow-hidden">
+            <div className="flex border border-black rounded bg-black overflow-hidden">
               <button
                 type="button"
                 onClick={() => setNewType('call')}
                 className={`flex-1 py-1 px-2 font-mono text-[8.5px] font-black uppercase transition-all cursor-pointer ${
-                  newType === 'call' ? 'bg-cyan-600/20 text-cyan-400 font-bold' : 'text-zinc-550 hover:text-zinc-400'
+                  newType === 'call' ? 'bg-cyan-600/20 text-[#4ADE80] font-bold' : 'text-zinc-550 hover:text-zinc-400'
                 }`}
               >
                 CALL
@@ -1213,7 +1213,7 @@ export function MicrostructureLabView() {
                 type="button"
                 onClick={() => setNewType('put')}
                 className={`flex-1 py-1 px-2 font-mono text-[8.5px] font-black uppercase transition-all cursor-pointer ${
-                  newType === 'put' ? 'bg-cyan-600/20 text-cyan-400 font-bold' : 'text-zinc-550 hover:text-zinc-400'
+                  newType === 'put' ? 'bg-cyan-600/20 text-[#4ADE80] font-bold' : 'text-zinc-550 hover:text-zinc-400'
                 }`}
               >
                 PUT
@@ -1228,7 +1228,7 @@ export function MicrostructureLabView() {
               step="5000"
               value={newOi}
               onChange={(e) => setNewOi(Math.max(10, Number(e.target.value)))}
-              className="bg-zinc-950 border border-zinc-900 text-zinc-300 font-mono text-xs p-1.5 w-full rounded focus:border-cyan-500/40 select-none outline-none"
+              className="mirror-panel text-[#4ADE80] font-mono text-xs p-1.5 w-full rounded focus:border-[#4ADE80]/40 select-none outline-none"
             />
           </div>
 
@@ -1241,14 +1241,14 @@ export function MicrostructureLabView() {
               max="2.0"
               value={newVol}
               onChange={(e) => setNewVol(Number(e.target.value))}
-              className="bg-zinc-950 border border-zinc-900 text-zinc-300 font-mono text-xs p-1.5 w-full rounded focus:border-cyan-500/40 select-none outline-none"
+              className="mirror-panel text-[#4ADE80] font-mono text-xs p-1.5 w-full rounded focus:border-[#4ADE80]/40 select-none outline-none"
             />
           </div>
 
           <button
             type="button"
             onClick={handleAddOption}
-            className="bg-cyan-600/20 text-cyan-400 border border-cyan-500/40 hover:bg-cyan-500 hover:text-white font-black font-mono text-[9px] uppercase tracking-wider py-1.5 px-4.5 rounded cursor-pointer transition-all flex items-center justify-center gap-1 w-full"
+            className="bg-cyan-600/20 text-[#4ADE80] border border-[#4ADE80]/40 hover:bg-[#4ADE80] hover:text-[#E5E5E5] font-black font-mono text-[9px] uppercase tracking-wider py-1.5 px-4.5 rounded cursor-pointer transition-all flex items-center justify-center gap-1 w-full"
           >
             <Plus className="w-3.5 h-3.5 shrink-0" />
             <span>ADD CONTRACT</span>
@@ -1259,7 +1259,7 @@ export function MicrostructureLabView() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse font-mono text-[9.5px]">
             <thead>
-              <tr className="border-b border-zinc-900 text-zinc-550 uppercase text-[8px] font-black tracking-widest bg-zinc-950/20">
+              <tr className="border-b border-black text-zinc-550 uppercase text-[8px] font-black tracking-widest bg-black/20">
                 <th className="py-2 px-3">Contract Type</th>
                 <th className="py-2 px-3 text-right">Strike Price</th>
                 <th className="py-2 px-3 text-right">Maturity (years)</th>
@@ -1275,26 +1275,26 @@ export function MicrostructureLabView() {
               {options.map((opt, idx) => {
                 const g = DealerFlowPhysics.calculateGreeks(spot, opt.strike, opt.t, opt.sigma, 0.05, 0.01, opt.type);
                 return (
-                  <tr key={idx} className="border-b border-zinc-950 hover:bg-zinc-950/30">
+                  <tr key={idx} className="border-b border-black hover:bg-black/30">
                     <td className="py-2 px-3">
                       <span className={`px-1.5 py-0.5 rounded-xs text-[8px] font-black uppercase ${
-                        opt.type === 'call' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-455 border border-rose-500/20'
+                        opt.type === 'call' ? 'bg-[#4ADE80] text-black/10 text-[#4ADE80] border border-black' : 'bg-rose-500/10 text-rose-455 border border-rose-500/20'
                       }`}>
                         {opt.type}
                       </span>
                     </td>
-                    <td className="py-2 px-3 text-right text-white font-bold">${opt.strike}</td>
+                    <td className="py-2 px-3 text-right text-[#E5E5E5] font-bold">${opt.strike}</td>
                     <td className="py-2 px-3 text-right text-zinc-400">{(opt.t * 365).toFixed(0)} days</td>
                     <td className="py-2 px-3 text-right text-zinc-350">{(opt.sigma * 100).toFixed(1)}%</td>
-                    <td className="py-2 px-3 text-right text-cyan-400 font-bold">{opt.oi.toLocaleString()}</td>
-                    <td className={`py-2 px-3 text-right font-bold ${g.delta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{g.delta.toFixed(3)}</td>
+                    <td className="py-2 px-3 text-right text-[#4ADE80] font-bold">{opt.oi.toLocaleString()}</td>
+                    <td className={`py-2 px-3 text-right font-bold ${g.delta >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>{g.delta.toFixed(3)}</td>
                     <td className="py-2 px-3 text-right text-zinc-400 font-mono">{g.gamma.toFixed(5)}</td>
                     <td className="py-2 px-3 text-right text-zinc-400 font-mono">{(g.charm * 100).toFixed(4)}%</td>
                     <td className="py-2 px-3 text-right">
                       <button
                         type="button"
                         onClick={() => handleRemoveOption(idx)}
-                        className="text-zinc-600 hover:text-rose-400 font-bold transition-colors cursor-pointer text-[10px]"
+                        className="text-zinc-600 hover:text-[#F87171] font-bold transition-colors cursor-pointer text-[10px]"
                         title="Remove option from simulation parameters"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

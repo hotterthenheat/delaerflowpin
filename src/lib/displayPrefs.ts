@@ -29,7 +29,7 @@ export interface ThemeDef {
 /** The Master Theme Library — 31 color-harmonized themes. */
 export const THEMES: ThemeDef[] = [
   // Base
-  { id: 'abyss', name: 'Abyss', group: 'Base', surface: '#0A0A0A', accent: '#10B981' },
+  { id: 'abyss', name: 'Abyss', group: 'Base', surface: '#000000', accent: '#4ADE80' },
   { id: 'slate', name: 'Slate', group: 'Base', surface: '#172033', accent: '#38BDF8' },
   { id: 'phantom', name: 'Phantom', group: 'Base', surface: '#18181B', accent: '#8B5CF6' },
   { id: 'grid', name: 'Grid', group: 'Base', surface: '#18181B', accent: '#F43F5E' },
@@ -38,13 +38,13 @@ export const THEMES: ThemeDef[] = [
   { id: 'pink', name: 'Pink', group: 'Base', surface: '#FFFFFF', accent: '#E05286' },
   // Extreme / High-Tech
   { id: 'synthwave', name: 'Synthwave', group: 'High-Tech', surface: '#1A1F2B', accent: '#FF007A' },
-  { id: 'obsidian', name: 'Obsidian', group: 'High-Tech', surface: '#121212', accent: '#D4AF37' },
+  { id: 'obsidian', name: 'Obsidian', group: 'High-Tech', surface: '#000000', accent: '#D4AF37' },
   { id: 'crimson', name: 'Crimson', group: 'High-Tech', surface: '#1A0808', accent: '#FF1A1A' },
   { id: 'biolume', name: 'Biolume', group: 'High-Tech', surface: '#032115', accent: '#059669' },
   { id: 'tokyo', name: 'Tokyo', group: 'High-Tech', surface: '#141526', accent: '#FF2A6D' },
   { id: 'acid', name: 'Acid', group: 'High-Tech', surface: '#1C1E1C', accent: '#D4FF00' },
   { id: 'outrun', name: 'Outrun', group: 'High-Tech', surface: '#22102E', accent: '#FF7700' },
-  { id: 'matrix', name: 'Matrix', group: 'High-Tech', surface: '#001400', accent: '#00FF00' },
+  { id: 'matrix', name: 'Matrix', group: 'High-Tech', surface: '#001400', accent: '#4ADE80' },
   { id: 'vaporwave', name: 'Vaporwave', group: 'High-Tech', surface: '#252542', accent: '#FF8EAF' },
   // Earth, Elements & Metals
   { id: 'arrakis', name: 'Arrakis', group: 'Earth & Metals', surface: '#261C14', accent: '#E67E22' },

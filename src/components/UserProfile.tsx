@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { withCacheBust } from '../lib/format';
 import { Camera, Upload, User, CheckCircle2, X, Image as ImageIcon, AlertCircle, Check, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { TerminalLogo } from './BrandLogo';
 
 interface UserProfileProps {
   session: any;
@@ -359,14 +360,14 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
   };
 
   return (
-    <div className="bg-[#09090b]/55 border border-zinc-900 rounded-xl p-6 space-y-6 relative shadow-2xl">
+    <div className="bg-black/55 border border-black rounded-xl p-6 space-y-6 relative shadow-2xl">
       <div className="absolute top-0 right-0 p-3 text-[10px] text-zinc-600 font-bold uppercase tracking-widest font-mono">
         IDENTITY WORKSTATION
       </div>
 
-      <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+      <div className="flex items-center gap-2.5 border-b border-black pb-3">
         <User className="w-5 h-5 text-indigo-400" />
-        <h2 className="text-lg font-black tracking-tight text-white uppercase font-mono">
+        <h2 className="text-lg font-black tracking-tight text-[#E5E5E5] uppercase font-mono">
           Identity Mapping (Public Context)
         </h2>
       </div>
@@ -378,7 +379,7 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="p-3 bg-rose-950/20 border border-rose-900/50 rounded text-rose-400 text-xs font-mono flex items-center gap-2"
+            className="p-3 bg-rose-950/20 border border-rose-900/50 rounded text-[#F87171] text-xs font-mono flex items-center gap-2"
           >
             <AlertCircle className="w-4 h-4 shrink-0 animate-pulse" />
             <span>{errorMsg}</span>
@@ -390,9 +391,9 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="p-3 bg-emerald-950/20 border border-emerald-900/50 rounded text-emerald-400 text-xs font-mono flex items-center gap-2"
+            className="p-3 bg-black/40 border border-black rounded text-[#4ADE80] text-xs font-mono flex items-center gap-2"
           >
-            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#4ADE80]" />
             <span>{successMsg}</span>
           </motion.div>
         )}
@@ -412,7 +413,7 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
             className={`w-full h-36 md:h-44 rounded-lg relative overflow-hidden transition-all duration-300 border-2 select-none group cursor-pointer flex flex-col items-center justify-center ${
               isDragOverCover
                 ? 'border-indigo-500 bg-indigo-950/10'
-                : 'border-zinc-900 bg-zinc-950/30 hover:border-zinc-800'
+                : 'border-black bg-black/30 hover:border-black'
             }`}
           >
             <input
@@ -433,14 +434,14 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
                 />
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5">
                   <Camera className="w-6 h-6 text-indigo-400 animate-pulse" />
-                  <span className="text-[9px] font-mono text-zinc-300 font-black tracking-widest uppercase">
+                  <span className="text-[9px] font-mono text-[#4ADE80] font-black tracking-widest uppercase">
                     DRAG & DROP OR CLICK TO RE-UPLOAD
                   </span>
                 </div>
               </>
             ) : (
               <div className="text-center space-y-2 px-4">
-                <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center mx-auto group-hover:bg-zinc-800 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center mx-auto group-hover:bg-black transition-colors">
                   <Upload className="w-4 h-4 text-zinc-500" />
                 </div>
                 <div>
@@ -463,8 +464,8 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
             onDragLeave={handleDragLeaveAvatar}
             onDrop={(e) => handleDropEvent(e, 'avatar')}
             onClick={() => avatarInputRef.current?.click()}
-            className={`w-28 h-28 rounded-full relative overflow-hidden transition-all duration-300 border-4 border-black select-none group cursor-pointer flex items-center justify-center bg-zinc-950 ${
-              isDragOverAvatar ? 'scale-110 border-indigo-500' : 'hover:scale-105 hover:border-zinc-800'
+            className={`w-28 h-28 rounded-full relative overflow-hidden transition-all duration-300 border-4 border-black select-none group cursor-pointer flex items-center justify-center bg-black ${
+              isDragOverAvatar ? 'scale-110 border-indigo-500' : 'hover:scale-105 hover:border-black'
             }`}
           >
             <input
@@ -485,23 +486,20 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
                 />
                 <div className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
                   <Camera className="w-4 h-4 text-indigo-400 animate-pulse" />
-                  <span className="text-[7.5px] font-mono text-zinc-300 font-black tracking-widest uppercase">
+                  <span className="text-[7.5px] font-mono text-[#4ADE80] font-black tracking-widest uppercase">
                     UPLOAD
                   </span>
                 </div>
               </>
             ) : (
-              <div className="text-center space-y-1">
-                <User className="w-8 h-8 text-zinc-700 mx-auto" />
-                <span className="text-[7.5px] font-bold text-zinc-500 font-mono block uppercase">
-                  DROP AVATAR
-                </span>
+              <div className="text-center space-y-1 scale-125">
+                <TerminalLogo />
               </div>
             )}
           </div>
 
           <div className="space-y-1 shrink-0 pb-2">
-            <h3 className="text-sm font-black text-white font-mono tracking-wider uppercase">
+            <h3 className="text-sm font-black text-[#E5E5E5] font-mono tracking-wider uppercase">
               {nickname || 'QUICK ACCOUNT PROFILE'}
             </h3>
             <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">
@@ -526,7 +524,7 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
               value={nickname}
               maxLength={50}
               onChange={(e) => setNickname(e.target.value)}
-              className="w-full bg-black/40 border border-zinc-900 focus:border-indigo-500/50 text-white rounded-lg p-2.5 text-sm transition-colors focus:outline-none placeholder-zinc-750 font-mono"
+              className="w-full bg-black/40 border border-black focus:border-indigo-500/50 text-[#E5E5E5] rounded-lg p-2.5 text-sm transition-colors focus:outline-none placeholder-zinc-750 font-mono"
               placeholder="e.g. Robin Slayer"
             />
             <p className="text-[9.5px] text-zinc-600 font-mono leading-relaxed uppercase">
@@ -548,7 +546,7 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
                     </span>
                   )}
                   {availability === 'available' && (
-                    <span className="text-emerald-400 flex items-center gap-1">
+                    <span className="text-[#4ADE80] flex items-center gap-1">
                       <Check className="w-2.5 h-2.5" /> Handle Available
                     </span>
                   )}
@@ -571,8 +569,8 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
                 type="text"
                 value={handle}
                 onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/\s+/g, ''))}
-                className={`w-full bg-black/40 border border-zinc-900 focus:border-indigo-500/50 text-white rounded-lg p-2.5 pl-8 text-sm transition-colors focus:outline-none placeholder-zinc-750 font-mono ${
-                  availability === 'available' ? 'border-emerald-500/30' : availability === 'taken' || availability === 'invalid' ? 'border-rose-500/30' : 'border-zinc-900'
+                className={`w-full bg-black/40 border border-black focus:border-indigo-500/50 text-[#E5E5E5] rounded-lg p-2.5 pl-8 text-sm transition-colors focus:outline-none placeholder-zinc-750 font-mono ${
+                  availability === 'available' ? 'border-black' : availability === 'taken' || availability === 'invalid' ? 'border-rose-500/30' : 'border-black'
                 }`}
                 placeholder="slayer_quant_bot"
               />
@@ -588,7 +586,7 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
           <button
             onClick={handleSaveCompleteProfile}
             disabled={isUpdating || availability === 'taken' || availability === 'invalid'}
-            className="py-2.5 px-5 bg-zinc-900 hover:bg-indigo-500/10 text-indigo-400 hover:text-indigo-300 border border-zinc-800 hover:border-indigo-500/40 rounded-lg text-xs font-bold font-mono uppercase flex items-center gap-2 transition-all cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
+            className="py-2.5 px-5 bg-black hover:bg-indigo-500/10 text-indigo-400 hover:text-indigo-300 border border-black hover:border-indigo-500/40 rounded-lg text-xs font-bold font-mono uppercase flex items-center gap-2 transition-all cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
           >
             {isUpdating ? (
               <>
@@ -611,12 +609,12 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#09090b] border border-zinc-900 rounded-xl overflow-hidden max-w-lg w-full shadow-2xl space-y-4"
+            className="bg-black border border-black rounded-xl overflow-hidden max-w-lg w-full shadow-2xl space-y-4"
           >
-            <div className="p-4 border-b border-zinc-900 flex items-center justify-between">
+            <div className="p-4 border-b border-black flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-indigo-400" />
-                <span className="text-xs font-bold text-white uppercase tracking-widest font-mono">
+                <span className="text-xs font-bold text-[#E5E5E5] uppercase tracking-widest font-mono">
                   Crop Profile Asset: {cropParams.type}
                 </span>
               </div>
@@ -626,19 +624,19 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
                   setCropActive(false);
                   setCropParams(null);
                 }}
-                className="text-zinc-500 hover:text-white transition-colors cursor-pointer"
+                className="text-zinc-500 hover:text-[#E5E5E5] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="px-5 space-y-4">
-              <p className="text-[10px] text-zinc-400 font-mono uppercase bg-zinc-950/40 p-2 border border-zinc-900 rounded">
+              <p className="text-[10px] text-zinc-400 font-mono uppercase bg-black/40 p-2 border border-black rounded">
                 ⚡ QUANT COMMAND: Drag and move the image inside the crop window to align properly, then adjust your magnification slider.
               </p>
 
               {/* Crop Box Window */}
-              <div className="relative w-full aspect-square md:aspect-video bg-[#030303] border border-zinc-900 rounded-lg overflow-hidden select-none">
+              <div className="relative w-full aspect-square md:aspect-video bg-black border border-black rounded-lg overflow-hidden select-none">
                 <div
                   className="absolute inset-0 cursor-move flex items-center justify-center"
                   onMouseDown={startDragImagePose}
@@ -691,26 +689,26 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
                       return { ...prev, zoom: nextZoom };
                     });
                   }}
-                  className="w-full accent-indigo-500 bg-zinc-950 rounded cursor-pointer"
+                  className="w-full accent-indigo-500 bg-black rounded cursor-pointer"
                 />
               </div>
             </div>
 
-            <div className="p-4 bg-zinc-950 border-t border-zinc-900 flex justify-end gap-3">
+            <div className="p-4 bg-black border-t border-black flex justify-end gap-3">
               <button
                 onClick={() => {
                   URL.revokeObjectURL(cropParams.originalSrc);
                   setCropActive(false);
                   setCropParams(null);
                 }}
-                className="py-2 px-4 text-zinc-500 hover:text-white uppercase font-mono font-bold tracking-wider text-[10px] bg-zinc-900 hover:bg-zinc-800 rounded cursor-pointer"
+                className="py-2 px-4 text-zinc-500 hover:text-[#E5E5E5] uppercase font-mono font-bold tracking-wider text-[10px] bg-black hover:bg-black rounded cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={executeCommenceCrop}
                 disabled={isUploading}
-                className="py-2 px-5 bg-indigo-600 hover:bg-indigo-500 text-white font-mono font-bold uppercase tracking-wider text-[10px] rounded flex items-center gap-1 cursor-pointer disabled:opacity-45"
+                className="py-2 px-5 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] font-mono font-bold uppercase tracking-wider text-[10px] rounded flex items-center gap-1 cursor-pointer disabled:opacity-45"
               >
                 {isUploading ? (
                   <>

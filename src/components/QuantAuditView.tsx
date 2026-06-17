@@ -748,7 +748,7 @@ export function QuantAuditView({
     if (isActive) {
       return {
         text: 'ACTIVE (+2.5%)',
-        classes: 'border border-emerald-500/30 text-emerald-400 bg-emerald-950/20 text-[8.5px] font-black px-2.5 py-1 rounded'
+        classes: 'border border-black text-[#4ADE80] bg-black/40 text-[8.5px] font-black px-2.5 py-1 rounded'
       };
     }
 
@@ -758,12 +758,12 @@ export function QuantAuditView({
       if (isPartial) {
         return {
           text: `PARTIAL CLOSE (+${gainVal}%)`,
-          classes: 'border border-emerald-500/25 text-[#00ff88]/80 bg-[#00ff88]/5 text-[8.5px] font-black px-2.5 py-1 rounded'
+          classes: 'border border-black text-[#4ADE80]/80 bg-[#4ADE80]/5 text-[8.5px] font-black px-2.5 py-1 rounded'
         };
       }
       return {
         text: `GAIN (+${gainVal}%)`,
-        classes: 'border border-[#00ff88]/30 text-[#00ff88] bg-[#00ff88]/5 text-[8.5px] font-black px-2.5 py-1 rounded'
+        classes: 'border border-[#4ADE80]/30 text-[#d4d4d8] bg-[#d4d4d8]/5 text-[8.5px] font-black px-2.5 py-1 rounded'
       };
     }
 
@@ -773,7 +773,7 @@ export function QuantAuditView({
       if (isManual) {
         return {
           text: `MANUAL EXIT (-${lossVal}%)`,
-          classes: 'border border-rose-500/30 text-rose-450 bg-rose-950/10 text-[8.5px] font-black px-2.5 py-1 rounded'
+          classes: 'border border-rose-500/30 text-[#F87171] bg-rose-950/10 text-[8.5px] font-black px-2.5 py-1 rounded'
         };
       }
       const isInvalidated = t.id.includes('sp2') || t.id.includes('stat-4');
@@ -785,36 +785,36 @@ export function QuantAuditView({
       }
       return {
         text: `STOP LOSS (-${lossVal}%)`,
-        classes: 'border border-rose-500/30 text-[#ff453a] bg-rose-950/10 text-[8.5px] font-black px-2.5 py-1 rounded'
+        classes: 'border border-rose-500/30 text-[#F87171] bg-rose-950/10 text-[8.5px] font-black px-2.5 py-1 rounded'
       };
     }
 
     return {
       text: 'RESOLVED',
-      classes: 'border border-zinc-800 text-zinc-400 bg-zinc-900/45 text-[8.5px] font-black px-2.5 py-1 rounded'
+      classes: 'border border-black text-zinc-400 bg-black/45 text-[8.5px] font-black px-2.5 py-1 rounded'
     };
   };
 
   // Asset dynamic badge colors as seen in institutional terminals
   const getAssetBadgeClass = (ticker: string) => {
     const clean = ticker.replace(/[^a-zA-Z]/g, '').toUpperCase();
-    if (clean === 'NDX') return 'bg-[#12281b] text-[#00ff88] border border-emerald-900/30';
-    if (clean === 'SPX') return 'bg-[#291616] text-[#ff453a] border border-[#ff453a]/20';
+    if (clean === 'NDX') return 'bg-[#d4d4d8] text-[#4ADE80] border border-black';
+    if (clean === 'SPX') return 'bg-black text-[#F87171] border border-[#F87171]/20';
     if (clean === 'SPY') return 'bg-[#1b1c35] text-indigo-400 border border-indigo-900/30';
     if (clean === 'QQQ') return 'bg-[#132335] text-sky-400 border border-sky-900/30';
-    return 'bg-zinc-900 text-zinc-400 border border-zinc-800';
+    return 'bg-black text-zinc-400 border border-black';
   };
 
   return (
-    <div className="w-full text-zinc-300 flex flex-col font-mono select-none antialiased space-y-6 max-w-7xl mx-auto pt-2 pb-16" id="accountability-registry-unified-design">
+    <div className="w-full text-[#4ADE80] flex flex-col font-mono select-none antialiased space-y-6 max-w-7xl mx-auto pt-2 pb-16" id="accountability-registry-unified-design">
       
       {/* 1. TOP HEADER & NAVIGATION BLOCK */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-zinc-900/40 pb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-black/40 pb-4">
         <div>
-          <span className="text-[8px] text-emerald-400 font-extrabold tracking-[0.25em] uppercase block mb-1">
+          <span className="text-[8px] text-[#4ADE80] font-extrabold tracking-[0.25em] uppercase block mb-1">
             • PERFORMANCE LEDGER
           </span>
-          <h1 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider">
+          <h1 className="text-xl md:text-2xl font-black text-[#E5E5E5] uppercase tracking-wider">
             ACCOUNTABILITY REGISTRY
           </h1>
         </div>
@@ -822,15 +822,15 @@ export function QuantAuditView({
         {/* CONTROLS AREA */}
         <div className="flex flex-wrap items-center gap-3 self-stretch md:self-auto uppercase">
           {/* Asset Tickers Picker */}
-          <div className="flex bg-zinc-950/80 p-0.5 border border-zinc-900 rounded-md">
+          <div className="flex bg-black/80 p-0.5 border border-black rounded-md">
             {['ALL', 'SPX', 'NDX', 'QQQ', 'SPY'].map(ticker => (
               <button
                 key={ticker}
                 onClick={() => setAssetFilter(ticker)}
                 className={`px-3 py-1.5 text-[8px] font-black uppercase rounded transition-all cursor-pointer ${
                   assetFilter === ticker
-                    ? 'bg-zinc-900 text-white font-black'
-                    : 'text-zinc-650 hover:text-zinc-300'
+                    ? 'bg-black text-[#E5E5E5] font-black'
+                    : 'text-zinc-650 hover:text-[#4ADE80]'
                 }`}
               >
                 {ticker}
@@ -841,15 +841,15 @@ export function QuantAuditView({
           {/* Reset button exactly styled Red border-dashed as photo */}
           <button
             onClick={onClearTrades}
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-rose-500/20 text-[#ff453a] hover:bg-rose-500/5 hover:border-rose-500/50 text-[8px] font-black rounded cursor-pointer transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-rose-500/20 text-[#F87171] hover:bg-rose-500/5 hover:border-rose-500/50 text-[8px] font-black rounded cursor-pointer transition-all"
           >
             <RotateCcw className="w-2.5 h-2.5" />
             <span>RESET ACTIVE SESSION</span>
           </button>
 
           {/* Synced ledger green badge */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 border border-[#00ff88]/20 bg-[#00ff88]/5 text-[#00ff88] text-[8px] font-black rounded">
-            <span className="w-1.5 h-1.5 bg-[#00ff88] rounded-full animate-pulse" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 border border-[#d4d4d8]/20 bg-[#d4d4d8]/5 text-[#d4d4d8] text-[8px] font-black rounded">
+            <span className="w-1.5 h-1.5 bg-[#4ADE80] rounded-full animate-pulse" />
             <span>SYNCED LEDGER</span>
           </div>
         </div>
@@ -858,13 +858,13 @@ export function QuantAuditView({
       {/* 2. SYSTEM EFFICIENCY METRICS (5 CARDS GRID) */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {/* Acc value */}
-        <div className="bg-[#050508] border border-zinc-900 p-4 rounded-lg flex flex-col justify-between hover:border-zinc-800 transition-all">
+        <div className="bg-black border border-black p-4 rounded-lg flex flex-col justify-between hover:border-black transition-all">
           <div className="flex justify-between items-center text-zinc-550">
             <span className="text-[7.5px] font-black uppercase tracking-wider">ACCURACY VALUE</span>
             <Sparkles className="w-3.5 h-3.5 text-zinc-650" />
           </div>
           <div className="my-2.5">
-            <h3 className="text-xl font-black text-white">
+            <h3 className="text-xl font-black text-[#E5E5E5]">
               {stats.winRate}%
             </h3>
           </div>
@@ -874,13 +874,13 @@ export function QuantAuditView({
         </div>
 
         {/* Hold time */}
-        <div className="bg-[#050508] border border-zinc-900 p-4 rounded-lg flex flex-col justify-between hover:border-zinc-800 transition-all">
+        <div className="bg-black border border-black p-4 rounded-lg flex flex-col justify-between hover:border-black transition-all">
           <div className="flex justify-between items-center text-zinc-550">
             <span className="text-[7.5px] font-black uppercase tracking-wider">HOLD TIME</span>
             <Clock className="w-3.5 h-3.5 text-zinc-650" />
           </div>
           <div className="my-2.5">
-            <h3 className="text-xl font-black text-white">
+            <h3 className="text-xl font-black text-[#E5E5E5]">
               {stats.calculatedHoldTime} MINS
             </h3>
           </div>
@@ -890,13 +890,13 @@ export function QuantAuditView({
         </div>
 
         {/* Winner avg */}
-        <div className="bg-[#050508] border border-zinc-900 p-4 rounded-lg flex flex-col justify-between hover:border-zinc-800 transition-all">
-          <div className="flex justify-between items-center text-[#00ff88]">
+        <div className="bg-black border border-black p-4 rounded-lg flex flex-col justify-between hover:border-black transition-all">
+          <div className="flex justify-between items-center text-[#d4d4d8]">
             <span className="text-[7.5px] font-black uppercase tracking-wider text-zinc-550">WINNER AVERAGE</span>
             <span className="text-[9px] font-black tracking-widest uppercase">[holding]</span>
           </div>
           <div className="my-2.5">
-            <h3 className="text-xl font-black text-[#00ff88]">
+            <h3 className="text-xl font-black text-[#d4d4d8]">
               +{stats.calculatedWinnerAvg}%
             </h3>
           </div>
@@ -906,7 +906,7 @@ export function QuantAuditView({
         </div>
 
         {/* Loser Avg */}
-        <div className="bg-[#050508] border border-zinc-900 p-4 rounded-lg flex flex-col justify-between hover:border-zinc-800 transition-all">
+        <div className="bg-black border border-black p-4 rounded-lg flex flex-col justify-between hover:border-black transition-all">
           <div className="flex justify-between items-center text-rose-500">
             <span className="text-[7.5px] font-black uppercase tracking-wider text-zinc-550">LOSER AVERAGE</span>
             <span className="text-[9px] font-black tracking-widest uppercase">[failing]</span>
@@ -922,13 +922,13 @@ export function QuantAuditView({
         </div>
 
         {/* All accumulated */}
-        <div className="bg-[#050508] border border-zinc-900 p-4 rounded-lg col-span-2 md:col-span-1 flex flex-col justify-between hover:border-zinc-800 transition-all">
+        <div className="bg-black border border-black p-4 rounded-lg col-span-2 md:col-span-1 flex flex-col justify-between hover:border-black transition-all">
           <div className="flex justify-between items-center text-zinc-550">
             <span className="text-[7.5px] font-black uppercase tracking-wider">ALL ACCUMULATED</span>
             <ShieldCheck className="w-3.5 h-3.5 text-zinc-650" />
           </div>
           <div className="my-2.5">
-            <h3 className="text-xl font-black text-white">
+            <h3 className="text-xl font-black text-[#E5E5E5]">
               +{stats.calculatedAccumulated}%
             </h3>
           </div>
@@ -943,7 +943,7 @@ export function QuantAuditView({
         onClick={() => {
           useContractStore.getState().setIsGlobalSearchOpen(true);
         }}
-        className="global-prism-trigger w-full bg-zinc-950/40 border border-[#1e1e24] p-3.5 rounded-lg flex items-center justify-between gap-2 text-left cursor-pointer hover:border-zinc-700 transition-all uppercase font-mono"
+        className="global-prism-trigger w-full bg-black/40 border border-black p-3.5 rounded-lg flex items-center justify-between gap-2 text-left cursor-pointer hover:border-black transition-all uppercase font-mono"
       >
         <div className="flex items-center gap-2.5">
           <Search className="w-3.5 h-3.5 text-zinc-600 animate-pulse" />
@@ -958,12 +958,12 @@ export function QuantAuditView({
                 e.stopPropagation();
                 setSearchQuery('');
               }}
-              className="text-[8px] bg-red-950/30 text-[#ff453a] border border-red-900/30 px-2 py-1 rounded font-black hover:bg-red-500/10 transition-all cursor-pointer"
+              className="text-[8px] bg-red-950/30 text-[#F87171] border border-red-900/30 px-2 py-1 rounded font-black hover:bg-red-500/10 transition-all cursor-pointer"
             >
               CLEAR ACTIVE FILTER
             </span>
           )}
-          <span className="text-[7.5px] bg-[#0c0c0d] border border-zinc-800 text-zinc-550 px-1.5 py-0.5 rounded font-bold">
+          <span className="text-[7.5px] bg-black border border-black text-zinc-550 px-1.5 py-0.5 rounded font-bold">
             {useContractStore(s => s.keybinds).prismMenu?.replace('cmd', typeof window !== 'undefined' && navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl').toUpperCase()}
           </span>
         </div>
@@ -974,9 +974,9 @@ export function QuantAuditView({
         
         {/* LEFT COLUMN: BULLISH CONTRACTS (CALLS) */}
         <div className="space-y-4">
-          <div className="flex justify-between items-center border-b border-zinc-900 pb-2">
-            <span className="text-[9px] font-black text-white tracking-wider uppercase flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-[#00ff88] rounded-full" />
+          <div className="flex justify-between items-center border-b border-black pb-2">
+            <span className="text-[9px] font-black text-[#E5E5E5] tracking-wider uppercase flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-[#4ADE80] rounded-full" />
               BULLISH CONTRACTS (CALLS)
             </span>
             <span className="text-[7.5px] text-zinc-550 font-extrabold uppercase">
@@ -999,8 +999,8 @@ export function QuantAuditView({
               return (
                 <div 
                   key={t.id}
-                  className={`bg-[#050508] hover:bg-[#07070b]/60 border transition-all rounded-lg overflow-hidden cursor-pointer ${
-                    isExpanded ? 'border-emerald-500/40 bg-[#060808]/90 shadow-lg shadow-emerald-900/5' : 'border-zinc-900/80 hover:border-zinc-800'
+                  className={`bg-black hover:bg-black/60 border transition-all rounded-lg overflow-hidden cursor-pointer ${
+                    isExpanded ? 'border-black bg-black/90 shadow-lg shadow-zinc-300/5' : 'border-black/80 hover:border-black'
                   }`}
                   onClick={() => toggleExpand(t.id)}
                 >
@@ -1008,13 +1008,13 @@ export function QuantAuditView({
                   <div className="p-3.5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {/* Left icon arrow inside grid box */}
-                      <div className="w-8 h-8 rounded border border-emerald-500/25 bg-emerald-500/5 flex items-center justify-center text-[#00ff88]">
-                        <span className="text-[7px] uppercase font-black tracking-widest text-[#00ff88] -rotate-90 block" style={{writingMode: 'vertical-rl'}}>holding</span>
+                      <div className="w-8 h-8 rounded border border-black bg-[#4ADE80] text-black/5 flex items-center justify-center text-[#d4d4d8]">
+                        <span className="text-[7px] uppercase font-black tracking-widest text-[#d4d4d8] -rotate-90 block" style={{writingMode: 'vertical-rl'}}>holding</span>
                       </div>
                       <div>
                         {/* Title line */}
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black text-white uppercase tracking-wider">
+                          <span className="text-[10px] font-black text-[#E5E5E5] uppercase tracking-wider">
                             {t.contract}
                           </span>
                           <span className={`px-1 py-0.5 rounded text-[7px] font-black uppercase ${getAssetBadgeClass(ticker)}`}>
@@ -1044,34 +1044,34 @@ export function QuantAuditView({
                     </div>
                   </div>                  {/* Expanded Content Drawer */}
                   {isExpanded && (
-                    <div className="border-t border-zinc-900 bg-[#030303]/90 p-4 space-y-4 text-[9px]">
+                    <div className="border-t border-black bg-black/90 p-4 space-y-4 text-[9px]">
                       {/* Diagnostic Log Label */}
-                      <div className="flex justify-between items-center text-zinc-500 border-b border-zinc-900 pb-1.5 uppercase font-black text-[8px]">
-                        <span className="text-[#00ff88] flex items-center gap-1">
-                          <Zap className="w-3 h-3 text-[#00ff88]" /> CALL TRANSACTION DIAGNOSTIC TRACE LOG
+                      <div className="flex justify-between items-center text-zinc-500 border-b border-black pb-1.5 uppercase font-black text-[8px]">
+                        <span className="text-[#d4d4d8] flex items-center gap-1">
+                          <Zap className="w-3 h-3 text-[#d4d4d8]" /> CALL TRANSACTION DIAGNOSTIC TRACE LOG
                         </span>
                         <span>HOLD TIME: {t.timeTaken || 20} MINS</span>
                       </div>
 
                       {/* 4 elements info list */}
                       <div className="grid grid-cols-4 gap-2 text-center text-[8px]">
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded">
+                        <div className="bg-black p-2 border border-black rounded">
                           <span className="text-zinc-650 block text-[6px] font-black uppercase tracking-wider">ENTRY PREMIUM</span>
-                          <span className="text-white font-extrabold text-[9.5px] block mt-0.5">${t.entryPrice.toFixed(2)}</span>
+                          <span className="text-[#E5E5E5] font-extrabold text-[9.5px] block mt-0.5">${t.entryPrice.toFixed(2)}</span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded">
+                        <div className="bg-black p-2 border border-black rounded">
                           <span className="text-zinc-650 block text-[6px] font-black uppercase tracking-wider">EXIT PREMIUM REACHED</span>
-                          <span className="text-white font-extrabold text-[9.5px] block mt-0.5">${calculatedExitPrice.toFixed(2)}</span>
+                          <span className="text-[#E5E5E5] font-extrabold text-[9.5px] block mt-0.5">${calculatedExitPrice.toFixed(2)}</span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded">
+                        <div className="bg-black p-2 border border-black rounded">
                           <span className="text-zinc-650 block text-[6px] font-black uppercase tracking-wider">PREMIUM GAINED</span>
-                          <span className={`font-extrabold text-[9.5px] block mt-0.5 ${calculatedGains >= 0 ? 'text-[#00ff88]' : 'text-[#ff453a]'}`}>
+                          <span className={`font-extrabold text-[9.5px] block mt-0.5 ${calculatedGains >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                             {calculatedGains >= 0 ? '+' : ''}${calculatedGains.toFixed(2)}
                           </span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded">
+                        <div className="bg-black p-2 border border-black rounded">
                           <span className="text-zinc-650 block text-[6px] font-black uppercase tracking-wider">SEQUENCE RESULT</span>
-                          <span className={`font-black text-[8px] block mt-1 uppercase ${calculatedGains >= 0 ? 'text-[#00ff88]' : 'text-[#ff453a]'}`}>
+                          <span className={`font-black text-[8px] block mt-1 uppercase ${calculatedGains >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                             {calculatedGains >= 0 ? 'GAIN' : 'INVALIDATED'}
                           </span>
                         </div>
@@ -1079,74 +1079,74 @@ export function QuantAuditView({
 
                       {/* Alpha Thesis & Probability Vectors */}
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                        <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                           <span className="text-zinc-600 text-[6.5px] font-black uppercase tracking-wider block">PROBABILITY VECTOR</span>
-                          <span className="text-white font-extrabold text-[9px] block mt-0.5">{t.probabilityPositive}% POSITIVE</span>
+                          <span className="text-[#E5E5E5] font-extrabold text-[9px] block mt-0.5">{t.probabilityPositive}% POSITIVE</span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                        <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                           <span className="text-zinc-600 text-[6.5px] font-black uppercase tracking-wider block">THESIS STABILITY</span>
-                          <span className="text-[#00ff88] font-extrabold text-[9px] block mt-0.5">{t.thesisStability}% ACTIVE</span>
+                          <span className="text-[#d4d4d8] font-extrabold text-[9px] block mt-0.5">{t.thesisStability}% ACTIVE</span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                        <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                           <span className="text-zinc-600 text-[6.5px] font-black uppercase tracking-wider block">EXPECTED RETURN</span>
-                          <span className="text-white font-extrabold text-[9px] block mt-0.5">+{t.expectedReturn}% UPPER</span>
+                          <span className="text-[#E5E5E5] font-extrabold text-[9px] block mt-0.5">+{t.expectedReturn}% UPPER</span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                        <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                           <span className="text-zinc-600 text-[6.5px] font-black uppercase tracking-wider block">MAX DRAWDOWN EXPOSURE</span>
                           <span className="text-rose-500 font-extrabold text-[9px] block mt-0.5">-{t.expectedDrawdown}% DOWN</span>
                         </div>
                       </div>
 
                       {/* Option Greek Profiles & Sensitivity */}
-                      <div className="bg-[#040406] border border-zinc-900/60 p-2.5 rounded">
+                      <div className="bg-black border border-black/60 p-2.5 rounded">
                         <span className="text-zinc-600 font-black tracking-widest block text-[6.5px] uppercase mb-1.5">• GREEKS SENSITIVITY VECTORS</span>
                         <div className="grid grid-cols-4 gap-1.5 text-center">
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-650 block text-[5.5px] font-black">DELTA (Δ)</span>
-                            <span className="text-white font-extrabold text-[8.5px] block mt-0.5">{t.greeks.delta.toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-extrabold text-[8.5px] block mt-0.5">{t.greeks.delta.toFixed(2)}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-650 block text-[5.5px] font-black">GAMMA (Γ)</span>
-                            <span className="text-white font-extrabold text-[8.5px] block mt-0.5">{t.greeks.gamma.toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-extrabold text-[8.5px] block mt-0.5">{t.greeks.gamma.toFixed(2)}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-650 block text-[5.5px] font-black">THETA (Θ)</span>
                             <span className="text-rose-500 font-extrabold text-[8.5px] block mt-0.5">{t.greeks.theta.toFixed(2)}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-650 block text-[5.5px] font-black">VEGA (V)</span>
-                            <span className="text-white font-extrabold text-[8.5px] block mt-0.5">{t.greeks.vega.toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-extrabold text-[8.5px] block mt-0.5">{t.greeks.vega.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Technical and Market Structure Indicator States */}
-                      <div className="bg-[#040406] border border-zinc-900/60 p-2.5 rounded space-y-2">
+                      <div className="bg-black border border-black/60 p-2.5 rounded space-y-2">
                         <span className="text-zinc-600 font-black tracking-widest block text-[6.5px] uppercase">• ALPHA QUANT INDICATOR MAP</span>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-left text-[8px]">
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-600 text-[6px] font-black block">VWAP LEVEL STATE</span>
-                            <span className="text-white font-bold block truncate mt-0.5">{t.vwapState}</span>
+                            <span className="text-[#E5E5E5] font-bold block truncate mt-0.5">{t.vwapState}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-600 text-[6px] font-black block">RSI CASCADE STRENGTH</span>
-                            <span className="text-white font-bold block truncate mt-0.5">{t.rsiState}</span>
+                            <span className="text-[#E5E5E5] font-bold block truncate mt-0.5">{t.rsiState}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-600 text-[6px] font-black block">MARKET STRUCTURE</span>
-                            <span className="text-white font-bold block truncate mt-0.5">{t.structureState}</span>
+                            <span className="text-[#E5E5E5] font-bold block truncate mt-0.5">{t.structureState}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-600 text-[6px] font-black block">RELATIVE RVOL PROFILE</span>
-                            <span className="text-white font-bold block truncate mt-0.5">{t.rvolState}</span>
+                            <span className="text-[#E5E5E5] font-bold block truncate mt-0.5">{t.rvolState}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-600 text-[6px] font-black block">GEX WALL DYNAMICS</span>
-                            <span className="text-white font-bold block truncate mt-0.5">{t.gexState}</span>
+                            <span className="text-[#E5E5E5] font-bold block truncate mt-0.5">{t.gexState}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded flex flex-col justify-between">
+                          <div className="bg-black p-1.5 border border-black rounded flex flex-col justify-between">
                             <span className="text-zinc-600 text-[6px] font-black block">DEALER POSITIONING</span>
-                            <span className="text-[#00ff88] font-black block truncate mt-0.5">{t.dealerPositioning}</span>
+                            <span className="text-[#d4d4d8] font-black block truncate mt-0.5">{t.dealerPositioning}</span>
                           </div>
                         </div>
                       </div>
@@ -1156,50 +1156,50 @@ export function QuantAuditView({
                         <span className="text-zinc-655 font-black tracking-widest block text-[6.5px] uppercase">• TARGETS CHRONOLOGY FLOW (HITS / MISSES)</span>
                         <div className="grid grid-cols-4 gap-2 text-left">
                           {/* target 1 */}
-                          <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                          <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                             <div className="flex justify-between items-center text-[6.5px] text-zinc-550 font-black uppercase">
                               <span>TARGET 1</span>
-                              {t.target1Hit ? <span className="text-[6px] text-white bg-emerald-700 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600 font-extrabold">BYP</span>}
+                              {t.target1Hit ? <span className="text-[6px] text-[#E5E5E5] bg-black/40 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600 font-extrabold">BYP</span>}
                             </div>
-                            <span className="text-white font-black text-[9px] mt-1">${t.target1 ? t.target1.toFixed(2) : (t.entryPrice * 1.1).toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-black text-[9px] mt-1">${t.target1 ? t.target1.toFixed(2) : (t.entryPrice * 1.1).toFixed(2)}</span>
                             <span className="text-[6.5px] text-zinc-650 mt-1 uppercase font-semibold">Hit time: {t.target1HitTime ? `${t.target1HitTime}m` : 'N/A'}</span>
                           </div>
 
                           {/* target 2 */}
-                          <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                          <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                             <div className="flex justify-between items-center text-[6.5px] text-zinc-550 font-black uppercase">
                               <span>TARGET 2</span>
-                              {t.target2Hit ? <span className="text-[6px] text-white bg-emerald-700 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600 font-extrabold">BYP</span>}
+                              {t.target2Hit ? <span className="text-[6px] text-[#E5E5E5] bg-black/40 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600 font-extrabold">BYP</span>}
                             </div>
-                            <span className="text-white font-black text-[9px] mt-1">${t.target2 ? t.target2.toFixed(2) : (t.entryPrice * 1.25).toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-black text-[9px] mt-1">${t.target2 ? t.target2.toFixed(2) : (t.entryPrice * 1.25).toFixed(2)}</span>
                             <span className="text-[6.5px] text-zinc-650 mt-1 uppercase font-semibold">Hit time: {t.target2HitTime ? `${t.target2HitTime}m` : 'N/A'}</span>
                           </div>
 
                           {/* target 3 */}
-                          <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                          <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                             <div className="flex justify-between items-center text-[6.5px] text-zinc-550 font-black uppercase">
                               <span>TARGET 3</span>
-                              {t.target3Hit ? <span className="text-[6px] text-white bg-emerald-700 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600">Bypassed</span>}
+                              {t.target3Hit ? <span className="text-[6px] text-[#E5E5E5] bg-black/40 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600">Bypassed</span>}
                             </div>
-                            <span className="text-white font-black text-[9px] mt-1">${t.target3 ? t.target3.toFixed(2) : (t.entryPrice * 1.5).toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-black text-[9px] mt-1">${t.target3 ? t.target3.toFixed(2) : (t.entryPrice * 1.5).toFixed(2)}</span>
                             <span className="text-[6.5px] text-zinc-650 mt-1 uppercase font-semibold">Hit time: {t.target3HitTime ? `${t.target3HitTime}m` : 'N/A'}</span>
                           </div>
 
                           {/* Stop loss */}
-                          <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                          <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                             <div className="flex justify-between items-center text-[6.5px] text-zinc-550 font-black uppercase">
                               <span>STOP LOSS</span>
                               <span className="text-zinc-600 font-extrabold">Untouched</span>
                             </div>
-                            <span className="text-white font-black text-[9px] mt-1">${t.stopLoss.toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-black text-[9px] mt-1">${t.stopLoss.toFixed(2)}</span>
                             <span className="text-[6.5px] text-zinc-650 mt-1 uppercase font-semibold">Intact</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Actions verdict */}
-                      <div className="bg-zinc-950 p-3.5 border border-zinc-900 rounded-lg space-y-1">
-                        <span className="text-[7px] text-[#00ff88] font-black uppercase tracking-wider block">
+                      <div className="bg-black p-3.5 border border-black rounded-lg space-y-1">
+                        <span className="text-[7px] text-[#d4d4d8] font-black uppercase tracking-wider block">
                           ⚡ DIAGNOSTIC ACTION VERDICT
                         </span>
                         <p className="text-[8.5px] text-zinc-400 font-sans tracking-tight text-justify font-extrabold leading-relaxed text-zinc-350 normal-case">
@@ -1219,7 +1219,7 @@ export function QuantAuditView({
                           e.stopPropagation();
                           handleContractClick(t.contract);
                         }}
-                        className="w-full text-center py-2 border border-emerald-900/30 bg-[#00ff88]/5 hover:bg-[#00ff88]/10 text-[#00ff88] text-[8px] font-black uppercase rounded cursor-pointer tracking-wider transition-all"
+                        className="w-full text-center py-2 border border-black bg-[#d4d4d8]/5 hover:bg-[#d4d4d8]/10 text-[#d4d4d8] text-[8px] font-black uppercase rounded cursor-pointer tracking-wider transition-all"
                       >
                         ATOMISTICALLY LAUNCH CONTRACT TO SKYVISION DECISION COCKPIT
                       </button>
@@ -1231,7 +1231,7 @@ export function QuantAuditView({
             })}
 
             {bullishTrades.length === 0 && (
-              <div className="text-center py-10 border border-zinc-900 bg-zinc-950/40 rounded-lg">
+              <div className="text-center py-10 border border-black bg-black/40 rounded-lg">
                 <span className="text-[8.5px] text-zinc-600 font-black uppercase tracking-widest block">NO EXHAUSTIVE CALL TRANSACTIONS DATA FOUND</span>
               </div>
             )}
@@ -1240,8 +1240,8 @@ export function QuantAuditView({
 
         {/* RIGHT COLUMN: BEARISH CONTRACTS (PUTS) */}
         <div className="space-y-4">
-          <div className="flex justify-between items-center border-b border-zinc-900 pb-2">
-            <span className="text-[9px] font-black text-rose-450 tracking-wider uppercase flex items-center gap-1.5">
+          <div className="flex justify-between items-center border-b border-black pb-2">
+            <span className="text-[9px] font-black text-[#F87171] tracking-wider uppercase flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-rose-500 rounded-full" />
               BEARISH CONTRACTS (PUTS)
             </span>
@@ -1265,8 +1265,8 @@ export function QuantAuditView({
               return (
                 <div 
                   key={t.id}
-                  className={`bg-[#050508] hover:bg-[#07070b]/60 border transition-all rounded-lg overflow-hidden cursor-pointer ${
-                    isExpanded ? 'border-rose-500/40 bg-[#090606]/90 shadow-lg shadow-rose-900/5' : 'border-zinc-900/80 hover:border-zinc-800'
+                  className={`bg-black hover:bg-black/60 border transition-all rounded-lg overflow-hidden cursor-pointer ${
+                    isExpanded ? 'border-rose-500/40 bg-black/90 shadow-lg shadow-rose-900/5' : 'border-black/80 hover:border-black'
                   }`}
                   onClick={() => toggleExpand(t.id)}
                 >
@@ -1274,13 +1274,13 @@ export function QuantAuditView({
                   <div className="p-3.5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {/* Left icon arrow inside grid box */}
-                      <div className="w-8 h-8 rounded border border-rose-500/25 bg-rose-500/5 flex items-center justify-center text-rose-450">
-                        <span className="text-[7px] uppercase font-black tracking-widest text-rose-450 -rotate-90 block" style={{writingMode: 'vertical-rl'}}>failing</span>
+                      <div className="w-8 h-8 rounded border border-rose-500/25 bg-rose-500/5 flex items-center justify-center text-[#F87171]">
+                        <span className="text-[7px] uppercase font-black tracking-widest text-[#F87171] -rotate-90 block" style={{writingMode: 'vertical-rl'}}>failing</span>
                       </div>
                       <div>
                         {/* Title line */}
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black text-white uppercase tracking-wider">
+                          <span className="text-[10px] font-black text-[#E5E5E5] uppercase tracking-wider">
                             {t.contract}
                           </span>
                           <span className={`px-1 py-0.5 rounded text-[7px] font-black uppercase ${getAssetBadgeClass(ticker)}`}>
@@ -1312,34 +1312,34 @@ export function QuantAuditView({
 
                   {/* Expanded Content Drawer */}
                   {isExpanded && (
-                    <div className="border-t border-zinc-900 bg-[#030303]/90 p-4 space-y-4 text-[9px]">
+                    <div className="border-t border-black bg-black/90 p-4 space-y-4 text-[9px]">
                       {/* Diagnostic Log Label */}
-                      <div className="flex justify-between items-center text-zinc-500 border-b border-zinc-900 pb-1.5 uppercase font-black text-[8px]">
-                        <span className="text-rose-450 flex items-center gap-1">
-                          <Zap className="w-3 h-3 text-rose-450" /> PUT TRANSACTION DIAGNOSTIC TRACE LOG
+                      <div className="flex justify-between items-center text-zinc-500 border-b border-black pb-1.5 uppercase font-black text-[8px]">
+                        <span className="text-[#F87171] flex items-center gap-1">
+                          <Zap className="w-3 h-3 text-[#F87171]" /> PUT TRANSACTION DIAGNOSTIC TRACE LOG
                         </span>
                         <span>HOLD TIME: {t.timeTaken || 15} MINS</span>
                       </div>
 
                       {/* 4 elements info list */}
                       <div className="grid grid-cols-4 gap-2 text-center text-[8px]">
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded">
+                        <div className="bg-black p-2 border border-black rounded">
                           <span className="text-zinc-655 block text-[6px] font-black uppercase tracking-wider">ENTRY PREMIUM</span>
-                          <span className="text-white font-extrabold text-[9.5px] block mt-0.5">${t.entryPrice.toFixed(2)}</span>
+                          <span className="text-[#E5E5E5] font-extrabold text-[9.5px] block mt-0.5">${t.entryPrice.toFixed(2)}</span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded">
+                        <div className="bg-black p-2 border border-black rounded">
                           <span className="text-zinc-655 block text-[6px] font-black uppercase tracking-wider">EXIT PREMIUM REACHED</span>
-                          <span className="text-white font-extrabold text-[9.5px] block mt-0.5">${calculatedExitPrice.toFixed(2)}</span>
+                          <span className="text-[#E5E5E5] font-extrabold text-[9.5px] block mt-0.5">${calculatedExitPrice.toFixed(2)}</span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded">
+                        <div className="bg-black p-2 border border-black rounded">
                           <span className="text-zinc-655 block text-[6px] font-black uppercase tracking-wider">PREMIUM GAINED / LOST</span>
-                          <span className={`font-extrabold text-[9.5px] block mt-0.5 ${calculatedGains >= 0 ? 'text-[#00ff88]' : 'text-[#ff453a]'}`}>
+                          <span className={`font-extrabold text-[9.5px] block mt-0.5 ${calculatedGains >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                             {calculatedGains >= 0 ? '+' : ''}${calculatedGains.toFixed(2)}
                           </span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded">
+                        <div className="bg-black p-2 border border-black rounded">
                           <span className="text-zinc-655 block text-[6px] font-black uppercase tracking-wider">SEQUENCE RESULT</span>
-                          <span className={`font-black text-[8px] block mt-1 uppercase ${isWin ? 'text-[#00ff88]' : 'text-[#ff453a]'}`}>
+                          <span className={`font-black text-[8px] block mt-1 uppercase ${isWin ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                             {isWin ? 'GAIN' : 'LOSS'}
                           </span>
                         </div>
@@ -1347,74 +1347,74 @@ export function QuantAuditView({
 
                       {/* Alpha Thesis & Probability Vectors */}
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                        <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                           <span className="text-zinc-600 text-[6.5px] font-black uppercase tracking-wider block">PROBABILITY VECTOR</span>
-                          <span className="text-white font-extrabold text-[9px] block mt-0.5">{t.probabilityPositive}% POSITIVE</span>
+                          <span className="text-[#E5E5E5] font-extrabold text-[9px] block mt-0.5">{t.probabilityPositive}% POSITIVE</span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                        <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                           <span className="text-zinc-600 text-[6.5px] font-black uppercase tracking-wider block">THESIS STABILITY</span>
-                          <span className="text-[#00ff88] font-extrabold text-[9px] block mt-0.5">{t.thesisStability}% ACTIVE</span>
+                          <span className="text-[#d4d4d8] font-extrabold text-[9px] block mt-0.5">{t.thesisStability}% ACTIVE</span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                        <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                           <span className="text-zinc-600 text-[6.5px] font-black uppercase tracking-wider block">EXPECTED RETURN</span>
-                          <span className="text-white font-extrabold text-[9px] block mt-0.5">+{t.expectedReturn}% UPPER</span>
+                          <span className="text-[#E5E5E5] font-extrabold text-[9px] block mt-0.5">+{t.expectedReturn}% UPPER</span>
                         </div>
-                        <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                        <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                           <span className="text-zinc-600 text-[6.5px] font-black uppercase tracking-wider block">MAX DRAWDOWN EXPOSURE</span>
                           <span className="text-rose-500 font-extrabold text-[9px] block mt-0.5">-{t.expectedDrawdown}% DOWN</span>
                         </div>
                       </div>
 
                       {/* Option Greek Profiles & Sensitivity */}
-                      <div className="bg-[#040406] border border-zinc-900/60 p-2.5 rounded">
+                      <div className="bg-black border border-black/60 p-2.5 rounded">
                         <span className="text-zinc-600 font-black tracking-widest block text-[6.5px] uppercase mb-1.5">• GREEKS SENSITIVITY VECTORS</span>
                         <div className="grid grid-cols-4 gap-1.5 text-center">
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-650 block text-[5.5px] font-black">DELTA (Δ)</span>
-                            <span className="text-white font-extrabold text-[8.5px] block mt-0.5">{t.greeks.delta.toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-extrabold text-[8.5px] block mt-0.5">{t.greeks.delta.toFixed(2)}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-655 block text-[5.5px] font-black">GAMMA (Γ)</span>
-                            <span className="text-white font-extrabold text-[8.5px] block mt-0.5">{t.greeks.gamma.toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-extrabold text-[8.5px] block mt-0.5">{t.greeks.gamma.toFixed(2)}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-655 block text-[5.5px] font-black">THETA (Θ)</span>
                             <span className="text-rose-500 font-extrabold text-[8.5px] block mt-0.5">{t.greeks.theta.toFixed(2)}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-655 block text-[5.5px] font-black">VEGA (V)</span>
-                            <span className="text-white font-extrabold text-[8.5px] block mt-0.5">{t.greeks.vega.toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-extrabold text-[8.5px] block mt-0.5">{t.greeks.vega.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Technical and Market Structure Indicator States */}
-                      <div className="bg-[#040406] border border-zinc-900/60 p-2.5 rounded space-y-2">
+                      <div className="bg-black border border-black/60 p-2.5 rounded space-y-2">
                         <span className="text-zinc-600 font-black tracking-widest block text-[6.5px] uppercase">• ALPHA QUANT INDICATOR MAP</span>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-left text-[8px]">
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-600 text-[6px] font-black block">VWAP LEVEL STATE</span>
-                            <span className="text-white font-bold block truncate mt-0.5">{t.vwapState}</span>
+                            <span className="text-[#E5E5E5] font-bold block truncate mt-0.5">{t.vwapState}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-600 text-[6px] font-black block">RSI CASCADE STRENGTH</span>
-                            <span className="text-white font-bold block truncate mt-0.5">{t.rsiState}</span>
+                            <span className="text-[#E5E5E5] font-bold block truncate mt-0.5">{t.rsiState}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-600 text-[6px] font-black block">MARKET STRUCTURE</span>
-                            <span className="text-white font-bold block truncate mt-0.5">{t.structureState}</span>
+                            <span className="text-[#E5E5E5] font-bold block truncate mt-0.5">{t.structureState}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-600 text-[6px] font-black block">RELATIVE RVOL PROFILE</span>
-                            <span className="text-white font-bold block truncate mt-0.5">{t.rvolState}</span>
+                            <span className="text-[#E5E5E5] font-bold block truncate mt-0.5">{t.rvolState}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded">
+                          <div className="bg-black p-1.5 border border-black rounded">
                             <span className="text-zinc-600 text-[6px] font-black block">GEX WALL DYNAMICS</span>
-                            <span className="text-white font-bold block truncate mt-0.5">{t.gexState}</span>
+                            <span className="text-[#E5E5E5] font-bold block truncate mt-0.5">{t.gexState}</span>
                           </div>
-                          <div className="bg-[#07070a] p-1.5 border border-zinc-950 rounded flex flex-col justify-between">
+                          <div className="bg-black p-1.5 border border-black rounded flex flex-col justify-between">
                             <span className="text-zinc-600 text-[6px] font-black block">DEALER POSITIONING</span>
-                            <span className="text-[#00ff88] font-black block truncate mt-0.5">{t.dealerPositioning}</span>
+                            <span className="text-[#d4d4d8] font-black block truncate mt-0.5">{t.dealerPositioning}</span>
                           </div>
                         </div>
                       </div>
@@ -1424,50 +1424,50 @@ export function QuantAuditView({
                         <span className="text-zinc-650 font-black tracking-widest block text-[6.5px] uppercase">• TARGETS CHRONOLOGY FLOW (HITS / MISSES)</span>
                         <div className="grid grid-cols-4 gap-2 text-left">
                           {/* target 1 */}
-                          <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                          <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                             <div className="flex justify-between items-center text-[6.5px] text-zinc-550 font-black uppercase">
                               <span>TARGET 1</span>
-                              {t.target1Hit ? <span className="text-[6px] text-white bg-emerald-700 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600 font-extrabold">Bypassed</span>}
+                              {t.target1Hit ? <span className="text-[6px] text-[#E5E5E5] bg-black/40 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600 font-extrabold">Bypassed</span>}
                             </div>
-                            <span className="text-white font-black text-[9px] mt-1">${t.target1 ? t.target1.toFixed(2) : (t.entryPrice * 1.1).toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-black text-[9px] mt-1">${t.target1 ? t.target1.toFixed(2) : (t.entryPrice * 1.1).toFixed(2)}</span>
                             <span className="text-[6.5px] text-zinc-650 mt-1 uppercase font-semibold">Hit time: {t.target1HitTime ? `${t.target1HitTime}m` : 'N/A'}</span>
                           </div>
 
                           {/* target 2 */}
-                          <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                          <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                             <div className="flex justify-between items-center text-[6.5px] text-zinc-550 font-black uppercase">
                               <span>TARGET 2</span>
-                              {t.target2Hit ? <span className="text-[6px] text-white bg-emerald-700 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600 font-extrabold">Bypassed</span>}
+                              {t.target2Hit ? <span className="text-[6px] text-[#E5E5E5] bg-black/40 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600 font-extrabold">Bypassed</span>}
                             </div>
-                            <span className="text-white font-black text-[9px] mt-1">${t.target2 ? t.target2.toFixed(2) : (t.entryPrice * 1.25).toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-black text-[9px] mt-1">${t.target2 ? t.target2.toFixed(2) : (t.entryPrice * 1.25).toFixed(2)}</span>
                             <span className="text-[6.5px] text-zinc-650 mt-1 uppercase font-semibold">Hit time: {t.target2HitTime ? `${t.target2HitTime}m` : 'N/A'}</span>
                           </div>
 
                           {/* target 3 */}
-                          <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                          <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                             <div className="flex justify-between items-center text-[6.5px] text-zinc-550 font-black uppercase">
                               <span>TARGET 3 / STRETCH</span>
-                              {t.target3Hit ? <span className="text-[6px] text-white bg-emerald-700 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600 font-extrabold">Bypassed</span>}
+                              {t.target3Hit ? <span className="text-[6px] text-[#E5E5E5] bg-black/40 font-extrabold px-1 py-0.2 rounded-xs">HIT</span> : <span className="text-zinc-600 font-extrabold">Bypassed</span>}
                             </div>
-                            <span className="text-white font-black text-[9px] mt-1">${t.target3 ? t.target3.toFixed(2) : (t.entryPrice * 1.5).toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-black text-[9px] mt-1">${t.target3 ? t.target3.toFixed(2) : (t.entryPrice * 1.5).toFixed(2)}</span>
                             <span className="text-[6.5px] text-zinc-650 mt-1 uppercase font-semibold">Hit time: {t.target3HitTime ? `${t.target3HitTime}m` : 'N/A'}</span>
                           </div>
 
                           {/* Stop loss */}
-                          <div className="bg-[#08080c] p-2 border border-zinc-950 rounded flex flex-col justify-between">
+                          <div className="bg-black p-2 border border-black rounded flex flex-col justify-between">
                             <div className="flex justify-between items-center text-[6.5px] text-zinc-550 font-black uppercase">
                               <span>STOP LOSS</span>
-                              <span className={`text-[6.5px] font-black ${!isWin ? 'text-rose-500 bg-rose-950/40 px-1 py-0.2 rounded-xs border border-rose-900/30' : 'text-zinc-650'}`}>{!isWin ? 'BREACHED' : 'Untouched'}</span>
+                              <span className={`text-[6.5px] font-black ${!isWin ? 'text-rose-500 bg-rose-950/40 px-1 py-0.2 rounded-xs border border-[#F87171]/30' : 'text-zinc-650'}`}>{!isWin ? 'BREACHED' : 'Untouched'}</span>
                             </div>
-                            <span className="text-white font-black text-[9px] mt-1">${t.stopLoss.toFixed(2)}</span>
+                            <span className="text-[#E5E5E5] font-black text-[9px] mt-1">${t.stopLoss.toFixed(2)}</span>
                             <span className="text-[6.5px] text-zinc-650 mt-1 uppercase font-semibold">{!isWin ? 'Hit' : 'Intact'}</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Actions verdict */}
-                      <div className="bg-zinc-950 p-3.5 border border-zinc-900 rounded-lg space-y-1">
-                        <span className="text-[7.5px] text-rose-450 font-black uppercase tracking-wider block">
+                      <div className="bg-black p-3.5 border border-black rounded-lg space-y-1">
+                        <span className="text-[7.5px] text-[#F87171] font-black uppercase tracking-wider block">
                           ⚡ DIAGNOSTIC ACTION VERDICT
                         </span>
                         <p className="text-[8.5px] text-zinc-400 font-sans tracking-tight text-justify font-extrabold leading-relaxed text-zinc-350 normal-case">
@@ -1485,7 +1485,7 @@ export function QuantAuditView({
                           e.stopPropagation();
                           handleContractClick(t.contract);
                         }}
-                        className="w-full text-center py-2 border border-rose-900/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-450 text-[8px] font-black uppercase rounded cursor-pointer tracking-wider transition-all"
+                        className="w-full text-center py-2 border border-[#F87171]/30 bg-rose-500/5 hover:bg-rose-500/10 text-[#F87171] text-[8px] font-black uppercase rounded cursor-pointer tracking-wider transition-all"
                       >
                         ATOMISTICALLY LAUNCH CONTRACT TO SKYVISION DECISION COCKPIT
                       </button>
@@ -1497,7 +1497,7 @@ export function QuantAuditView({
             })}
 
             {bearishTrades.length === 0 && (
-              <div className="text-center py-10 border border-zinc-900 bg-zinc-950/40 rounded-lg">
+              <div className="text-center py-10 border border-black bg-black/40 rounded-lg">
                 <span className="text-[8.5px] text-zinc-600 font-black uppercase tracking-widest block font-bold">NO EXHAUSTIVE PUT TRANSACTIONS DATA FOUND</span>
               </div>
             )}

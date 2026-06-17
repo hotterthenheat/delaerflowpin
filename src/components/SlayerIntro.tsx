@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { BrandHeader, WordmarkHorizontal } from './BrandLogo';
 import { useContractStore } from '../lib/store';
 import { FeatureMatrix } from './FeatureMatrix';
 import { SubscriptionPricing } from './SubscriptionPricing';
@@ -185,7 +186,7 @@ export default function SlayerIntro({
               initial={{ scale: 0.1, opacity: 0.8 }}
               animate={{ scale: 4.5, opacity: 0 }}
               transition={{ duration: 0.74, ease: 'easeOut' }}
-              className="absolute w-[300px] h-[300px] rounded-full border border-zinc-550/30 -translate-x-1/2 -translate-y-1/2"
+              className="absolute w-[300px] h-[300px] rounded-full border border-black -translate-x-1/2 -translate-y-1/2"
               style={{
                 left: mousePos.x || '50%',
                 top: mousePos.y || '40%',
@@ -239,7 +240,7 @@ export default function SlayerIntro({
                           damping: 10,
                           opacity: { duration: 0.2 } 
                         }}
-                        className="text-white text-xs font-mono font-black uppercase tracking-widest pointer-events-none block whitespace-nowrap select-none"
+                        className="text-[#E5E5E5] text-xs font-mono font-black uppercase tracking-widest pointer-events-none block whitespace-nowrap select-none"
                       >
                         {word}
                       </motion.span>
@@ -255,7 +256,7 @@ export default function SlayerIntro({
       {/* ==================================================
           LEVEL 1: ARBOR CAPITAL (OVERARCHING CORPORATE LAYER)
           ================================================== */}
-      <div id="arbor-capital-banner" className="bg-[#050505] border-b border-zinc-900 px-6 py-3 px-6 py-3.5 flex justify-between items-center z-10 font-mono select-none">
+      <div id="arbor-capital-banner" className="bg-black border-b border-black px-6 py-3 px-6 py-3.5 flex justify-between items-center z-10 font-mono select-none">
         <div className="flex items-center gap-2">
           <Globe className="w-3.5 h-3.5 text-zinc-500" />
           <span className="text-[9.5px] tracking-[0.28em] text-[#A1A1AA] uppercase font-black">
@@ -282,19 +283,18 @@ export default function SlayerIntro({
       >
         
         {/* Subtle emblem */}
-        <div className="flex items-center gap-2.5 font-mono text-[10px] text-zinc-500 uppercase tracking-widest">
-          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          <span>SLAYER TERMINAL</span>
-          <span className="text-zinc-800">|</span>
-          <span className="text-white">BY ARBOR CAPITAL</span>
+        <div className="flex items-center justify-center gap-2.5 font-mono text-[10px] text-zinc-500 uppercase tracking-widest">
+          <WordmarkHorizontal />
+          <span className="text-zinc-800 ml-2">|</span>
+          <span className="text-[#E5E5E5]">BY ARBOR CAPITAL</span>
         </div>
 
         {/* STOP GUESSING LEVEL 2 LANDING TITLE */}
         <div className="space-y-4 max-w-3xl">
-          <span className="text-[10px] font-mono tracking-[0.34em] text-[#A1A1AA] uppercase font-black bg-zinc-950 px-4 py-1.5 border border-zinc-900 rounded-md inline-block">
+          <span className="text-[10px] font-mono tracking-[0.34em] text-[#A1A1AA] uppercase font-black bg-black px-4 py-1.5 border border-black rounded-md inline-block">
             OPTIONS ANALYSIS TERMINAL
           </span>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-none font-sans uppercase">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#E5E5E5] leading-none font-sans uppercase">
             STOP GUESSING.
           </h1>
           <p className="text-zinc-400 text-base md:text-lg font-light font-sans leading-relaxed tracking-wide max-w-2xl mx-auto">
@@ -303,7 +303,7 @@ export default function SlayerIntro({
         </div>
 
         {/* INDEX TABS SELECTOR */}
-        <div className="flex bg-zinc-950 border border-zinc-900 rounded-sm p-1 font-mono items-center gap-1.5">
+        <div className="flex mirror-panel rounded-sm p-1 font-mono items-center gap-1.5">
           {(['SPX', 'NDX', 'QQQ', 'SPY', 'RUT'] as const).map((ticker) => (
             <button
               key={ticker}
@@ -329,13 +329,13 @@ export default function SlayerIntro({
           <button 
             type="button"
             onClick={() => useContractStore.getState().setIsGlobalSearchOpen(true)}
-            className="global-prism-trigger w-full flex items-center justify-between bg-zinc-950 border border-zinc-900 px-4 py-2.5 rounded-sm hover:cursor-pointer hover:border-zinc-750 transition-all duration-150 group"
+            className="global-prism-trigger w-full flex items-center justify-between mirror-panel px-4 py-2.5 rounded-sm hover:cursor-pointer hover:border-black transition-all duration-150 group"
           >
             <div className="flex items-center gap-2.5 text-zinc-550 font-mono text-[10px] tracking-wider font-extrabold">
-              <Search className="w-3.5 h-3.5 text-emerald-455 group-hover:scale-105 transition-transform" />
+              <Search className="w-3.5 h-3.5 text-[#4ADE80] group-hover:scale-105 transition-transform" />
               <span>SEARCH ALL SECURITIES & INDEX GREEKS</span>
             </div>
-            <kbd className="hidden sm:inline-block bg-[#0e0e11] text-zinc-600 border border-zinc-850 px-1.5 py-0.5 rounded-xs text-[8px] font-mono shadow-inner">{useContractStore(s => s.keybinds).prismMenu?.replace('cmd', typeof window !== 'undefined' && navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl').toUpperCase()}</kbd>
+            <kbd className="hidden sm:inline-block bg-black text-zinc-600 border border-black px-1.5 py-0.5 rounded-xs text-[8px] font-mono shadow-inner">{useContractStore(s => s.keybinds).prismMenu?.replace('cmd', typeof window !== 'undefined' && navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl').toUpperCase()}</kbd>
           </button>
         </div>
 
@@ -356,20 +356,20 @@ export default function SlayerIntro({
           <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 to-transparent" />
 
           {/* Section Indicator */}
-          <div className="flex justify-between items-center pb-2.5 border-b border-zinc-900/40 relative z-10">
+          <div className="flex justify-between items-center pb-2.5 border-b border-black/40 relative z-10">
             <span className="text-[9px] text-[#A1A1AA] uppercase tracking-widest font-black">
               BEST OPPORTUNITY RIGHT NOW
             </span>
             <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#30d158]" />
-              <span className="text-[8px] text-[#30d158] font-extrabold uppercase">LIVE CALCULATED</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-black" />
+              <span className="text-[8px] text-[#4ADE80] font-extrabold uppercase">LIVE CALCULATED</span>
             </div>
           </div>
 
           {/* CORE STAT DETAILS */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-1 relative z-10">
             <div className="space-y-0.5">
-              <span className="text-2xl font-black text-white block uppercase tracking-tight">
+              <span className="text-2xl font-black text-[#E5E5E5] block uppercase tracking-tight">
                 {activeOpp.ticker}
               </span>
               <span className="text-[9.5px] text-zinc-500 uppercase block">
@@ -377,20 +377,20 @@ export default function SlayerIntro({
               </span>
             </div>
 
-            <div className="bg-[#30d158] text-black font-black text-[10.5px] uppercase tracking-widest px-4 py-1.5 rounded-md border border-[#30d158] shadow-lg">
+            <div className="bg-[#4ADE80] hover:bg-[#4ADE80]/90 text-black shadow-[0_0_15px_rgba(0,255,136,0.5)] font-black text-[10.5px] uppercase tracking-widest px-4 py-1.5 rounded-md border border-black shadow-lg">
               {activeOpp.status === 'Strengthening' ? 'ENTER' : 'ENTER'}
             </div>
           </div>
 
           {/* DYNAMIC RATINGS TABS */}
-          <div className="grid grid-cols-3 gap-3 bg-zinc-950/60 border border-zinc-900/60 p-3 rounded-xl relative z-10 mb-3">
+          <div className="grid grid-cols-3 gap-3 mirror-panel p-3 rounded-xl relative z-10 mb-3">
             <div>
               <span className="text-[8.5px] text-zinc-550 uppercase tracking-tight block">Decision Score</span>
-              <span className="text-base font-black text-[#30d158] mt-0.5 block">{activeOpp.health}</span>
+              <span className="text-base font-black text-[#4ADE80] mt-0.5 block">{activeOpp.health}</span>
             </div>
             <div>
               <span className="text-[8.5px] text-zinc-550 uppercase tracking-tight block">Expected Move</span>
-              <span className="text-base font-bold text-white mt-0.5 block">{activeOpp.move}</span>
+              <span className="text-base font-bold text-[#E5E5E5] mt-0.5 block">{activeOpp.move}</span>
             </div>
             <div>
               <span className="text-[8.5px] text-zinc-550 uppercase tracking-tight block">Status</span>
@@ -400,40 +400,40 @@ export default function SlayerIntro({
 
           {/* NEW HERO ENHANCEMENTS (Dealer Bias, Vol State, etc) */}
           {serverState?.deep_intelligence && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-[#050505] border border-zinc-900/40 p-2.5 rounded-lg relative z-10 text-[9px] mb-4">
-               <div className="border border-zinc-900/50 p-2 rounded-md bg-zinc-950/50">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-black border border-black/40 p-2.5 rounded-lg relative z-10 text-[9px] mb-4">
+               <div className="border border-black/50 p-2 rounded-md bg-black/50">
                   <span className="text-zinc-500 uppercase font-black block tracking-widest text-[7px] mb-0.5">Dealer Bias</span>
-                  <span className={`font-bold ${serverState.deep_intelligence.dealer_metrics.bias === 'LONG GAMMA' ? 'text-[#00ff88]' : 'text-rose-400'}`}>
+                  <span className={`font-bold ${serverState.deep_intelligence.dealer_metrics.bias === 'LONG GAMMA' ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                     {serverState.deep_intelligence.dealer_metrics.bias}
                   </span>
                </div>
-               <div className="border border-zinc-900/50 p-2 rounded-md bg-zinc-950/50">
+               <div className="border border-black/50 p-2 rounded-md bg-black/50">
                   <span className="text-zinc-500 uppercase font-black block tracking-widest text-[7px] mb-0.5">Vol State</span>
-                  <span className="text-zinc-300 font-bold">{serverState.deep_intelligence.dealer_metrics.volState}</span>
+                  <span className="text-[#4ADE80] font-bold">{serverState.deep_intelligence.dealer_metrics.volState}</span>
                </div>
-               <div className="border border-zinc-900/50 p-2 rounded-md bg-zinc-950/50">
+               <div className="border border-black/50 p-2 rounded-md bg-black/50">
                   <span className="text-zinc-500 uppercase font-black block tracking-widest text-[7px] mb-0.5">Magnet Strike</span>
-                  <span className="text-white font-bold">{Number(serverState.deep_intelligence.dealer_metrics.magnetStrike ?? 0).toFixed(2)}</span>
+                  <span className="text-[#E5E5E5] font-bold">{Number(serverState.deep_intelligence.dealer_metrics.magnetStrike ?? 0).toFixed(2)}</span>
                </div>
-               <div className="border border-zinc-900/50 p-2 rounded-md bg-zinc-950/50">
+               <div className="border border-black/50 p-2 rounded-md bg-black/50">
                   <span className="text-zinc-500 uppercase font-black block tracking-widest text-[7px] mb-0.5">Flip Level</span>
-                  <span className="text-rose-400 font-bold">{Number(serverState.deep_intelligence.dealer_metrics.flipLevel ?? 0).toFixed(2)}</span>
+                  <span className="text-[#F87171] font-bold">{Number(serverState.deep_intelligence.dealer_metrics.flipLevel ?? 0).toFixed(2)}</span>
                </div>
                
-               <div className="border border-zinc-900/50 p-2 rounded-md bg-zinc-950/50 col-span-1 md:col-span-2 flex justify-between items-center">
+               <div className="border border-black/50 p-2 rounded-md bg-black/50 col-span-1 md:col-span-2 flex justify-between items-center">
                   <div>
                      <span className="text-zinc-500 uppercase font-black block tracking-widest text-[7px] mb-0.5">Call Wall</span>
-                     <span className="text-white font-bold">{Number(serverState.deep_intelligence.dealer_metrics.callWall ?? 0).toFixed(2)}</span>
+                     <span className="text-[#E5E5E5] font-bold">{Number(serverState.deep_intelligence.dealer_metrics.callWall ?? 0).toFixed(2)}</span>
                   </div>
                   <div className="text-right">
                      <span className="text-zinc-500 uppercase font-black block tracking-widest text-[7px] mb-0.5">Put Wall</span>
-                     <span className="text-white font-bold">{Number(serverState.deep_intelligence.dealer_metrics.putWall ?? 0).toFixed(2)}</span>
+                     <span className="text-[#E5E5E5] font-bold">{Number(serverState.deep_intelligence.dealer_metrics.putWall ?? 0).toFixed(2)}</span>
                   </div>
                </div>
-               <div className="border border-zinc-900/50 p-2 rounded-md bg-zinc-950/50 col-span-1 md:col-span-2">
+               <div className="border border-black/50 p-2 rounded-md bg-black/50 col-span-1 md:col-span-2">
                   <div className="flex justify-between items-center mb-1">
                      <span className="text-zinc-500 uppercase font-black tracking-widest text-[7px]">Dealer Positioning Score</span>
-                     <span className="text-white font-bold text-[9px]">{serverState.deep_intelligence.dealer_metrics.dealerScore}/100</span>
+                     <span className="text-[#E5E5E5] font-bold text-[9px]">{serverState.deep_intelligence.dealer_metrics.dealerScore}/100</span>
                   </div>
                   <div className="w-full bg-black h-1.5 rounded-full overflow-hidden">
                      <div className="bg-[#4f8cff] h-full transition-all duration-300" style={{ width: `${serverState.deep_intelligence.dealer_metrics.dealerScore}%` }} />
@@ -449,7 +449,7 @@ export default function SlayerIntro({
                 e.stopPropagation();
                 handleLaunchToActiveOpportunity();
               }}
-              className="w-full py-3 bg-white hover:bg-zinc-250 text-black font-extrabold uppercase tracking-widest text-[9.5px] rounded-lg transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 shadow-xl hover:scale-[1.01]"
+              className="w-full py-3 bg-white hover:bg-black text-black font-extrabold uppercase tracking-widest text-[9.5px] rounded-lg transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 shadow-xl hover:scale-[1.01]"
             >
               <span>Launch Live Workspace</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -459,17 +459,17 @@ export default function SlayerIntro({
         </div>
 
         {/* HERO TALLY SUMMARY */}
-        <div className="grid grid-cols-3 gap-7 md:gap-14 pt-4 border-t border-zinc-950 w-full max-w-xl font-mono text-center">
+        <div className="grid grid-cols-3 gap-7 md:gap-14 pt-4 border-t border-black w-full max-w-xl font-mono text-center">
           <div>
-            <span className="text-xl md:text-2xl font-black text-white block">71%</span>
+            <span className="text-xl md:text-2xl font-black text-[#E5E5E5] block">71%</span>
             <span className="text-[8.5px] text-[#A1A1AA] uppercase tracking-wider block mt-0.5">Target 1 Hit Rate</span>
           </div>
           <div>
-            <span className="text-xl md:text-2xl font-black text-emerald-400 block">100%</span>
+            <span className="text-xl md:text-2xl font-black text-[#4ADE80] block">100%</span>
             <span className="text-[8.5px] text-[#A1A1AA] uppercase tracking-wider block mt-0.5">Public Trade History</span>
           </div>
           <div>
-            <span className="text-xl md:text-2xl font-black text-white block">4</span>
+            <span className="text-xl md:text-2xl font-black text-[#E5E5E5] block">4</span>
             <span className="text-[8.5px] text-[#A1A1AA] uppercase tracking-wider block mt-0.5">Intelligence Engines</span>
           </div>
         </div>

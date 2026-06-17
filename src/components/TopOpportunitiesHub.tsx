@@ -126,55 +126,55 @@ export function TopOpportunitiesHub({
     <div className="flex flex-col gap-5">
       
       {/* Recent Performance Stats Summary Banner */}
-      <div className="bg-[#121214] border border-[#2A2A2D] rounded-sm p-4 font-mono shadow-md grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+      <div className="bg-black border border-black rounded-sm p-4 font-mono shadow-md grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
         <div className="flex items-center gap-3">
-          <Award className="w-5 h-5 text-emerald-400" />
+          <Award className="w-5 h-5 text-[#4ADE80]" />
           <div>
             <span className="text-[10px] tracking-[0.2em] text-[#888888] font-bold block uppercase">SYSTEM PERFORMANCE RATING</span>
-            <span className="text-xs text-zinc-300 font-sans tracking-wide">Continuous validation against institutional order blocks.</span>
+            <span className="text-xs text-[#4ADE80] font-sans tracking-wide">Continuous validation against institutional order blocks.</span>
           </div>
         </div>
         
         {/* Metric Target Hit Rate */}
-        <div className="flex items-center justify-between border-l md:border-l border-zinc-800 px-0 md:px-6">
+        <div className="flex items-center justify-between border-l md:border-l border-black px-0 md:px-6">
           <span className="text-xs text-[#888888] uppercase">Target Hit Rate</span>
           <div className="text-right">
-            <span className="text-xl font-bold text-emerald-400">84.6%</span>
+            <span className="text-xl font-bold text-[#4ADE80]">84.6%</span>
             <span className="text-[9px] text-[#888888] block text-right">MODEL CAPABILITY</span>
           </div>
         </div>
 
         {/* Confidence Accuracy */}
-        <div className="flex items-center justify-between border-l border-zinc-800 px-0 md:px-6">
+        <div className="flex items-center justify-between border-l border-black px-0 md:px-6">
           <span className="text-xs text-[#888888] uppercase">Confidence Accuracy</span>
           <div className="text-right">
-            <span className="text-xl font-bold text-white">91.2%</span>
+            <span className="text-xl font-bold text-[#E5E5E5]">91.2%</span>
             <span className="text-[9px] text-[#888888] block text-right">MASTER ALIGNMENT</span>
           </div>
         </div>
       </div>
 
       {/* Hero: Top Opportunities Grid */}
-      <div className="bg-[#121214] border border-[#2A2A2D] rounded-sm font-mono overflow-hidden shadow-lg">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#2A2A2D] bg-[#17171A]/60">
+      <div className="bg-black border border-black rounded-sm font-mono overflow-hidden shadow-lg">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-black bg-black/60">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 text-emerald-400" />
+            <Sparkles className="w-4 text-[#4ADE80]" />
             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-[#E0E0E0]">
               TOP OPPORTUNITIES ENGINE
             </h2>
           </div>
-          <span className="text-[9px] text-zinc-550 border border-zinc-800 px-2 py-0.5 bg-black/40">MASTER SCORE CLASSIFICATION</span>
+          <span className="text-[9px] text-zinc-550 border border-black px-2 py-0.5 bg-black/40">MASTER SCORE CLASSIFICATION</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs divide-y divide-[#2A2A2D]">
-            <thead className="bg-[#0A0A0B] text-[#888888] uppercase tracking-wider text-[9px]">
+            <thead className="bg-black text-[#888888] uppercase tracking-wider text-[9px]">
               <tr>
                 <th className="px-4 py-2.5">Rank</th>
                 <th className="px-4 py-2.5">Contract</th>
                 <th className="px-4 py-2.5 text-center">Bias</th>
                 <th className="px-4 py-2.5 text-center">P(win)</th>
-                <th className="px-4 py-2.5 text-center text-emerald-400">Expected Value (EV)</th>
+                <th className="px-4 py-2.5 text-center text-[#4ADE80]">Expected Value (EV)</th>
                 <th className="px-4 py-2.5 text-right">Current Price</th>
                 <th className="px-4 py-2.5 text-right">Fair Value</th>
                 <th className="px-4 py-2.5 text-center">Entry Area</th>
@@ -182,7 +182,7 @@ export function TopOpportunitiesHub({
                 <th className="px-4 py-2.5 text-right">Control</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#2A2A2D] bg-[#0C0C0D]/20">
+            <tbody className="divide-y divide-[#2A2A2D] bg-black/20">
               {mainGridOpportunities.map((opp, idx) => {
                 const isSelected = selectedAsset.ticker === opp.asset.ticker;
                 const isBuy = opp.recommendation === 'BUY';
@@ -191,8 +191,8 @@ export function TopOpportunitiesHub({
                 return (
                   <tr
                     key={opp.ticker}
-                    className={`hover:bg-[#1A1A1D]/80 transition-colors ${
-                      isSelected ? 'bg-emerald-950/20 border-l border-emerald-500' : ''
+                    className={`hover:bg-black/80 transition-colors ${
+                      isSelected ? 'bg-black/40 border-l border-black' : ''
                     }`}
                   >
                     {/* Rank */}
@@ -204,7 +204,7 @@ export function TopOpportunitiesHub({
                     <td className="px-4 py-3">
                       <span
                         onClick={() => onSelectOpportunity(opp.asset, opp.isCall ? 'C' : 'P')}
-                        className="text-white tracking-wider font-semibold hover:underline cursor-pointer"
+                        className="text-[#E5E5E5] tracking-wider font-semibold hover:underline cursor-pointer"
                       >
                         {opp.ticker}
                       </span>
@@ -214,21 +214,21 @@ export function TopOpportunitiesHub({
                     <td className="px-4 py-3 text-center">
                       <span className={`inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-sm font-bold ${
                         opp.isCall
-                          ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-900/30'
-                          : 'bg-rose-950/40 text-rose-450 border border-rose-900/30'
+                          ? 'bg-black/40 text-[#4ADE80] border border-black'
+                          : 'bg-rose-950/40 text-[#F87171] border border-[#F87171]/30'
                       }`}>
                         {opp.isCall ? 'BULLISH' : 'BEARISH'}
                       </span>
                     </td>
 
                     {/* Win probability (P_win) */}
-                    <td className="px-4 py-3 text-center font-bold text-white">
+                    <td className="px-4 py-3 text-center font-bold text-[#E5E5E5]">
                       <span>{opp.confidence.toFixed(1)}%</span>
                     </td>
 
                     {/* Expected Value */}
                     <td className="px-4 py-3 text-center font-black">
-                      <span className={`text-xs px-2 py-0.5 rounded-sm ${opp.expectedValue >= 0 ? 'text-emerald-400 bg-emerald-950/20 border border-emerald-900/35' : 'text-rose-450 bg-rose-950/20 border border-rose-900/35'}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-sm ${opp.expectedValue >= 0 ? 'text-[#4ADE80] bg-black/40 border border-black' : 'text-[#F87171] bg-rose-950/20 border border-rose-900/35'}`}>
                         {opp.expectedValue >= 0 ? '+' : ''}{opp.expectedValue.toFixed(1)}%
                       </span>
                     </td>
@@ -239,7 +239,7 @@ export function TopOpportunitiesHub({
                     </td>
 
                     {/* Fair Value target */}
-                    <td className="px-4 py-3 text-right text-emerald-400 font-mono font-medium">
+                    <td className="px-4 py-3 text-right text-[#4ADE80] font-mono font-medium">
                       {opp.fairValue}
                     </td>
 
@@ -252,10 +252,10 @@ export function TopOpportunitiesHub({
                     <td className="px-4 py-3 text-center">
                       <span className={`inline-block px-2.5 py-0.5 rounded-sm text-[10px] font-black tracking-wider ${
                         isBuy
-                          ? 'bg-emerald-500 text-black'
+                          ? 'bg-[#4ADE80] text-black text-black'
                           : isWait
-                          ? 'bg-zinc-800 text-zinc-300'
-                          : 'bg-rose-950 text-rose-400 border border-rose-900/60'
+                          ? 'bg-black text-[#4ADE80]'
+                          : 'bg-rose-950 text-[#F87171] border border-rose-900/60'
                       }`}>
                         {opp.recommendation}
                       </span>
@@ -267,8 +267,8 @@ export function TopOpportunitiesHub({
                         onClick={() => onSelectOpportunity(opp.asset, opp.isCall ? 'C' : 'P')}
                         className={`px-3 py-1 text-[10px] font-bold rounded-sm border cursor-pointer uppercase transition-all flex items-center gap-1 ml-auto ${
                           isSelected
-                            ? 'bg-emerald-950 border-emerald-400 text-emerald-400'
-                            : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700 text-zinc-350 hover:text-white'
+                            ? 'bg-black/40 border-black text-[#4ADE80]'
+                            : 'bg-black border-black hover:border-black text-zinc-350 hover:text-[#E5E5E5]'
                         }`}
                       >
                         {isSelected ? <Check className="w-3" /> : null}
@@ -287,13 +287,13 @@ export function TopOpportunitiesHub({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         
         {/* Top 10 Calls list */}
-        <div className="bg-[#121214] border border-[#2A2A2D] rounded-sm font-mono overflow-hidden shadow-md">
-          <div className="flex items-center justify-between px-3.5 py-2.5 bg-emerald-950/20 border-b border-[#2A2A2D]">
+        <div className="bg-black border border-black rounded-sm font-mono overflow-hidden shadow-md">
+          <div className="flex items-center justify-between px-3.5 py-2.5 bg-black/40 border-b border-black">
             <div className="flex items-center gap-2">
-              <Compass className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">TOP 10 RANKED BULLISH CALLS</span>
+              <Compass className="w-4 h-4 text-[#4ADE80]" />
+              <span className="text-xs font-bold text-[#4ADE80] uppercase tracking-wider">TOP 10 RANKED BULLISH CALLS</span>
             </div>
-            <span className="text-[8px] text-emerald-500 font-extrabold uppercase">AGGRESSIVE INSTITUTIONAL FLOW</span>
+            <span className="text-[8px] text-[#4ADE80] font-extrabold uppercase">AGGRESSIVE INSTITUTIONAL FLOW</span>
           </div>
 
           <div className="divide-y divide-zinc-900 overflow-y-auto max-h-[360px]">
@@ -301,21 +301,21 @@ export function TopOpportunitiesHub({
               <div
                 key={idx}
                 onClick={() => onSelectOpportunity(item.asset, 'C')}
-                className="flex items-center justify-between p-3.5 hover:bg-zinc-900/40 transition-colors cursor-pointer"
+                className="flex items-center justify-between p-3.5 hover:bg-black/40 transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] text-emerald-500/80 font-bold font-mono">#{(idx+1).toString().padStart(2, '0')}</span>
-                  <span className="text-white tracking-wider font-semibold font-mono text-xs">{item.ticker}</span>
+                  <span className="text-[10px] text-[#4ADE80] font-bold font-mono">#{(idx+1).toString().padStart(2, '0')}</span>
+                  <span className="text-[#E5E5E5] tracking-wider font-semibold font-mono text-xs">{item.ticker}</span>
                 </div>
                 
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <span className="text-[8px] text-[#888888] block uppercase font-mono">EXPECTED VALUE</span>
-                    <span className="text-xs font-black text-emerald-400 font-mono flex items-center justify-end">+{item.expectedValue.toFixed(1)}%</span>
+                    <span className="text-xs font-black text-[#4ADE80] font-mono flex items-center justify-end">+{item.expectedValue.toFixed(1)}%</span>
                   </div>
 
                   <span className={`px-2 py-0.5 rounded-sm text-[9px] font-bold ${
-                    item.action === 'BUY' ? 'bg-emerald-500 text-black font-black' : 'bg-zinc-800 text-zinc-400'
+                    item.action === 'BUY' ? 'bg-black/40 text-black font-black' : 'bg-black text-zinc-400'
                   }`}>
                     {item.action}
                   </span>
@@ -326,11 +326,11 @@ export function TopOpportunitiesHub({
         </div>
 
         {/* Top 10 Puts list */}
-        <div className="bg-[#121214] border border-[#2A2A2D] rounded-sm font-mono overflow-hidden shadow-md">
-          <div className="flex items-center justify-between px-3.5 py-2.5 bg-rose-950/20 border-b border-[#2A2A2D]">
+        <div className="bg-black border border-black rounded-sm font-mono overflow-hidden shadow-md">
+          <div className="flex items-center justify-between px-3.5 py-2.5 bg-rose-950/20 border-b border-black">
             <div className="flex items-center gap-2">
-              <Compass className="w-4 h-4 text-rose-450" />
-              <span className="text-xs font-bold text-rose-450 uppercase tracking-wider">TOP 10 RANKED BEARISH PUTS</span>
+              <Compass className="w-4 h-4 text-[#F87171]" />
+              <span className="text-xs font-bold text-[#F87171] uppercase tracking-wider">TOP 10 RANKED BEARISH PUTS</span>
             </div>
             <span className="text-[8px] text-rose-500 font-extrabold uppercase">AGGRESSIVE DISTRIBUTION REVERSAL</span>
           </div>
@@ -340,21 +340,21 @@ export function TopOpportunitiesHub({
               <div
                 key={idx}
                 onClick={() => onSelectOpportunity(item.asset, 'P')}
-                className="flex items-center justify-between p-3.5 hover:bg-zinc-900/40 transition-colors cursor-pointer"
+                className="flex items-center justify-between p-3.5 hover:bg-black/40 transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] text-rose-450/80 font-bold font-mono">#{(idx+1).toString().padStart(2, '0')}</span>
-                  <span className="text-white tracking-wider font-semibold font-mono text-xs">{item.ticker}</span>
+                  <span className="text-[10px] text-[#F87171]/80 font-bold font-mono">#{(idx+1).toString().padStart(2, '0')}</span>
+                  <span className="text-[#E5E5E5] tracking-wider font-semibold font-mono text-xs">{item.ticker}</span>
                 </div>
                 
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <span className="text-[8px] text-[#888888] block uppercase font-mono">EXPECTED VALUE</span>
-                    <span className="text-xs font-black text-emerald-400 font-mono flex items-center justify-end">+{item.expectedValue.toFixed(1)}%</span>
+                    <span className="text-xs font-black text-[#4ADE80] font-mono flex items-center justify-end">+{item.expectedValue.toFixed(1)}%</span>
                   </div>
 
                   <span className={`px-2 py-0.5 rounded-sm text-[9px] font-bold ${
-                    item.action === 'BUY' ? 'bg-rose-950 text-rose-450 border border-rose-900/30' : 'bg-zinc-800 text-zinc-450'
+                    item.action === 'BUY' ? 'bg-rose-950 text-[#F87171] border border-[#F87171]/30' : 'bg-black text-zinc-450'
                   }`}>
                     {item.action === 'BUY' ? 'SELL' : item.action}
                   </span>

@@ -25,10 +25,10 @@ export function MetricCard({
   icon,
 }: MetricCardProps) {
   const badgeStyles = {
-    bullish: 'border-emerald-950/50 bg-emerald-950/20 text-emerald-400',
-    bearish: 'border-rose-950/50 bg-rose-950/20 text-rose-400',
+    bullish: 'border-black bg-black/40 text-[#4ADE80]',
+    bearish: 'border-[#F87171]/50/50 bg-rose-950/20 text-[#F87171]',
     neutral: 'border-amber-950/50 bg-amber-950/20 text-amber-400',
-    default: 'border-zinc-800 bg-zinc-900/60 text-zinc-300',
+    default: 'border-black bg-black/60 text-[#4ADE80]',
   };
 
   return (

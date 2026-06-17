@@ -281,20 +281,20 @@ export function PinpointAIView() {
     
     // Exact requested HEX hex codes
     const color = type === 'support' 
-      ? '#00ff88' 
+      ? '#4ADE80' 
       : type === 'resistance' 
         ? '#ff4545' 
         : isLight ? '#1d4ed8' : '#4f8cff';
 
     return (
-      <div className="flex items-center gap-4 py-3 border-b border-zinc-900/35 relative group hover:bg-zinc-950/20 px-2 transition-colors">
+      <div className="flex items-center gap-4 py-3 border-b border-black/35 relative group hover:bg-black/20 px-2 transition-colors">
         <div className="w-16 flex flex-col">
-          <span className="text-sm font-black text-white">{strike}</span>
+          <span className="text-sm font-black text-[#E5E5E5]">{strike}</span>
           <span className="text-[7.5px] text-zinc-500 font-mono tracking-wider font-semibold uppercase">{type}</span>
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="h-6 bg-zinc-950 border border-zinc-900 rounded-sm relative overflow-hidden flex items-center">
+          <div className="h-6 mirror-panel rounded-sm relative overflow-hidden flex items-center">
             <div 
               className="h-full transition-all duration-300"
               style={{
@@ -449,11 +449,11 @@ export function PinpointAIView() {
     <div className="w-full text-zinc-100 flex flex-col font-mono select-none antialiased md:min-h-[580px] lg:min-h-[650px] gap-4">
       
       {/* Upper header segment brand overlay */}
-      <div className="bg-[#050505] border border-zinc-900 p-4 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+      <div className="bg-black border border-black p-4 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
         <div className="flex items-center gap-3 max-w-xl">
           <Compass className="w-4 h-4 text-zinc-400 animate-pulse" />
           <div>
-            <h1 className="text-[11px] font-black text-white uppercase tracking-widest font-mono">
+            <h1 className="text-[11px] font-black text-[#E5E5E5] uppercase tracking-widest font-mono">
               PINPOINT GPS MONITOR <span className="text-zinc-650">/ SPATIAL LIQUIDITY PROJECTIONS</span>
             </h1>
             <p className="text-[8.5px] text-zinc-550 uppercase font-black mt-0.5">ACTIVE COORD-SET: {selectedAsset.name} ({selectedAsset.ticker})</p>
@@ -464,7 +464,7 @@ export function PinpointAIView() {
           {/* Ticker pills group matching the timeframe design */}
           <div className="flex items-center gap-1.5">
             <span className="text-[8px] text-zinc-500 font-mono font-black uppercase tracking-wider mr-1 hidden sm:inline">TICKER:</span>
-            <div className="flex items-center bg-black p-0.5 border border-zinc-900 rounded-sm">
+            <div className="flex items-center bg-black p-0.5 border border-black rounded-sm">
               {(['SPX', 'NDX', 'QQQ', 'SPY', 'RUT'] as const).map(tk => {
                 const isActive = selectedAsset.ticker === tk;
                 return (
@@ -479,8 +479,8 @@ export function PinpointAIView() {
                     }}
                     className={`px-3 py-1 text-[8.5px] uppercase font-black tracking-wider rounded-xs transition-style border border-transparent cursor-pointer ${
                       isActive
-                        ? 'bg-[#00ff88]/10 text-[#00ff88] font-black border-[#00ff88]/20 shadow'
-                        : 'text-zinc-500 hover:text-white'
+                        ? 'bg-[#4ADE80]/10 text-[#4ADE80] font-black border-[#d4d4d8]/20 shadow'
+                        : 'text-zinc-500 hover:text-[#E5E5E5]'
                     }`}
                   >
                     {tk}
@@ -491,9 +491,9 @@ export function PinpointAIView() {
           </div>
 
           {/* Small timeframe cards group, beautifully matching the layout */}
-          <div className="flex items-center gap-1.5 border-l border-zinc-900/80 pl-3.5">
+          <div className="flex items-center gap-1.5 border-l border-black/80 pl-3.5">
             <span className="text-[8px] text-zinc-500 font-mono font-black uppercase tracking-wider mr-1 hidden sm:inline">TIMEFRAME:</span>
-            <div className="flex items-center bg-black p-0.5 border border-zinc-900 rounded-sm">
+            <div className="flex items-center bg-black p-0.5 border border-black rounded-sm">
               {(['5m', '15m', '1h', '4h', '1D'] as const).map(tf => (
                 <button
                   key={tf}
@@ -501,8 +501,8 @@ export function PinpointAIView() {
                   onClick={() => useContractStore.getState().setSelectedTimeframe(tf)}
                   className={`px-3 py-1 text-[8.5px] uppercase font-black tracking-wider rounded-xs transition-all cursor-pointer ${
                     selectedTimeframe === tf
-                      ? 'bg-zinc-850 text-white font-black shadow'
-                      : 'text-zinc-500 hover:text-white'
+                      ? 'bg-black text-[#E5E5E5] font-black shadow'
+                      : 'text-zinc-500 hover:text-[#E5E5E5]'
                   }`}
                 >
                   {tf}
@@ -511,59 +511,59 @@ export function PinpointAIView() {
             </div>
           </div>
           
-          <div className="flex items-center gap-2.5 text-[9px] text-[#00ff88] uppercase tracking-widest font-black pl-3.5 border-l border-zinc-900/80">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-ping" />
+          <div className="flex items-center gap-2.5 text-[9px] text-[#d4d4d8] uppercase tracking-widest font-black pl-3.5 border-l border-black/80">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#4ADE80] animate-ping" />
             <span>RADAR ONLINE</span>
           </div>
         </div>
       </div>
 
       {/* ENHANCED REAL-TIME INSTITUTIONAL STATE PANEL */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-2.5 bg-[#050505] border border-zinc-900 p-3 rounded-sm mb-4 text-left select-none text-[10px]">
-        <div className="border border-zinc-900/60 p-2.5 rounded bg-zinc-950/40">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-2.5 bg-black border border-black p-3 rounded-sm mb-4 text-left select-none text-[10px]">
+        <div className="border border-black/60 p-2.5 rounded bg-black/40">
           <span className="text-zinc-500 uppercase font-black block text-[7px] tracking-wider mb-0.5">Dealer Bias</span>
-          <span className={`font-black uppercase text-[11px] ${liveMetrics.bias === 'LONG GAMMA' ? 'text-[#00ff88]' : 'text-rose-400'} flex items-center gap-1.5`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${liveMetrics.bias === 'LONG GAMMA' ? 'bg-[#00ff88]' : 'bg-rose-400'} animate-pulse`} />
+          <span className={`font-black uppercase text-[11px] ${liveMetrics.bias === 'LONG GAMMA' ? 'text-[#4ADE80]' : 'text-[#F87171]'} flex items-center gap-1.5`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${liveMetrics.bias === 'LONG GAMMA' ? 'bg-[#d4d4d8]' : 'bg-rose-400'} animate-pulse`} />
             {liveMetrics.bias}
           </span>
         </div>
-        <div className="border border-zinc-900/60 p-2.5 rounded bg-zinc-950/40">
+        <div className="border border-black/60 p-2.5 rounded bg-black/40">
           <span className="text-zinc-500 uppercase font-black block text-[7px] tracking-wider mb-0.5">Expected Move</span>
           <span className="text-[#ff4545] font-black text-[11px] uppercase">
             {liveMetrics.expectedMovePct}
           </span>
         </div>
-        <div className="border border-zinc-900/60 p-2.5 rounded bg-zinc-950/40">
+        <div className="border border-black/60 p-2.5 rounded bg-black/40">
           <span className="text-zinc-500 uppercase font-black block text-[7px] tracking-wider mb-0.5">Volatility State</span>
           <span className="text-zinc-200 font-extrabold text-[11px] uppercase">
             {liveMetrics.volState}
           </span>
         </div>
-        <div className="border border-zinc-900/60 p-2.5 rounded bg-zinc-950/40">
+        <div className="border border-black/60 p-2.5 rounded bg-black/40">
           <span className="text-zinc-500 uppercase font-black block text-[7px] tracking-wider mb-0.5">Magnet Strike</span>
           <span className="text-[#4f8cff] font-extrabold text-[11px] font-mono">
             {Number(liveMetrics.magnetStrike ?? 0).toFixed(2)}
           </span>
         </div>
-        <div className="border border-zinc-900/60 p-2.5 rounded bg-zinc-950/40">
+        <div className="border border-black/60 p-2.5 rounded bg-black/40">
           <span className="text-zinc-500 uppercase font-black block text-[7px] tracking-wider mb-0.5">Call Wall</span>
-          <span className="text-white font-extrabold text-[11px] font-mono">
+          <span className="text-[#E5E5E5] font-extrabold text-[11px] font-mono">
             {Number(liveMetrics.callWall ?? 0).toFixed(2)}
           </span>
         </div>
-        <div className="border border-zinc-900/60 p-2.5 rounded bg-zinc-950/40">
+        <div className="border border-black/60 p-2.5 rounded bg-black/40">
           <span className="text-zinc-500 uppercase font-black block text-[7px] tracking-wider mb-0.5">Put Wall</span>
-          <span className="text-white font-extrabold text-[11px] font-mono">
+          <span className="text-[#E5E5E5] font-extrabold text-[11px] font-mono">
             {Number(liveMetrics.putWall ?? 0).toFixed(2)}
           </span>
         </div>
-        <div className="border border-zinc-900/60 p-2.5 rounded bg-zinc-950/40">
+        <div className="border border-black/60 p-2.5 rounded bg-black/40">
           <span className="text-zinc-500 uppercase font-black block text-[7px] tracking-wider mb-0.5">Gamma Flip</span>
-          <span className="text-rose-400 font-extrabold text-[11px] font-mono">
+          <span className="text-[#F87171] font-extrabold text-[11px] font-mono">
             {Number(liveMetrics.flipLevel ?? 0).toFixed(2)}
           </span>
         </div>
-        <div className="border border-zinc-900/60 p-2.5 rounded bg-zinc-950/40 col-span-2 flex flex-col justify-between">
+        <div className="border border-black/60 p-2.5 rounded bg-black/40 col-span-2 flex flex-col justify-between">
           <div className="flex justify-between items-center text-[7.5px] font-bold">
             <span className="text-zinc-500 uppercase tracking-wider">Dealer Score</span>
             <span className="text-[#4f8cff] font-black">{liveMetrics.dealerScore}/100</span>
@@ -582,29 +582,29 @@ export function PinpointAIView() {
       >
         
         {/* COLUMN 1: MARKET STORY (20%) */}
-        <div className="md:col-span-3 flex flex-col bg-[#050505] border border-zinc-900 rounded-sm p-4 text-left justify-between">
+        <div className="md:col-span-3 flex flex-col bg-black border border-black rounded-sm p-4 text-left justify-between">
           <div className="space-y-4">
-            <div className="border-b border-zinc-900 pb-2">
+            <div className="border-b border-black pb-2">
               <span className="text-[7.5px] text-zinc-500 uppercase tracking-widest font-black block">COGNITIVE SUMMARY</span>
-              <h3 className="text-[11px] font-black text-white uppercase tracking-wider mt-0.5">
+              <h3 className="text-[11px] font-black text-[#E5E5E5] uppercase tracking-wider mt-0.5">
                 Market Story
               </h3>
             </div>
             
             {customAiCommentary ? (
               <div className="space-y-3">
-                <div className="flex justify-between items-center pb-1.5 border-b border-zinc-900">
+                <div className="flex justify-between items-center pb-1.5 border-b border-black">
                   <span className="text-[7.5px] text-[#4f8cff] uppercase tracking-widest font-black flex items-center gap-1">
                     <Zap className="w-2.5 h-2.5 animate-pulse text-[#4f8cff]" /> Co-Pilot AI report
                   </span>
                   <button 
                     onClick={() => setCustomAiCommentary(null)}
-                    className="text-[8px] text-zinc-500 hover:text-white uppercase font-mono cursor-pointer"
+                    className="text-[8px] text-zinc-500 hover:text-[#E5E5E5] uppercase font-mono cursor-pointer"
                   >
                     Reset
                   </button>
                 </div>
-                <div className="space-y-2.5 font-sans text-[10px] leading-relaxed text-zinc-300">
+                <div className="space-y-2.5 font-sans text-[10px] leading-relaxed text-[#4ADE80]">
                   {customAiCommentary.map((point: string, i: number) => (
                     <div key={i} className="flex gap-2 items-start bg-[#4f8cff]/5 p-2 rounded border border-[#4f8cff]/10">
                       <span className="text-[#4f8cff] shrink-0 mt-0.5">●</span>
@@ -618,7 +618,7 @@ export function PinpointAIView() {
                 {serverState?.deep_intelligence?.commentary && serverState.deep_intelligence.commentary.length > 0 ? (
                   <div className="space-y-2.5 font-sans text-[10px] leading-relaxed text-zinc-400">
                     {serverState.deep_intelligence.commentary.map((point: string, i: number) => (
-                      <div key={i} className="flex gap-2 items-start bg-zinc-950/40 p-2 rounded border border-zinc-900/40">
+                      <div key={i} className="flex gap-2 items-start bg-black/40 p-2 rounded border border-black/40">
                         <span className="text-[#4f8cff] shrink-0 mt-0.5">●</span>
                         <p className="leading-normal">{point}</p>
                       </div>
@@ -633,7 +633,7 @@ export function PinpointAIView() {
                 <button
                   onClick={triggerAiAnalysis}
                   disabled={isGeneratingAi}
-                  className="w-full text-[9px] py-2 px-3 uppercase tracking-wider font-mono bg-zinc-950 hover:bg-[#4f8cff]/15 hover:text-[#4f8cff] text-[#4f8cff] border border-zinc-900 hover:border-[#4f8cff]/30 rounded-xs transition-all flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer"
+                  className="w-full text-[9px] py-2 px-3 uppercase tracking-wider font-mono bg-black hover:bg-[#4f8cff]/15 hover:text-[#4f8cff] text-[#4f8cff] border border-black hover:border-[#4f8cff]/30 rounded-xs transition-all flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer"
                 >
                   {isGeneratingAi ? (
                     <>
@@ -651,26 +651,26 @@ export function PinpointAIView() {
             )}
             
             <div className="space-y-2.5 pt-2 text-[10px] font-mono">
-              <div className="flex justify-between items-center pb-2 border-b border-zinc-950">
+              <div className="flex justify-between items-center pb-2 border-b border-black">
                 <span className="text-zinc-500 uppercase text-[8.5px]">Control Regime</span>
-                <span className="text-[#00ff88] font-bold uppercase bg-[#00ff88]/5 px-2 py-0.5 border border-[#00ff88]/10 rounded-xs">
+                <span className="text-[#d4d4d8] font-bold uppercase bg-[#d4d4d8]/5 px-2 py-0.5 border border-[#d4d4d8]/10 rounded-xs">
                   {liveMetrics.bias === 'LONG GAMMA' ? 'Buyers' : 'Sellers'}
                 </span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-zinc-950">
+              <div className="flex justify-between items-center pb-2 border-b border-black">
                 <span className="text-zinc-500 uppercase text-[8.5px]">Expected Range</span>
-                <span className="text-zinc-300 font-bold">{liveMetrics.expectedMovePct}</span>
+                <span className="text-[#4ADE80] font-bold">{liveMetrics.expectedMovePct}</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-zinc-950">
+              <div className="flex justify-between items-center pb-2 border-b border-black">
                 <span className="text-zinc-500 uppercase text-[8.5px]">Gamma State</span>
-                <span className="text-zinc-300 font-bold truncate max-w-[120px]">
+                <span className="text-[#4ADE80] font-bold truncate max-w-[120px]">
                   {liveMetrics.bias === 'LONG GAMMA' ? 'Stable Positive Gamma' : 'Negative Gamma Flip'}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-zinc-950 space-y-2 text-[8.5px] text-zinc-500">
+          <div className="pt-4 border-t border-black space-y-2 text-[8.5px] text-zinc-500">
             <div className="flex items-center gap-1.5">
               <ShieldAlert className="w-3.5 h-3.5 text-zinc-550" />
               <span className="font-extrabold uppercase text-[7.5px]">GEX INVENTORY AUDITED</span>
@@ -682,17 +682,17 @@ export function PinpointAIView() {
         </div>
 
         {/* COLUMN 2: POSITIONING MAP (60%) */}
-        <div className="md:col-span-6 bg-[#050505] border border-zinc-900 rounded-sm p-4 flex flex-col relative overflow-hidden h-full">
+        <div className="md:col-span-6 bg-black border border-black rounded-sm p-4 flex flex-col relative overflow-hidden h-full">
           
           {/* Dual-Tab View Headers */}
-          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center border-b border-zinc-900/40 pb-2.5 mb-3 gap-2">
-            <div className="flex bg-black p-0.5 border border-zinc-900 rounded-xs">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center border-b border-black/40 pb-2.5 mb-3 gap-2">
+            <div className="flex bg-black p-0.5 border border-black rounded-xs">
               <button
                 type="button"
                 onClick={() => setQuantMode('map')}
                 className={`px-3 py-1 text-[8.5px] font-black uppercase tracking-wider rounded-xs transition-colors ${
                   quantMode === 'map'
-                    ? 'bg-zinc-850 text-white border border-zinc-755'
+                    ? 'bg-black text-[#E5E5E5] border border-black'
                     : 'text-zinc-500 hover:text-zinc-350 bg-transparent border border-transparent'
                 }`}
               >
@@ -711,7 +711,7 @@ export function PinpointAIView() {
                 ⚡ ARBOR PHYSICS LAB
               </button>
             </div>
-            <span className="text-[7.5px] bg-black border border-zinc-900 text-zinc-400 px-2 py-1 rounded-sm uppercase tracking-widest font-black self-start sm:self-auto">
+            <span className="text-[7.5px] bg-black border border-black text-zinc-400 px-2 py-1 rounded-sm uppercase tracking-widest font-black self-start sm:self-auto">
               TRACK: {selectedAsset.ticker} {quantMode === 'map' ? '/ COORD-GPS' : '/ PHY-CASCADES'}
             </span>
           </div>
@@ -721,7 +721,7 @@ export function PinpointAIView() {
             <div className="flex-1 flex flex-col animate-fadeIn">
               {/* Canvas coordinate track area */}
               <div 
-                className="flex-1 relative bg-black/45 border border-zinc-950 rounded-sm px-4 overflow-hidden"
+                className="flex-1 relative bg-black/45 border border-black rounded-sm px-4 overflow-hidden"
                 style={{ height: `${containerHeight}px` }}
               >
                 {/* Horizontal line markers */}
@@ -731,7 +731,7 @@ export function PinpointAIView() {
                   return (
                     <div 
                       key={index} 
-                      className="absolute left-0 right-0 border-t border-[#18181b]/70 border-dashed"
+                      className="absolute left-0 right-0 border-t border-black/70 border-dashed"
                       style={{ top: `${lvlY}px` }}
                     />
                   );
@@ -777,7 +777,7 @@ export function PinpointAIView() {
                     
                     {/* Floating glider banner */}
                     <div className="absolute right-0 -top-8 bg-white text-black px-2.5 py-1 rounded-xs font-sans font-black text-[9.5px] uppercase shadow-2xl flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 bg-[#00ff88] rounded-full animate-ping" />
+                      <span className="w-1.5 h-1.5 bg-[#d4d4d8] rounded-full animate-ping" />
                       <span>SPOT PRICE: {(spotPrice ?? 0).toFixed(2)}</span>
                     </div>
                   </div>
@@ -794,7 +794,7 @@ export function PinpointAIView() {
           {quantMode === 'cascade' && (
             <div className="flex-1 flex flex-col justify-between space-y-4 animate-fadeIn text-left text-[10px]">
                   {/* Centered Quant Calibration Deck */}
-              <div className="w-full flex flex-col items-center justify-center bg-[#070708] p-4 rounded border border-zinc-900 text-center relative overflow-hidden shadow-xl">
+              <div className="w-full flex flex-col items-center justify-center bg-black p-4 rounded border border-black text-center relative overflow-hidden shadow-xl">
                 <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#38bdf8]/40 to-transparent" />
                 
                 <div className="flex flex-col items-center gap-1.5">
@@ -809,26 +809,26 @@ export function PinpointAIView() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-3 w-full max-w-2xl mx-auto border-t border-zinc-900/60 pt-4 text-left">
-                  <div className="bg-zinc-950/60 p-2.5 rounded border border-zinc-900 flex flex-col justify-between">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-3 w-full max-w-2xl mx-auto border-t border-black/60 pt-4 text-left">
+                  <div className="bg-black/60 p-2.5 rounded border border-black flex flex-col justify-between">
                     <span className="text-[7.5px] text-zinc-500 font-bold uppercase block tracking-wider">Coupled Elasticity (κ)</span>
-                    <span className="text-sm font-black text-white font-mono mt-0.5">{activeKappa.toFixed(3)}</span>
+                    <span className="text-sm font-black text-[#E5E5E5] font-mono mt-0.5">{activeKappa.toFixed(3)}</span>
                     <span className="text-[7px] text-[#38bdf8]/85 font-black block uppercase font-mono mt-1">
                       {isOverrideEnabled ? '■ MANUAL OVERRIDE' : '● AUTO CALIBRATED'}
                     </span>
                   </div>
                   
-                  <div className="bg-zinc-950/60 p-2.5 rounded border border-zinc-900 flex flex-col justify-between">
+                  <div className="bg-black/60 p-2.5 rounded border border-black flex flex-col justify-between">
                     <span className="text-[7.5px] text-zinc-500 font-bold uppercase block tracking-wider">Mean Reversion Speed (θ)</span>
-                    <span className="text-sm font-black text-white font-mono mt-0.5">{activeTheta.toFixed(3)}</span>
+                    <span className="text-sm font-black text-[#E5E5E5] font-mono mt-0.5">{activeTheta.toFixed(3)}</span>
                     <span className="text-[7px] text-[#38bdf8]/85 font-black block uppercase font-mono mt-1">
                       {isOverrideEnabled ? '■ MANUAL OVERRIDE' : '● AUTO CALIBRATED'}
                     </span>
                   </div>
 
-                  <div className="bg-zinc-950/60 p-2.5 rounded border border-zinc-900 flex flex-col justify-between col-span-1">
+                  <div className="bg-black/60 p-2.5 rounded border border-black flex flex-col justify-between col-span-1">
                     <span className="text-[7.5px] text-zinc-500 font-bold uppercase block tracking-wider">LOB Inventory Target</span>
-                    <span className="text-sm font-black text-cyan-400 font-mono mt-0.5">
+                    <span className="text-sm font-black text-[#4ADE80] font-mono mt-0.5">
                       {activeProfile.openInterestValue.toLocaleString()} OI
                     </span>
                     <span className="text-[7px] text-zinc-550 block uppercase font-mono mt-1">
@@ -842,7 +842,7 @@ export function PinpointAIView() {
                     type="button"
                     disabled={isRunningSim}
                     onClick={runHedgingCascade}
-                    className="w-full bg-gradient-to-r from-cyan-600/20 to-cyan-500/10 hover:from-cyan-500 hover:to-[#0369a1] disabled:from-zinc-900 disabled:to-zinc-950 disabled:text-zinc-650 text-[#38bdf8] hover:text-white font-black text-[9px] uppercase tracking-wider py-2.5 px-6 rounded-md flex items-center justify-center gap-2 transition-all duration-300 border border-[#0369a1]/50 cursor-pointer shadow-[0_4px_12px_rgba(6,182,212,0.06)]"
+                    className="w-full bg-gradient-to-r from-cyan-600/20 to-cyan-500/10 hover:from-cyan-500 hover:to-[#0369a1] disabled:from-zinc-900 disabled:to-zinc-950 disabled:text-zinc-650 text-[#38bdf8] hover:text-[#E5E5E5] font-black text-[9px] uppercase tracking-wider py-2.5 px-6 rounded-md flex items-center justify-center gap-2 transition-all duration-300 border border-[#0369a1]/50 cursor-pointer shadow-[0_4px_12px_rgba(6,182,212,0.06)]"
                   >
                     <Play className="w-3 h-3 shrink-0" />
                     {isRunningSim ? 'COMPILING RECURSIVE DRIFT TRACES...' : 'RUN HEDGING SIMULATOR CASCADE'}
@@ -855,8 +855,8 @@ export function PinpointAIView() {
                     onClick={() => setIsOverrideEnabled(!isOverrideEnabled)}
                     className={`px-3.5 py-1.5 rounded-xs text-[8.5px] tracking-widest uppercase font-black font-mono transition-all duration-200 border flex items-center gap-2 ${
                       isOverrideEnabled 
-                        ? 'bg-rose-950/20 text-rose-400 border-rose-900/60 shadow-[0_0_12px_#f43f5e18]' 
-                        : 'bg-zinc-900/80 hover:bg-zinc-850 text-zinc-400 border-zinc-850 hover:border-zinc-700'
+                        ? 'bg-rose-950/20 text-[#F87171] border-rose-900/60 shadow-[0_0_12px_#f43f5e18]' 
+                        : 'bg-black/80 hover:bg-black text-zinc-400 border-black hover:border-black'
                     }`}
                   >
                     <span className="text-[10px]">⚙</span>
@@ -869,7 +869,7 @@ export function PinpointAIView() {
                   <motion.div 
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-4 p-3.5 bg-zinc-950 border border-zinc-850 rounded-sm w-full max-w-xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 text-left shadow-2xl relative"
+                    className="mt-4 p-3.5 bg-black border border-black rounded-sm w-full max-w-xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 text-left shadow-2xl relative"
                   >
                     <div className="flex flex-col justify-between">
                       <div className="flex justify-between items-center mb-1">
@@ -884,7 +884,7 @@ export function PinpointAIView() {
                         step="0.01"
                         value={kappaCoupling}
                         onChange={(e) => setKappaCoupling(parseFloat(e.target.value))}
-                        className="w-full h-1 bg-zinc-850 rounded-lg cursor-pointer accent-[#38bdf8]"
+                        className="w-full h-1 bg-black rounded-lg cursor-pointer accent-[#38bdf8]"
                       />
                     </div>
 
@@ -901,7 +901,7 @@ export function PinpointAIView() {
                         step="0.05"
                         value={thetaMR}
                         onChange={(e) => setThetaMR(parseFloat(e.target.value))}
-                        className="w-full h-1 bg-zinc-850 rounded-lg cursor-pointer accent-[#38bdf8]"
+                        className="w-full h-1 bg-black rounded-lg cursor-pointer accent-[#38bdf8]"
                       />
                     </div>
                   </motion.div>
@@ -912,53 +912,53 @@ export function PinpointAIView() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 flex-1 items-stretch">
                   
                   {/* Left Column Ledger (Greeks): 4/12 width */}
-                  <div className="lg:col-span-4 bg-zinc-950/45 border border-zinc-900 rounded p-2.5 flex flex-col justify-between space-y-2">
-                    <span className="text-[7.5px] text-zinc-500 font-black uppercase border-b border-zinc-900 pb-1 flex items-center gap-1.5">
-                      <Thermometer className="w-3 h-3 text-cyan-400" />
+                  <div className="lg:col-span-4 bg-black/45 border border-black rounded p-2.5 flex flex-col justify-between space-y-2">
+                    <span className="text-[7.5px] text-zinc-500 font-black uppercase border-b border-black pb-1 flex items-center gap-1.5">
+                      <Thermometer className="w-3 h-3 text-[#4ADE80]" />
                       Analytical Greeks Ledger
                     </span>
                     <div className="space-y-1.5 font-mono text-[9px]">
-                      <div className="flex justify-between items-center py-0.5 border-b border-zinc-900/50">
+                      <div className="flex justify-between items-center py-0.5 border-b border-black/50">
                         <span className="text-zinc-550 uppercase font-bold text-[8.5px]">BSM Delta</span>
                         <span className="text-zinc-200 font-bold">{(simulationResult.bsmGreeks.delta).toFixed(4)}</span>
                       </div>
-                      <div className="flex justify-between items-center py-0.5 border-b border-zinc-900/50">
+                      <div className="flex justify-between items-center py-0.5 border-b border-black/50">
                         <span className="text-zinc-550 uppercase font-bold text-[8.5px]">Gamma Accel</span>
-                        <span className="text-[#00ff88] font-bold">{(simulationResult.bsmGreeks.gamma).toFixed(5)}</span>
+                        <span className="text-[#d4d4d8] font-bold">{(simulationResult.bsmGreeks.gamma).toFixed(5)}</span>
                       </div>
-                      <div className="flex justify-between items-center py-0.5 border-b border-zinc-900/50">
+                      <div className="flex justify-between items-center py-0.5 border-b border-black/50">
                         <span className="text-zinc-550 uppercase font-bold text-[8.5px]">Vanna (dΔ/dV)</span>
                         <span className="text-amber-400 font-bold">{(simulationResult.bsmGreeks.vanna).toFixed(4)}</span>
                       </div>
-                      <div className="flex justify-between items-center py-0.5 border-b border-zinc-900/50">
+                      <div className="flex justify-between items-center py-0.5 border-b border-black/50">
                         <span className="text-zinc-550 uppercase font-bold text-[8.5px]">Charm Day Decay</span>
-                        <span className="text-rose-400 font-bold">{(simulationResult.bsmGreeks.charm).toFixed(5)}</span>
+                        <span className="text-[#F87171] font-bold">{(simulationResult.bsmGreeks.charm).toFixed(5)}</span>
                       </div>
-                      <div className="flex justify-between items-center py-0.5 border-b border-zinc-900/50">
+                      <div className="flex justify-between items-center py-0.5 border-b border-black/50">
                         <span className="text-zinc-550 font-bold text-[8.5px]">Speed (dΓ/dS)</span>
                         <span className="text-zinc-400 font-medium">{(simulationResult.bsmGreeks.speed).toFixed(6)}</span>
                       </div>
-                      <div className="flex justify-between items-center py-0.5 border-b border-zinc-900/50">
+                      <div className="flex justify-between items-center py-0.5 border-b border-black/50">
                         <span className="text-zinc-550 font-bold text-[8.5px]">Color (dΓ/dT)</span>
                         <span className="text-zinc-400 font-medium">{(simulationResult.bsmGreeks.color).toFixed(5)}</span>
                       </div>
-                      <div className="flex justify-between items-center py-0.5 border-b border-zinc-900/50">
-                        <span className="text-cyan-400 uppercase font-black">Dealer GEX</span>
-                        <span className="text-cyan-400 font-black">${(simulationResult.signExposures.gexStrike / 1e6).toFixed(2)}M</span>
+                      <div className="flex justify-between items-center py-0.5 border-b border-black/50">
+                        <span className="text-[#4ADE80] uppercase font-black">Dealer GEX</span>
+                        <span className="text-[#4ADE80] font-black">${(simulationResult.signExposures.gexStrike / 1e6).toFixed(2)}M</span>
                       </div>
                       <div className="flex justify-between items-center text-[9px]">
-                        <span className="text-cyan-400 uppercase font-black">Dealer VEX</span>
-                        <span className="text-cyan-400 font-black">${(simulationResult.signExposures.vexStrike / 1e6).toFixed(2)}M</span>
+                        <span className="text-[#4ADE80] uppercase font-black">Dealer VEX</span>
+                        <span className="text-[#4ADE80] font-black">${(simulationResult.signExposures.vexStrike / 1e6).toFixed(2)}M</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Middle Column Plot (SVI vs Dupire curves): 4/12 width */}
-                  <div className="lg:col-span-4 bg-zinc-950/45 border border-zinc-900 rounded p-2.5 flex flex-col justify-between">
-                    <span className="text-[7.5px] text-zinc-500 font-black uppercase border-b border-zinc-900 pb-1">
+                  <div className="lg:col-span-4 bg-black/45 border border-black rounded p-2.5 flex flex-col justify-between">
+                    <span className="text-[7.5px] text-zinc-500 font-black uppercase border-b border-black pb-1">
                       SVI skew vs Dupire Local Vol (%)
                     </span>
-                    <div className="h-28 w-full bg-black/30 border border-zinc-900 rounded-xs">
+                    <div className="h-28 w-full bg-black/30 border border-black rounded-xs">
                       <svg className="w-full h-full overflow-visible" viewBox="0 0 160 100">
                         {/* Grid lines */}
                         <line x1="10" y1="10" x2="10" y2="90" stroke="#1f2937" strokeWidth="0.5" />
@@ -1001,11 +1001,11 @@ export function PinpointAIView() {
                   </div>
 
                   {/* Right Column Diagram (MC paths cascade): 4/12 width */}
-                  <div className="lg:col-span-4 bg-zinc-950/45 border border-zinc-900 rounded p-2.5 flex flex-col justify-between">
-                    <span className="text-[7.5px] text-zinc-500 font-black uppercase border-b border-zinc-900 pb-1">
+                  <div className="lg:col-span-4 bg-black/45 border border-black rounded p-2.5 flex flex-col justify-between">
+                    <span className="text-[7.5px] text-zinc-500 font-black uppercase border-b border-black pb-1">
                       Euler-Maruyama Drift Trails (Euler)
                     </span>
-                    <div className="h-28 w-full bg-black/30 border border-zinc-900 rounded-xs">
+                    <div className="h-28 w-full bg-black/30 border border-black rounded-xs">
                       <svg className="w-full h-full overflow-visible" viewBox="0 0 160 100">
                         {/* Grid lines */}
                         <line x1="10" y1="10" x2="10" y2="90" stroke="#1f2937" strokeWidth="0.5" />
@@ -1026,7 +1026,7 @@ export function PinpointAIView() {
                                 return `${sIdx === 0 ? 'M' : 'L'} ${x} ${boundedY}`;
                               }).join(' ')}
                               fill="none"
-                              stroke={pIdx % 2 === 0 ? '#10b981' : '#a7f3d0'}
+                              stroke={pIdx % 2 === 0 ? '#d4d4d8' : '#a7f3d0'}
                               strokeWidth="0.4"
                               opacity="0.33"
                             />
@@ -1051,18 +1051,18 @@ export function PinpointAIView() {
                     </div>
                     <div className="text-[7px] text-zinc-550 font-mono flex justify-between mt-1">
                       <span>MEAN PATH: <span className="text-[#38bdf8] font-bold">{simulationResult.mean.toFixed(1)}</span></span>
-                      <span>UNCERTAINTY: <span className="text-zinc-300">±{simulationResult.standardError.toFixed(2)}</span></span>
+                      <span>UNCERTAINTY: <span className="text-[#4ADE80]">±{simulationResult.standardError.toFixed(2)}</span></span>
                     </div>
                   </div>
 
                 </div>
               ) : (
-                <div className="py-12 border border-dashed border-zinc-900 rounded-lg bg-zinc-950/20 text-center flex flex-col items-center justify-center space-y-3.5 max-w-xl mx-auto w-full">
-                  <div className="w-10 h-10 rounded-full bg-zinc-900/60 flex items-center justify-center border border-zinc-850">
+                <div className="py-12 border border-dashed border-black rounded-lg bg-black/20 text-center flex flex-col items-center justify-center space-y-3.5 max-w-xl mx-auto w-full">
+                  <div className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center border border-black">
                     <Activity className="w-5 h-5 text-zinc-500 animate-pulse" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[10px] font-black text-white uppercase tracking-widest font-mono">STOCHASTIC PHYSIC SIMULATIONS STANDBY</p>
+                    <p className="text-[10px] font-black text-[#E5E5E5] uppercase tracking-widest font-mono">STOCHASTIC PHYSIC SIMULATIONS STANDBY</p>
                     <p className="text-[9px] text-zinc-500 max-w-xs mx-auto leading-normal uppercase text-center">
                       Calibration engine initialized. Click below to trigger the recursive Euler drift solvers and plot skew paths.
                     </p>
@@ -1071,7 +1071,7 @@ export function PinpointAIView() {
                     type="button"
                     disabled={isRunningSim}
                     onClick={runHedgingCascade}
-                    className="bg-zinc-900 hover:bg-zinc-850 text-white font-black text-[8px] uppercase tracking-wider py-2 px-4 rounded border border-zinc-800 cursor-pointer flex items-center gap-1.5 transition-all"
+                    className="bg-black hover:bg-black text-[#E5E5E5] font-black text-[8px] uppercase tracking-wider py-2 px-4 rounded border border-black cursor-pointer flex items-center gap-1.5 transition-all"
                   >
                     <Play className="w-2.5 h-2.5 text-[#38bdf8]" />
                     {isRunningSim ? 'COMPILING RECURSIVE PATTERNS...' : 'INITIALIZE SIMULATION'}
@@ -1081,10 +1081,10 @@ export function PinpointAIView() {
 
               {/* Bottom Bayesian Regime classification panel */}
               {simulationResult && (
-                <div className="bg-zinc-950/80 p-3 rounded border border-zinc-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                <div className="bg-black/80 p-3 rounded border border-black flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                   <div className="flex flex-col text-left shrink-0">
                     <span className="text-[7.5px] text-zinc-550 font-black uppercase">BAYESIAN REGIME MODEL 6</span>
-                    <span className="text-[#00ff88] text-[10px] font-black uppercase tracking-wider mt-0.5">
+                    <span className="text-[#d4d4d8] text-[10px] font-black uppercase tracking-wider mt-0.5">
                       {simulationResult.regime.replace('_', ' ')}
                     </span>
                   </div>
@@ -1095,8 +1095,8 @@ export function PinpointAIView() {
                         <span>PIN</span>
                         <span>{Math.round(simulationResult.posteriors.STABILIZED_PIN * 100)}%</span>
                       </div>
-                      <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
-                        <div className="bg-[#10b981] h-full" style={{ width: `${simulationResult.posteriors.STABILIZED_PIN * 100}%` }} />
+                      <div className="w-full h-1 bg-black rounded-full overflow-hidden">
+                        <div className="bg-black h-full" style={{ width: `${simulationResult.posteriors.STABILIZED_PIN * 100}%` }} />
                       </div>
                     </div>
                     <div>
@@ -1104,7 +1104,7 @@ export function PinpointAIView() {
                         <span>TRANS</span>
                         <span>{Math.round(simulationResult.posteriors.VOLATILITY_TRANSITION * 100)}%</span>
                       </div>
-                      <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
+                      <div className="w-full h-1 bg-black rounded-full overflow-hidden">
                         <div className="bg-[#38bdf8] h-full" style={{ width: `${simulationResult.posteriors.VOLATILITY_TRANSITION * 100}%` }} />
                       </div>
                     </div>
@@ -1113,13 +1113,13 @@ export function PinpointAIView() {
                         <span>SQUEEZE</span>
                         <span>{Math.round(simulationResult.posteriors.AMPLIFIED_SQUEEZE * 100)}%</span>
                       </div>
-                      <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
+                      <div className="w-full h-1 bg-black rounded-full overflow-hidden">
                         <div className="bg-rose-500 h-full" style={{ width: `${simulationResult.posteriors.AMPLIFIED_SQUEEZE * 100}%` }} />
                       </div>
                     </div>
                   </div>
 
-                  <div className="border bg-black border-zinc-900 p-2 rounded text-[8.5px] leading-relaxed text-zinc-400 font-sans flex-1">
+                  <div className="border bg-black border-black p-2 rounded text-[8.5px] leading-relaxed text-zinc-400 font-sans flex-1">
                     {simulationResult.regime === 'STABILIZED_PIN' ? (
                       <span><strong>AI COMM:</strong> Volatility suppression remains likely since price has a stabilized long gamma pin. Dealers remains stable.</span>
                     ) : simulationResult.regime === 'VOLATILITY_TRANSITION' ? (
@@ -1140,25 +1140,25 @@ export function PinpointAIView() {
         </div>
 
         {/* COLUMN 3: CONTEXT (20%) */}
-        <div className="md:col-span-3 flex flex-col bg-[#050505] border border-zinc-900 rounded-sm p-4 justify-between h-full text-left">
+        <div className="md:col-span-3 flex flex-col bg-black border border-black rounded-sm p-4 justify-between h-full text-left">
           <div className="space-y-4">
-            <div className="border-b border-zinc-900 pb-2">
+            <div className="border-b border-black pb-2">
               <span className="text-[7.5px] text-zinc-500 uppercase tracking-widest font-black block">DECISION ENGINE DATA</span>
-              <h3 className="text-[11px] font-black text-white uppercase tracking-wider mt-0.5">
+              <h3 className="text-[11px] font-black text-[#E5E5E5] uppercase tracking-wider mt-0.5">
                 Context Indicators
               </h3>
             </div>
 
             <div className="space-y-3 font-mono text-[10px]">
               {/* NYSE CLOSE COUNTDOWN */}
-              <div className="p-2 bg-black border border-zinc-900 rounded-xs space-y-1">
+              <div className="p-2 bg-black border border-black rounded-xs space-y-1">
                 <div className="flex justify-between items-center text-[8px] text-zinc-500 font-bold uppercase">
                   <span>NYSE Market State</span>
-                  <span className={marketState.open ? 'text-[#00ff88]' : 'text-amber-500'}>
+                  <span className={marketState.open ? 'text-[#d4d4d8]' : 'text-amber-500'}>
                     {marketState.open ? 'OPEN' : 'CLOSED'}
                   </span>
                 </div>
-                <div className="text-base font-black text-white tracking-widest">
+                <div className="text-base font-black text-[#E5E5E5] tracking-widest">
                   {marketState.open ? marketState.closeIn : marketState.openIn}
                 </div>
                 <div className="text-[7.5px] text-zinc-600 uppercase">
@@ -1168,21 +1168,21 @@ export function PinpointAIView() {
 
               {/* HEURISTIC VOL ANALYSIS */}
               <div className="space-y-2 pt-1">
-                <div className="flex justify-between items-center pb-1.5 border-b border-zinc-950">
+                <div className="flex justify-between items-center pb-1.5 border-b border-black">
                   <span className="text-zinc-500 text-[8.5px] uppercase">G Greeks</span>
-                  <span className={`font-bold font-mono ${liveMetrics.volState === 'EXPANDED' ? 'text-rose-400' : 'text-emerald-400'}`}>
+                  <span className={`font-bold font-mono ${liveMetrics.volState === 'EXPANDED' ? 'text-[#F87171]' : 'text-[#4ADE80]'}`}>
                     {liveMetrics.volState === 'EXPANDED' ? 'EXPANDING' : 'DAMPENED'}
                   </span>
                 </div>
-                <div className="flex justify-between items-center pb-1.5 border-b border-[#0f0f12]">
+                <div className="flex justify-between items-center pb-1.5 border-b border-black">
                   <span className="text-zinc-500 text-[8.5px] uppercase">Market Flow Rate</span>
-                  <span className="text-zinc-300 font-bold text-xs">
+                  <span className="text-[#4ADE80] font-bold text-xs">
                     {serverState?.metricsV11?.flow?.flowRate 
                       ? `${serverState.metricsV11.flow.flowRate.toFixed(1)} / s` 
                       : '14.2 / s'}
                   </span>
                 </div>
-                <div className="flex justify-between items-center pb-1.5 border-b border-[#0f0f12]">
+                <div className="flex justify-between items-center pb-1.5 border-b border-black">
                   <span className="text-zinc-500 text-[8.5px] uppercase">Decision Score</span>
                   <span className="text-[#4f8cff] font-bold">
                     {serverState?.trade_health || activeContract?.health || 88}/100
@@ -1192,7 +1192,7 @@ export function PinpointAIView() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-zinc-950 text-center text-zinc-650 space-y-1">
+          <div className="pt-3 border-t border-black text-center text-zinc-650 space-y-1">
             <span className="text-[7.5px] font-bold text-zinc-550 block uppercase tracking-wider">DONE.</span>
             <span className="text-[10px] text-zinc-650 leading-relaxed font-sans block">
               Order values represent gross index exposure on major dealer inventory maps.
@@ -1203,21 +1203,21 @@ export function PinpointAIView() {
       </div>
 
       {/* UNIQUE BOTTOM DESK: QUANTITATIVE ATTRIBUTION ENGINE & RELATIVE VOLUME HEATMAP */}
-      <div className={`border rounded-sm p-4 flex flex-col gap-4 text-left ${isLight ? 'bg-white border-zinc-200 shadow-sm text-zinc-900' : 'bg-[#050505] border-zinc-900 shadow-2xl text-zinc-100'}`}>
+      <div className={`border rounded-sm p-4 flex flex-col gap-4 text-left ${isLight ? 'bg-white border-black shadow-sm text-zinc-900' : 'bg-black border-black shadow-2xl text-zinc-100'}`}>
         
         {/* HEADER BAR */}
-        <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-2 ${isLight ? 'border-zinc-200' : 'border-zinc-900'}`}>
+        <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-2 ${isLight ? 'border-black' : 'border-black'}`}>
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#10b981]" />
-            <span className={`text-xs font-black uppercase tracking-widest font-mono ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+            <Layers className="w-4 h-4 text-[#4ADE80]" />
+            <span className={`text-xs font-black uppercase tracking-widest font-mono ${isLight ? 'text-zinc-900' : 'text-[#E5E5E5]'}`}>
               QUANT INDEX ATTRIBUTION & RVOL HEATMAP
             </span>
-            <span className={`hidden sm:inline-block text-[8px] border px-2 py-0.5 rounded uppercase font-bold ${isLight ? 'text-zinc-500 border-zinc-250 bg-zinc-50' : 'text-zinc-550 border-zinc-900'}`}>
+            <span className={`hidden sm:inline-block text-[8px] border px-2 py-0.5 rounded uppercase font-bold ${isLight ? 'text-zinc-500 border-black bg-zinc-50' : 'text-zinc-550 border-black'}`}>
               SYS-ID: {selectedAsset.ticker}-RVOL-30D
             </span>
           </div>
-          <span className="text-[8px] text-[#10b981] font-bold uppercase tracking-widest font-mono flex items-center gap-1.5 animate-pulse">
-            <span className="w-1.5 h-1.5 bg-[#10b981] rounded-full" />
+          <span className="text-[8px] text-[#d4d4d8] font-bold uppercase tracking-widest font-mono flex items-center gap-1.5 animate-pulse">
+            <span className="w-1.5 h-1.5 bg-[#d4d4d8] rounded-full" />
             30-DAY STATISTICAL REGRESSION LIVE
           </span>
         </div>
@@ -1233,17 +1233,17 @@ export function PinpointAIView() {
             {attributionFlags.map((flag) => (
               <div 
                 key={flag.id}
-                className={`border rounded-md p-3 flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-800 transition-all relative overflow-hidden group ${isLight ? 'bg-zinc-50 border-zinc-200' : 'bg-zinc-950/50 border-zinc-900/60'}`}
+                className={`border rounded-md p-3 flex flex-col justify-between hover:border-black dark:hover:border-black transition-all relative overflow-hidden group ${isLight ? 'bg-zinc-50 border-black' : 'bg-black/50 border-black/60'}`}
               >
                 {/* Glowing subtle top border for flags to look high end and unique */}
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500/20 via-[#4f8cff]/10 to-transparent" />
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-zinc-300/20 via-[#4f8cff]/10 to-transparent" />
                 
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className={`text-[10px] font-black font-mono uppercase tracking-wide group-hover:text-[#10b981] transition-colors ${isLight ? 'text-zinc-800' : 'text-white'}`}>
+                    <span className={`text-[10px] font-black font-mono uppercase tracking-wide group-hover:text-[#d4d4d8] transition-colors ${isLight ? 'text-zinc-800' : 'text-[#E5E5E5]'}`}>
                       {flag.name}
                     </span>
-                    <span className="text-[9.5px] font-black text-[#10b981] bg-[#10b981]/5 px-2 py-0.5 border border-[#10b981]/15 rounded-xs">
+                    <span className="text-[9.5px] font-black text-[#d4d4d8] bg-[#d4d4d8]/5 px-2 py-0.5 border border-black rounded-xs">
                       {flag.value}
                     </span>
                   </div>
@@ -1252,7 +1252,7 @@ export function PinpointAIView() {
                   </p>
                 </div>
                 
-                <div className={`border-t mt-2.5 pt-2 flex justify-between items-center text-[7.5px] text-zinc-500 uppercase tracking-widest ${isLight ? 'border-zinc-200/65' : 'border-zinc-950'}`}>
+                <div className={`border-t mt-2.5 pt-2 flex justify-between items-center text-[7.5px] text-zinc-500 uppercase tracking-widest ${isLight ? 'border-black' : 'border-black'}`}>
                   <span>METRIC FIELD</span>
                   <span className={`font-bold ${isLight ? 'text-zinc-700' : 'text-zinc-400'}`}>{flag.label}</span>
                 </div>
@@ -1262,16 +1262,16 @@ export function PinpointAIView() {
         </div>
 
         {/* 1.5 DYNAMIC RVOL MINI-HEATMAP TRACKER */}
-        <div className={`border rounded-md p-3.5 space-y-2.5 relative overflow-hidden text-left ${isLight ? 'bg-zinc-50/50 border-zinc-200' : 'bg-black/50 border-zinc-900'}`}>
+        <div className={`border rounded-md p-3.5 space-y-2.5 relative overflow-hidden text-left ${isLight ? 'bg-zinc-50/50 border-black' : 'bg-black/50 border-black'}`}>
           <div className="flex justify-between items-center text-[8.5px] uppercase tracking-widest font-mono">
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />
-              <span className={`font-extrabold ${isLight ? 'text-zinc-700' : 'text-zinc-300'}`}>RELATIVE VOLUME (RVOL) MINI-INTENSITY GRID</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#d4d4d8] animate-pulse" />
+              <span className={`font-extrabold ${isLight ? 'text-zinc-700' : 'text-[#4ADE80]'}`}>RELATIVE VOLUME (RVOL) MINI-INTENSITY GRID</span>
             </div>
             <div className="flex items-center gap-3 text-zinc-500 font-bold">
-              <span>30D BENCHMARK AVERAGE: <span className={isLight ? 'text-zinc-900 font-black' : 'text-white'}>1.00x</span></span>
+              <span>30D BENCHMARK AVERAGE: <span className={isLight ? 'text-zinc-900 font-black' : 'text-[#E5E5E5]'}>1.00x</span></span>
               <span>|</span>
-              <span>TODAY'S INTENSITY: <span className="text-[#10b981]">{rvolData[29].rvol.toFixed(2)}x vs Mean</span></span>
+              <span>TODAY'S INTENSITY: <span className="text-[#d4d4d8]">{rvolData[29].rvol.toFixed(2)}x vs Mean</span></span>
             </div>
           </div>
 
@@ -1283,8 +1283,8 @@ export function PinpointAIView() {
               
               // Multi-state custom styling matching light or dark mode
               let colorClasses = isLight 
-                ? "bg-zinc-100 border-zinc-200 text-zinc-400" 
-                : "bg-zinc-950/80 border-zinc-900 text-zinc-650";
+                ? "bg-black border-black text-zinc-400" 
+                : "bg-black/80 border-black text-zinc-650";
               let shadowClass = "";
 
               if (rvol >= 2.5) {
@@ -1294,13 +1294,13 @@ export function PinpointAIView() {
                 shadowClass = "shadow-[0_0_8px_rgba(245,158,11,0.15)]";
               } else if (rvol >= 1.5) {
                 colorClasses = isLight 
-                  ? "bg-emerald-100 border-emerald-300 text-emerald-800"
-                  : "bg-gradient-to-t from-emerald-600/25 to-emerald-500/10 border-emerald-500 text-[#00ff88]";
-                shadowClass = "shadow-[0_0_8px_rgba(16,185,129,0.1)]";
+                  ? "bg-[#4ADE80]/20 border-[#4ADE80]/40 text-emerald-800"
+                  : "bg-gradient-to-t from-[#4ADE80]/30 to-[#4ADE80]/10 border-[#4ADE80]/60 text-[#4ADE80]";
+                shadowClass = "shadow-[0_0_8px_rgba(0,255,136,0.2)]";
               } else if (rvol >= 0.8) {
                 colorClasses = isLight 
-                  ? "bg-emerald-50/50 border-emerald-100 text-emerald-700"
-                  : "bg-gradient-to-t from-emerald-950/20 to-emerald-900/5 border-emerald-900/60 text-[#10b981]/80";
+                  ? "bg-[#4ADE80]/10 border-[#4ADE80]/20 text-emerald-700"
+                  : "bg-gradient-to-t from-[#4ADE80]/20 to-[#4ADE80]/5 border-[#4ADE80]/30 text-[#4ADE80]/80";
               }
 
               return (
@@ -1317,37 +1317,37 @@ export function PinpointAIView() {
                     {rvol.toFixed(1)}x
                   </span>
                   {isToday && (
-                    <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />
+                    <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#d4d4d8] animate-pulse" />
                   )}
                 </div>
               );
             })}
           </div>
           
-          <div className="flex justify-between items-center text-[7.5px] text-zinc-550 font-mono uppercase tracking-wider pt-1 border-t border-zinc-950 border-dashed">
+          <div className="flex justify-between items-center text-[7.5px] text-zinc-550 font-mono uppercase tracking-wider pt-1 border-t border-black border-dashed">
             <span>T-15 SWELL PROFILE REGISTER</span>
             <span>TREND HEURISTIC: {rvolData[29].rvol >= 2.5 ? "ACCELERATING INSTITUTIONAL FRONT-LOAD DETECTIONS" : rvolData[29].rvol >= 1.1 ? "MODERATE LIQUIDITY SUSTENANCE" : "CONSOLIDATIVE PIN REGIME DRIFT"}</span>
-            <span className="text-[#10b981] font-extrabold flex items-center gap-1">
-              <span className="w-1 h-1 rounded-full bg-emerald-400 animate-ping" />
+            <span className="text-[#d4d4d8] font-extrabold flex items-center gap-1">
+              <span className="w-1 h-1 rounded-full bg-black/40 animate-ping" />
               SYNCHRONOUS
             </span>
           </div>
         </div>
 
         {/* 2. HEATMAP SECTION */}
-        <div className="border-t border-zinc-900/60 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        <div className="border-t border-black/60 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
           
           {/* Heat map bar (8/12 cols) */}
-          <div className={`lg:col-span-8 flex flex-col justify-between p-3.5 border rounded-md ${isLight ? 'bg-zinc-50 border-zinc-200' : 'bg-zinc-950/45 border-zinc-900/40'}`}>
+          <div className={`lg:col-span-8 flex flex-col justify-between p-3.5 border rounded-md ${isLight ? 'bg-zinc-50 border-black' : 'bg-black/45 border-black/40'}`}>
             <div className="space-y-1.5 mb-3.5 text-left">
               <div className="flex justify-between items-center">
                 <span className={`text-[9px] font-bold uppercase tracking-widest ${isLight ? 'text-zinc-700' : 'text-[#888888]'}`}>
                   30-Session Volume Intensity Grid (T-30 to Today)
                 </span>
                 <div className="flex gap-3 text-[8px] text-zinc-500 uppercase font-black">
-                  <span className="flex items-center gap-1"><span className={`w-2 h-2 rounded border ${isLight ? 'bg-zinc-100 border-zinc-300' : 'bg-zinc-900/30 border-zinc-855'}`} /> Low Vol</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-emerald-500/30" /> Normal</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-[#10b981]" /> High Vol</span>
+                  <span className="flex items-center gap-1"><span className={`w-2 h-2 rounded border ${isLight ? 'bg-black border-black' : 'bg-black/30 border-black'}`} /> Low Vol</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-[#4ADE80] text-black/30" /> Normal</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-[#d4d4d8]" /> High Vol</span>
                   <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-amber-500" /> Spike Surge</span>
                 </div>
               </div>
@@ -1400,14 +1400,14 @@ export function PinpointAIView() {
               <div className="flex justify-between items-center text-[7.5px] text-zinc-500 uppercase tracking-widest pt-2">
                 <span>30 Sessions Ago</span>
                 <span className={isLight ? 'text-zinc-500 font-semibold' : 'text-zinc-650'}>Hover tiles for exact values</span>
-                <span className="text-[#10b981] font-black">Live Trading Session</span>
+                <span className="text-[#d4d4d8] font-black">Live Trading Session</span>
               </div>
             </div>
 
           </div>
 
           {/* Real-time details board (4/12 cols) */}
-          <div className={`lg:col-span-4 border rounded-md p-4 flex flex-col justify-between ${isLight ? 'bg-zinc-50 border-zinc-200' : 'bg-zinc-950/60 border-zinc-900/60'}`}>
+          <div className={`lg:col-span-4 border rounded-md p-4 flex flex-col justify-between ${isLight ? 'bg-zinc-50 border-black' : 'bg-black/60 border-black/60'}`}>
             {(() => {
               const activeIndex = hoveredCellIndex !== null ? hoveredCellIndex : 29;
               const cellData = rvolData[activeIndex];
@@ -1416,7 +1416,7 @@ export function PinpointAIView() {
               
               // Determine description of volume state
               let statusText = 'Routine Trade Range';
-              let statusColor = 'text-emerald-500';
+              let statusColor = 'text-[#4ADE80]';
               if (intensity < 0.7) {
                 statusText = 'Illiquid Trading Range';
                 statusColor = isLight ? 'text-zinc-500' : 'text-zinc-540';
@@ -1425,36 +1425,36 @@ export function PinpointAIView() {
                 statusColor = 'text-amber-500 animate-pulse';
               } else if (intensity > 1.5) {
                 statusText = 'Dense Volume Expansion';
-                statusColor = 'text-[#10b981]';
+                statusColor = 'text-[#d4d4d8]';
               }
 
               return (
                 <div className="h-full flex flex-col justify-between space-y-3 text-left">
-                  <div className={`border-b pb-2 flex justify-between items-start ${isLight ? 'border-zinc-200' : 'border-zinc-900'}`}>
+                  <div className={`border-b pb-2 flex justify-between items-start ${isLight ? 'border-black' : 'border-black'}`}>
                     <div>
-                      <span className="text-[7.5px] text-[#10b981] uppercase font-black tracking-widest block">
+                      <span className="text-[7.5px] text-[#d4d4d8] uppercase font-black tracking-widest block">
                         Interactive RVOL Audit
                       </span>
-                      <h4 className={`text-[10px] font-black uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-800' : 'text-white'}`}>
+                      <h4 className={`text-[10px] font-black uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-800' : 'text-[#E5E5E5]'}`}>
                         {isToday ? "Today's Live Session" : `Session Day T-${cellData.dayIndex}`}
                       </h4>
                     </div>
-                    <span className={`text-[7.5px] border px-2 py-0.5 rounded uppercase font-bold ${isLight ? 'bg-zinc-100 border-zinc-200 text-zinc-600' : 'bg-zinc-900 border-zinc-800 text-zinc-400'}`}>
+                    <span className={`text-[7.5px] border px-2 py-0.5 rounded uppercase font-bold ${isLight ? 'bg-black border-black text-zinc-600' : 'bg-black border-black text-zinc-400'}`}>
                       {isToday ? 'Live Feed' : 'Historical'}
                     </span>
                   </div>
 
                   <div className="space-y-2.5 font-mono text-[10px]">
-                    <div className={`flex justify-between items-center pb-1.5 border-b ${isLight ? 'border-zinc-250/50' : 'border-zinc-900/40'}`}>
+                    <div className={`flex justify-between items-center pb-1.5 border-b ${isLight ? 'border-black' : 'border-black/40'}`}>
                       <span className="text-zinc-500 text-[8px] uppercase">Multiplier vs. 30D Mean</span>
-                      <span className={`font-black text-xs ${intensity > 2.5 ? 'text-amber-500' : 'text-[#10b981]'}`}>
+                      <span className={`font-black text-xs ${intensity > 2.5 ? 'text-amber-500' : 'text-[#d4d4d8]'}`}>
                         {intensity.toFixed(2)}x
                       </span>
                     </div>
 
-                    <div className={`flex justify-between items-center pb-1.5 border-b ${isLight ? 'border-zinc-250/50' : 'border-zinc-900/40'}`}>
+                    <div className={`flex justify-between items-center pb-1.5 border-b ${isLight ? 'border-black' : 'border-black/40'}`}>
                       <span className="text-zinc-500 text-[8px] uppercase">GEX Notional Flow</span>
-                      <span className={`font-extrabold ${isLight ? 'text-zinc-800' : 'text-white'}`}>
+                      <span className={`font-extrabold ${isLight ? 'text-zinc-800' : 'text-[#E5E5E5]'}`}>
                         ${cellData.notional.toFixed(1)}M
                       </span>
                     </div>
@@ -1465,8 +1465,8 @@ export function PinpointAIView() {
                         <span>CALL BIAS: {cellData.calls}%</span>
                         <span>PUT BIAS: {cellData.puts}%</span>
                       </div>
-                      <div className="w-full h-1.5 bg-rose-500 rounded-full overflow-hidden flex">
-                        <div className="bg-[#10b981] h-full" style={{ width: `${cellData.calls}%` }} />
+                      <div className="w-full h-1.5 bg-[#F87171] rounded-full overflow-hidden flex">
+                        <div className="bg-[#4ADE80] h-full" style={{ width: `${cellData.calls}%` }} />
                       </div>
                     </div>
 
@@ -1478,7 +1478,7 @@ export function PinpointAIView() {
                     </div>
                   </div>
 
-                  <div className={`pt-2 border-t text-[8px] font-sans leading-normal text-left ${isLight ? 'border-zinc-200 text-zinc-600' : 'border-zinc-900 text-zinc-500'}`}>
+                  <div className={`pt-2 border-t text-[8px] font-sans leading-normal text-left ${isLight ? 'border-black text-zinc-600' : 'border-black text-zinc-500'}`}>
                     {intensity > 2.5 ? (
                       <span className="text-amber-600 dark:text-amber-500/90 font-semibold block">
                         ⚠️ Extreme relative volume spike represents unusual block orders, likely indicating front-loaded institutional positioning.
@@ -1549,13 +1549,13 @@ function getCellStyle(rvol: number, isLight: boolean) {
     if (rvol < 0.7) return { bg: '#f4f4f5', text: '#71717a', border: '#e4e4e7', glow: 'none' };
     if (rvol < 1.2) return { bg: '#e6fcf0', text: '#047857', border: '#a7f3d0', glow: 'none' };
     if (rvol < 1.8) return { bg: '#a7f3d0', text: '#065f46', border: '#6ee7b7', glow: 'none' };
-    if (rvol < 2.5) return { bg: '#34d399', text: '#044e37', border: '#10b981', glow: 'none' };
+    if (rvol < 2.5) return { bg: '#67e8f9', text: '#082f49', border: '#d4d4d8', glow: 'none' };
     return { bg: '#f59e0b', text: '#78350f', border: '#d97706', glow: '0 0 8px rgba(245,158,11,0.3)' };
   } else {
     if (rvol < 0.7) return { bg: '#0c0c0e', text: '#52525b', border: '#18181b', glow: 'none' };
-    if (rvol < 1.2) return { bg: 'rgba(16,185,129,0.12)', text: '#10b981', border: 'rgba(16,185,129,0.25)', glow: 'none' };
-    if (rvol < 1.8) return { bg: 'rgba(16,185,129,0.3)', text: '#10b981', border: 'rgba(16,185,129,0.5)', glow: 'none' };
-    if (rvol < 2.5) return { bg: 'rgba(16,185,129,0.65)', text: '#ffffff', border: '#10b981', glow: '0 0 8px rgba(16,185,129,0.2)' };
+    if (rvol < 1.2) return { bg: 'rgba(16,185,129,0.12)', text: '#d4d4d8', border: 'rgba(16,185,129,0.25)', glow: 'none' };
+    if (rvol < 1.8) return { bg: 'rgba(16,185,129,0.3)', text: '#d4d4d8', border: 'rgba(16,185,129,0.5)', glow: 'none' };
+    if (rvol < 2.5) return { bg: 'rgba(16,185,129,0.65)', text: '#ffffff', border: '#d4d4d8', glow: '0 0 8px rgba(16,185,129,0.2)' };
     return { bg: 'rgba(245,158,11,0.85)', text: '#000000', border: '#f59e0b', glow: '0 0 12px rgba(245,158,11,0.5)' };
   }
 }

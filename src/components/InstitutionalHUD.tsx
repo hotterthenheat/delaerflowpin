@@ -29,7 +29,7 @@ export function InstitutionalHUD() {
     if (text.includes('CRITICAL')) {
       return {
         borderColor: 'border-rose-500/30',
-        textColor: 'text-rose-450',
+        textColor: 'text-[#F87171]',
         dotColor: 'bg-rose-500',
         glowColor: 'shadow-rose-500/20',
         desc: 'Elevated tail stress. High dynamic hedging required.'
@@ -44,10 +44,10 @@ export function InstitutionalHUD() {
       };
     } else {
       return {
-        borderColor: 'border-zinc-800',
-        textColor: 'text-emerald-400',
-        dotColor: 'bg-emerald-500',
-        glowColor: 'shadow-emerald-500/20',
+        borderColor: 'border-black',
+        textColor: 'text-[#4ADE80]',
+        dotColor: 'bg-[#4ADE80] text-black',
+        glowColor: 'shadow-zinc-300/20',
         desc: 'System remains within normal statistical bounds. Stable core.'
       };
     }
@@ -71,15 +71,15 @@ export function InstitutionalHUD() {
       {/* Cockpit top banner */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/5 pb-3.5 mb-5 gap-3">
         <div className="flex items-center gap-2">
-          <Cpu className="w-4 h-4 text-emerald-400 animate-pulse" />
-          <span className="text-[10px] text-white tracking-[0.25em] uppercase font-black font-sans leading-none">
+          <Cpu className="w-4 h-4 text-[#4ADE80] animate-pulse" />
+          <span className="text-[10px] text-[#E5E5E5] tracking-[0.25em] uppercase font-black font-sans leading-none">
             INSTITUTIONAL COCKPIT HUD / SYSTEM MATRIX
           </span>
         </div>
         <div className="flex items-center gap-4 text-[8px] font-mono text-zinc-400 tracking-wider">
           <div className="flex items-center gap-1.5 bg-white/5 px-2 py-0.5 border border-white/10 rounded-xs">
             <Terminal className="w-3 h-3 text-zinc-500" />
-            <span className="text-zinc-300">STREAMING CORE: REAL-TIME SEC</span>
+            <span className="text-[#4ADE80]">STREAMING CORE: REAL-TIME SEC</span>
           </div>
           <span className="hidden sm:inline-block">REGION: CONTINUOUS INTEGRITY S2</span>
         </div>
@@ -98,7 +98,7 @@ export function InstitutionalHUD() {
               </span>
             </div>
             <div className="pt-1.5">
-              <span className={`text-sm md:text-base font-black tracking-tight ${isNegativeReflexivity ? 'text-rose-400' : 'text-white'}`}>
+              <span className={`text-sm md:text-base font-black tracking-tight ${isNegativeReflexivity ? 'text-[#F87171]' : 'text-[#E5E5E5]'}`}>
                 {metrics.reflexivity_vector}
               </span>
             </div>
@@ -139,7 +139,7 @@ export function InstitutionalHUD() {
               </span>
             </div>
             <div className="pt-1.5">
-              <span className="text-xs md:text-sm font-black text-white uppercase tracking-tight">
+              <span className="text-xs md:text-sm font-black text-[#E5E5E5] uppercase tracking-tight">
                 {metrics.campaign_state}
               </span>
             </div>

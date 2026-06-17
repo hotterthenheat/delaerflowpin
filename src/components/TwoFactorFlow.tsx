@@ -117,9 +117,9 @@ export function TwoFactorFlow() {
 
   if (step === 0) {
     return (
-      <div className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-lg flex items-center justify-between transition-all">
+      <div className="p-4 bg-black/50 border border-black rounded-lg flex items-center justify-between transition-all">
         <div>
-          <div className="text-sm font-bold text-white mb-1 flex items-center gap-1.5">
+          <div className="text-sm font-bold text-[#E5E5E5] mb-1 flex items-center gap-1.5">
             <Shield className="w-4 h-4 text-indigo-400" />
             Two-Factor Authentication (TOTP)
           </div>
@@ -127,7 +127,7 @@ export function TwoFactorFlow() {
         </div>
         <button 
           onClick={startSetup}
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg cursor-pointer transition-colors whitespace-nowrap"
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] text-xs font-bold rounded-lg cursor-pointer transition-colors whitespace-nowrap"
         >
           Enable 2FA
         </button>
@@ -137,9 +137,9 @@ export function TwoFactorFlow() {
 
   return (
     <div className="p-5 bg-black/40 border border-indigo-500/30 rounded-xl space-y-4 animate-fadeIn transition-all">
-      <div className="flex items-center gap-2 mb-2 pb-3 border-b border-zinc-900/80">
+      <div className="flex items-center gap-2 mb-2 pb-3 border-b border-black/80">
         <Shield className="w-4 h-4 text-indigo-400 animate-pulse" />
-        <h3 className="text-sm font-bold text-white uppercase tracking-wider">2FA Compliance Setup</h3>
+        <h3 className="text-sm font-bold text-[#E5E5E5] uppercase tracking-wider">2FA Compliance Setup</h3>
       </div>
 
       {step === 1 && (
@@ -156,16 +156,16 @@ export function TwoFactorFlow() {
               placeholder="Confirm Current Password" 
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full mirror-panel rounded-lg px-3 py-2 text-sm text-[#E5E5E5] focus:outline-none focus:border-indigo-500 transition-colors"
             />
             {error && <div className="text-xs font-bold text-rose-500">{error}</div>}
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setStep(0)} className="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-white transition-colors cursor-pointer">Cancel</button>
+            <button onClick={() => setStep(0)} className="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-[#E5E5E5] transition-colors cursor-pointer">Cancel</button>
             <button 
               onClick={handlePasswordSubmit} 
               disabled={isLoading}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-2"
             >
               {isLoading ? 'Processing...' : 'Verify Password'} <ChevronRight className="w-3 h-3" />
             </button>
@@ -178,7 +178,7 @@ export function TwoFactorFlow() {
           <div className="text-xs text-zinc-400 leading-relaxed">
             <strong>Configure Authenticator.</strong> Scan this code with Google Authenticator, Authy, or MS Authenticator.
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start bg-zinc-950 p-4 border border-zinc-900 rounded-lg">
+          <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start bg-black p-4 border border-black rounded-lg">
             <div className="w-32 h-32 bg-white rounded-lg p-2 shrink-0 border-2 border-indigo-500/30 flex items-center justify-center">
               {otpauthUrl && (
                 <img 
@@ -190,11 +190,11 @@ export function TwoFactorFlow() {
             </div>
             <div className="space-y-2 flex-1 w-full text-left">
               <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Raw Private Key (Manual Entry)</span>
-              <div className="flex border border-zinc-800 rounded-lg overflow-hidden bg-black w-full">
-                <div className="flex-1 px-3 py-2 text-xs font-mono text-zinc-300 select-all truncate">{secret}</div>
+              <div className="flex border border-black rounded-lg overflow-hidden bg-black w-full">
+                <div className="flex-1 px-3 py-2 text-xs font-mono text-[#4ADE80] select-all truncate">{secret}</div>
                 <button 
                   onClick={copySecret}
-                  className="px-3 bg-zinc-900 border-l border-zinc-800 hover:bg-zinc-800 text-zinc-300 cursor-pointer transition-colors"
+                  className="px-3 bg-black border-l border-black hover:bg-black text-[#4ADE80] cursor-pointer transition-colors"
                 >
                   {copied ? 'Copied' : <Copy className="w-3 h-3" />}
                 </button>
@@ -205,10 +205,10 @@ export function TwoFactorFlow() {
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setStep(0)} className="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-white transition-colors cursor-pointer">Cancel Setup</button>
+            <button onClick={() => setStep(0)} className="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-[#E5E5E5] transition-colors cursor-pointer">Cancel Setup</button>
             <button 
               onClick={() => setStep(3)} 
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-2"
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-2"
             >
               Verify Code <ChevronRight className="w-3 h-3" />
             </button>
@@ -228,16 +228,16 @@ export function TwoFactorFlow() {
               maxLength={6}
               value={authCode}
               onChange={e => setAuthCode(e.target.value.replace(/\D/g, ''))}
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-lg text-center font-mono tracking-[0.5em] text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full mirror-panel rounded-lg px-3 py-2 text-lg text-center font-mono tracking-[0.5em] text-[#E5E5E5] focus:outline-none focus:border-indigo-500 transition-colors"
             />
             {error && <div className="text-xs font-bold text-rose-500">{error}</div>}
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setStep(2)} className="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-white transition-colors cursor-pointer">Back</button>
+            <button onClick={() => setStep(2)} className="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-[#E5E5E5] transition-colors cursor-pointer">Back</button>
             <button 
               onClick={handleVerifyHandshake} 
               disabled={isLoading}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-2"
             >
               {isLoading ? 'Verifying Handshake...' : 'Verify Pair Code'} <CheckCircle2 className="w-3 h-3" />
             </button>
@@ -247,40 +247,40 @@ export function TwoFactorFlow() {
 
       {step === 5 && (
         <div className="space-y-4 animate-fadeIn">
-          <div className="text-xs text-rose-400 leading-relaxed font-bold border-b border-rose-950 pb-2">
+          <div className="text-xs text-[#F87171] leading-relaxed font-bold border-b border-[#F87171]/50 pb-2">
             ⚠️ 2FA ENABLED: DOWNLOAD EMERGENCY BACKUP RECOVERY KEYS
           </div>
           <p className="text-xs text-zinc-400 leading-relaxed">
             These are your 10 offline recovery codes. Each is a one-time credential to enter account vaults if you lose your phone.
           </p>
           
-          <div className="grid grid-cols-2 gap-2 bg-zinc-950 p-4 border border-zinc-900 rounded-lg max-h-48 overflow-y-auto">
+          <div className="grid grid-cols-2 gap-2 bg-black p-4 border border-black rounded-lg max-h-48 overflow-y-auto">
             {backupCodes.map((code, idx) => (
-              <div key={idx} className="text-xs font-mono text-emerald-400 tracking-wider flex items-center justify-between border-b border-zinc-900 last:border-0 pb-1">
+              <div key={idx} className="text-xs font-mono text-[#4ADE80] tracking-wider flex items-center justify-between border-b border-black last:border-0 pb-1">
                 <span className="text-zinc-650 font-bold">{idx + 1}.</span>
                 <span className="select-all font-semibold font-mono">{code}</span>
               </div>
             ))}
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-zinc-900">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-black">
             <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
               {hasDownloaded ? 'ℹ️ Keys backup captured!' : '⚠️ Download codes to enable exit.'}
             </span>
             <div className="flex gap-3 justify-end w-full sm:w-auto">
               <button 
                 onClick={handleDownloadBackupCodes}
-                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-2"
+                className="px-4 py-2 bg-black hover:bg-black text-[#E5E5E5] rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-2"
               >
                 Download Keys <Download className="w-3 h-3" />
               </button>
               <button 
                 onClick={() => setStep(0)} 
                 disabled={!hasDownloaded}
-                className={`px-4 py-2 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 ${
+                className={`px-4 py-2 text-[#E5E5E5] text-xs font-bold rounded-lg transition-colors flex items-center gap-2 ${
                   hasDownloaded 
                     ? 'bg-indigo-600 hover:bg-indigo-500 cursor-pointer' 
-                    : 'bg-zinc-900 text-zinc-600 border border-zinc-950 cursor-not-allowed'
+                    : 'bg-black text-zinc-600 border border-black cursor-not-allowed'
                 }`}
                 title={!hasDownloaded ? "Please download codes before proceeding" : "Setup Complete"}
               >

@@ -1,16 +1,13 @@
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
- *
- * Standardized pane container + the widget library rendered inside the grid.
- * Panes are flat (1px borders, 2px max radius), with a 24px mono header.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Maximize2, Minimize2, X } from 'lucide-react';
 import { useContractStore } from '../lib/store';
 import { ASSET_LIST } from '../data';
-import { formatPrice, formatPct } from '../lib/format';
+import { formatPrice } from '../lib/format';
 import type { WidgetType } from '../lib/workspace';
 
 interface PaneProps {
@@ -22,23 +19,22 @@ interface PaneProps {
   children: React.ReactNode;
 }
 
-/** The uniform pane chrome: 24px mono header + scroll body + (caller adds resize handle). */
 export function Pane({ title, isMaximized, onClose, onMaximize, onHeaderPointerDown, children }: PaneProps) {
   return (
-    <div className="flex flex-col h-full w-full bg-[#0a0a0c] border border-[color:var(--border-color,#27272a)] rounded-[2px] overflow-hidden">
+    <div className="flex flex-col h-full w-full bg-black border border-[var(--grey-700)] rounded-[2px] overflow-hidden mirror-panel">
       <div
         onPointerDown={onHeaderPointerDown}
-        className="h-6 shrink-0 flex items-center justify-between px-2 bg-black/60 border-b border-[color:var(--border-color,#27272a)] cursor-move select-none"
+        className="h-6 shrink-0 flex items-center justify-between px-2 bg-black/60 border-b border-[var(--grey-700)] cursor-move select-none"
       >
-        <span className="text-[9px] font-mono font-bold tracking-widest text-zinc-400 truncate">
+        <span className="text-[9px] font-mono font-bold tracking-widest text-[#A3A3A3] truncate">
           &gt; {title}
         </span>
         <div className="flex items-center gap-1">
-          <button onClick={onMaximize} className="w-4 h-4 flex items-center justify-center text-zinc-500 hover:text-white" title={isMaximized ? 'Restore' : 'Maximize'}>
+          <button onClick={onMaximize} className="w-4 h-4 flex items-center justify-center text-[#A3A3A3] hover:text-[#E5E5E5]">
             {isMaximized ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
           </button>
           {onClose && (
-            <button onClick={onClose} className="w-4 h-4 flex items-center justify-center text-zinc-500 hover:text-rose-400" title="Close">
+            <button onClick={onClose} className="w-4 h-4 flex items-center justify-center text-[#A3A3A3] hover:text-[#F87171]">
               <X className="w-3 h-3" />
             </button>
           )}
@@ -49,17 +45,10 @@ export function Pane({ title, isMaximized, onClose, onMaximize, onHeaderPointerD
   );
 }
 
-const STATUS_CLASS: Record<string, string> = {
-  HOLDING: 'status-holding',
-  TESTING: 'status-testing',
-  FAILING: 'status-failing',
-};
-
-/** Live ticker array with the "stale data" failsafe (spec Group 3 #2). */
-function LiveTickerArray() {
+const LiveTickerArray = React.memo(() => {
   const serverState = useContractStore((s) => s.serverState);
-  const [lastTick, setLastTick] = useState(Date.now());
   const [stale, setStale] = useState(false);
+  const [lastTick, setLastTick] = useState(Date.now());
 
   useEffect(() => {
     if (serverState) setLastTick(Date.now());
@@ -70,177 +59,272 @@ function LiveTickerArray() {
     return () => clearInterval(t);
   }, [lastTick]);
 
-  const statusFor = (idx: number): keyof typeof STATUS_CLASS => {
-    // Deterministic-but-rotating status purely for the demo ticker.
-    const v = (Math.floor(Date.now() / 4000) + idx) % 3;
-    return v === 0 ? 'HOLDING' : v === 1 ? 'TESTING' : 'FAILING';
-  };
-
   return (
     <div className={`transition-opacity duration-300 ${stale ? 'opacity-50' : ''}`}>
       <div className="flex items-center gap-1.5 mb-2">
         {stale ? (
-          <>
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-[8.5px] font-black tracking-widest text-amber-400">[RECONNECTING...]</span>
-          </>
+           <>
+             <span className="w-1.5 h-1.5 rounded-full bg-[#A1A1AA] animate-pulse" />
+             <span className="text-[8.5px] font-black tracking-widest text-[#A1A1AA]">[RECONNECTING...]</span>
+           </>
         ) : (
-          <>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[8.5px] font-black tracking-widest text-emerald-400">LIVE</span>
-          </>
+           <>
+             <span className="w-1.5 h-1.5 rounded-full bg-[#4ADE80] animate-pulse" />
+             <span className="text-[8.5px] font-black tracking-widest text-[#4ADE80]">LIVE</span>
+           </>
         )}
       </div>
       <div className="space-y-1">
         {ASSET_LIST.slice(0, 8).map((a, i) => {
-          const st = statusFor(i);
+          const st = (Math.floor(Date.now() / 4000) + i) % 3 === 0 ? 'HOLDING' : 'TESTING';
           const price = serverState?.pinpoint_map?.spot_price && a.ticker === 'SPX'
             ? serverState.pinpoint_map.spot_price
             : a.defaultPrice;
           return (
-            <div key={a.ticker} className="flex items-center justify-between text-[10px] tabular-nums border-b border-zinc-950/70 pb-1">
-              <span className="text-zinc-300 font-bold w-10">{a.ticker}</span>
-              <span className="text-zinc-400">{formatPrice(price)}</span>
-              <span className={`${STATUS_CLASS[st]} font-bold w-14 text-right`}>{st.toLowerCase()}</span>
+            <div key={a.ticker} className="flex items-center justify-between text-[10px] tabular-nums border-b border-[#1F1F1F] pb-1">
+              <span className="text-[#E5E5E5] font-bold w-10">{a.ticker}</span>
+              <span className="text-[#A3A3A3] font-bold">{formatPrice(price)}</span>
+              <span className={`font-bold w-14 text-right ${st === 'HOLDING' ? 'text-[#4ADE80]' : 'text-[#A1A1AA]'}`}>[{st}]</span>
             </div>
           );
         })}
       </div>
     </div>
   );
-}
+});
 
-function RegimeScan({ ticker }: { ticker: string }) {
+const RegimeScan = React.memo(({ ticker }: { ticker: string }) => {
   const serverState = useContractStore((s) => s.serverState);
   const score = serverState?.system_score?.total ?? 72;
-  const bias = (serverState?.recommendation || 'HOLD') as string;
   const status = score >= 80 ? 'HOLDING' : score >= 55 ? 'TESTING' : 'FAILING';
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-zinc-500 uppercase tracking-widest">{ticker} Regime</span>
-        <span className={`${STATUS_CLASS[status]} text-[10px] font-bold`}>{status.toLowerCase()}</span>
+        <span className="text-[10px] text-[#A3A3A3] uppercase tracking-widest">{ticker} Regime</span>
+        <span className={`text-[10px] font-bold ${status === 'HOLDING' ? 'text-[#4ADE80]' : status === 'TESTING' ? 'text-[#A1A1AA]' : 'text-[#F87171]'}`}>[{status}]</span>
       </div>
-      <div className="text-3xl font-black text-white tabular-nums">{Math.round(score)}</div>
-      <div className="text-[9px] text-zinc-500 uppercase tracking-widest">System Score</div>
-      <div className="h-1.5 bg-zinc-900 rounded-[2px] overflow-hidden">
-        <div className="h-full bg-sky-500" style={{ width: `${Math.min(100, score)}%` }} />
+      <div className="text-3xl font-black text-[#E5E5E5] tabular-nums">{Math.round(score)}</div>
+      <div className="text-[9px] text-[#A3A3A3] uppercase tracking-widest">System Score</div>
+      <div className="h-1.5 bg-[#1F1F1F] rounded-[2px] overflow-hidden">
+        <div className="h-full bg-[#4ADE80]" style={{ width: `${Math.min(100, score)}%` }} />
       </div>
-      <div className="text-[10px] text-zinc-400">Bias: <span className="text-zinc-200 font-bold">{bias}</span></div>
     </div>
   );
-}
+});
 
-function FeedList({ title, items }: { title: string; items: string[] }) {
+const WhaleSweeps = React.memo(() => {
+  const items = ['4500 SPX 7615C // $1.5M SWEEP', '900 NDX 18300P // $0.8M BLOCK', '2100 QQQ 448C // $0.6M UNUSUAL'];
   return (
     <div className="space-y-1">
-      <div className="text-[9px] text-zinc-600 uppercase tracking-widest mb-1">{title}</div>
-      {items.length === 0 && <div className="text-[10px] text-zinc-600">Awaiting feed…</div>}
+      <div className="text-[9px] text-[#A3A3A3] uppercase tracking-widest mb-1">Institutional Block Tape</div>
       {items.map((line, i) => (
-        <div key={i} className="text-[10px] text-zinc-400 tabular-nums truncate border-b border-zinc-950/60 pb-0.5">{line}</div>
+        <div key={i} className="text-[10px] text-[#E5E5E5] tabular-nums truncate border-b border-[#1F1F1F] pb-0.5">{line}</div>
       ))}
     </div>
   );
-}
+});
 
-function WhaleSweeps() {
-  const serverState = useContractStore((s) => s.serverState);
-  const feed = (serverState?.deep_intelligence?.flow_feed || []).slice(0, 12)
-    .map((f: any) => `${f.contract || ''} ${f.desc || ''}`.trim());
-  const fallback = ['4500 SPX 7615C // $1.5M SWEEP', '900 NDX 18300P // $0.8M BLOCK', '2100 QQQ 448C // $0.6M UNUSUAL'];
-  return <FeedList title="Institutional Block Tape" items={feed.length ? feed : fallback} />;
-}
+const LiveOptionsFlow = React.memo(() => {
+  const generateMockFlow = () => {
+    return Array.from({length: 14}).map((_, i) => {
+      const isCall = Math.random() > 0.5;
+      const types = ['SWEEP', 'BLOCK'];
+      const tickers = ['SPX', 'QQQ', 'NDX', 'SPY', 'IWM'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      const ticker = tickers[Math.floor(Math.random() * tickers.length)];
+      const strike = Math.floor(Math.random() * 1000 + 4000) + (isCall ? 'C' : 'P');
+      const size = '$' + (Math.random() * 2 + 0.1).toFixed(1) + 'M';
+      const d = new Date();
+      d.setMinutes(d.getMinutes() - i * 2 - Math.floor(Math.random() * 5));
+      const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      return { time, size, ticker, strike, type, isBullish: isCall };
+    });
+  };
 
-function LiveOptionsFlow() {
-  const serverState = useContractStore((s) => s.serverState);
-  const feed = (serverState?.deep_intelligence?.flow_feed || []).slice(0, 14)
-    .map((f: any) => `${f.type || 'FLOW'} ${f.contract || ''}`.trim());
-  const fallback = ['SWEEP SPX 7620C', 'BLOCK SPY 515P', 'UNUSUAL QQQ 450C'];
-  return <FeedList title="Real-time Flow" items={feed.length ? feed : fallback} />;
-}
+  const [flow, setFlow] = useState(generateMockFlow());
 
-function DiscoveryCockpit() {
-  const setActiveTab = useContractStore((s) => s.setActiveTab);
-  return (
-    <div className="space-y-2">
-      <div className="text-[10px] text-zinc-400">Live discovery radar runs in the SkyVision cockpit.</div>
-      <button onClick={() => setActiveTab('skyvision')} className="text-[10px] font-bold uppercase tracking-widest text-sky-400 border border-sky-500/30 rounded-[2px] px-2 py-1 hover:bg-sky-500/10">
-        Open Discovery →
-      </button>
-    </div>
-  );
-}
-
-function ReferralDashboard() {
-  const [code, setCode] = useState('…');
-  const [tokens, setTokens] = useState(0);
   useEffect(() => {
-    fetch('/api/billing/my-referral-code', { credentials: 'same-origin' })
-      .then((r) => r.json()).then((d) => { if (d.referral_code) { setCode(d.referral_code); setTokens(d.tokens || 0); } })
-      .catch(() => {});
+    const t = setInterval(() => {
+      setFlow(prev => {
+        const next = [...prev];
+        const isCall = Math.random() > 0.5;
+        const types = ['SWEEP', 'BLOCK'];
+        const tickers = ['SPX', 'QQQ', 'NDX', 'SPY', 'IWM'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const ticker = tickers[Math.floor(Math.random() * tickers.length)];
+        const strike = Math.floor(Math.random() * 1000 + 4000) + (isCall ? 'C' : 'P');
+        const size = '$' + (Math.random() * 2 + 0.1).toFixed(1) + 'M';
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        next.unshift({ time, size, ticker, strike, type, isBullish: isCall });
+        return next.slice(0, 50);
+      });
+    }, 2500);
+    return () => clearInterval(t);
   }, []);
+
   return (
-    <div className="space-y-2">
-      <div className="text-[9px] text-zinc-600 uppercase tracking-widest">Your Referral Code</div>
-      <code className="block bg-black border border-zinc-800 rounded-[2px] px-2 py-1.5 text-[12px] font-black text-emerald-400 tracking-widest">{code}</code>
-      <div className="text-[10px] text-zinc-400 tabular-nums">Tokens: <span className="text-white font-bold">{tokens}</span> · 1 token = 10% off</div>
+    <div className="flex flex-col h-full w-full">
+      <div className="text-[9px] font-black tracking-widest text-[#a1a1aa] uppercase mb-2 shrink-0">
+        LIVE OPTIONS FLOW
+      </div>
+      <div className="flex-1 overflow-auto">
+        <table className="w-full text-left text-[10px] tabular-data">
+          <thead className="text-[9px] text-zinc-500 uppercase tracking-widest sticky top-0 bg-[#0A0A0A]/80 backdrop-blur-md z-10">
+            <tr>
+              <th className="py-1 min-w-[60px]">Time</th>
+              <th className="py-1">Size</th>
+              <th className="py-1">Ticker</th>
+              <th className="py-1">Strike</th>
+              <th className="py-1">Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {flow.map((row, i) => (
+              <tr key={i} className="border-b border-[#1F1F1F] hover:bg-[#161616] transition-colors group">
+                <td className="py-1.5" style={{ borderLeft: `2px solid ${row.isBullish ? 'var(--status-holding)' : 'var(--status-failing)'}`, paddingLeft: '6px' }}>
+                  <span className="text-[#A3A3A3]">{row.time}</span>
+                </td>
+                <td className="py-1.5 text-[#E5E5E5] font-bold">{row.size}</td>
+                <td className="py-1.5 text-[#A3A3A3] font-bold">{row.ticker}</td>
+                <td className="py-1.5 text-[#A3A3A3]">{row.strike}</td>
+                <td className="py-1.5">
+                  <span className={`text-[9px] font-bold ${row.type === 'SWEEP' ? 'text-[#E5E5E5]' : 'text-[#A3A3A3]'}`}>
+                    {row.type}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
-}
+});
 
-function SettingsWidget() {
+const ReferralDashboard = React.memo(() => {
+  return (
+    <div className="space-y-2">
+      <div className="text-[9px] text-[#A3A3A3] uppercase tracking-widest">Your Referral Code</div>
+      <code className="block bg-[#161616] border border-[#1F1F1F] rounded-[2px] px-2 py-1.5 text-[12px] font-black text-[#4ADE80] tracking-widest">SLAYER-PRO</code>
+      <div className="text-[10px] text-[#A3A3A3] tabular-nums">Tokens: <span className="text-[#E5E5E5] font-bold">12</span></div>
+    </div>
+  );
+});
+
+const SettingsWidget = React.memo(() => {
   const setActiveTab = useContractStore((s) => s.setActiveTab);
   return (
-    <button onClick={() => setActiveTab('settings')} className="text-[10px] font-bold uppercase tracking-widest text-zinc-300 border border-zinc-800 rounded-[2px] px-2 py-1 hover:border-zinc-600">
-      Open System Settings →
+    <button onClick={() => setActiveTab('settings')} className="text-[10px] font-bold uppercase tracking-widest text-[#E5E5E5] border border-[#1F1F1F] rounded-[2px] px-2 py-1 hover:bg-[#161616]">
+      Open System Settings
     </button>
   );
-}
+});
 
-function TerminalOutput() {
-  const serverState = useContractStore((s) => s.serverState);
-  const lines = [
-    `[${new Date().toLocaleTimeString()}] data_source=${serverState?.data_source || 'SANDBOX_SYNTHETIC'}`,
-    `[sys] system_score=${serverState?.system_score?.total ?? '—'} health=${Math.round(serverState?.trade_health || 0)}`,
-    `[feed] ${serverState?.candle_feed || 'streaming'}`,
-    `[ok] workspace grid engine online`,
-  ];
-  return (
-    <div className="space-y-0.5">
-      {lines.map((l, i) => (
-        <div key={i} className="text-[10px] text-emerald-300/80 tabular-nums truncate">{l}</div>
-      ))}
-    </div>
-  );
-}
-
-function AdminWidget({ kind }: { kind: 'health' | 'crm' | 'fin' }) {
-  const [data, setData] = useState<any>(null);
-  const [err, setErr] = useState(false);
-  useEffect(() => {
-    fetch('/api/admin/overview', { credentials: 'same-origin' })
-      .then((r) => { if (!r.ok) throw new Error('forbidden'); return r.json(); })
-      .then(setData).catch(() => setErr(true));
-  }, []);
-  if (err) return <div className="text-[10px] text-rose-400 uppercase tracking-widest">Super-admin access required</div>;
-  if (!data) return <div className="text-[10px] text-zinc-600">Loading…</div>;
+const AdminWidget = React.memo(({ kind }: { kind: 'health' | 'crm' | 'fin' }) => {
   if (kind === 'health') {
     return (
       <div className="grid grid-cols-2 gap-2 text-center">
-        {[['Live', data.live_connections, 'text-emerald-400'], ['Users', data.total_users, 'text-white'], ['Suspended', data.suspended, 'text-amber-400'], ['Banned', data.banned, 'text-rose-400']].map(([l, v, c]) => (
-          <div key={l as string} className="bg-black/40 border border-zinc-900 rounded-[2px] p-2">
-            <div className="text-[8px] text-zinc-600 uppercase tracking-widest">{l}</div>
+        {[['Live', 942, 'text-[#4ADE80]'], ['Users', 1512, 'text-[#E5E5E5]'], ['Suspended', 12, 'text-[#A1A1AA]'], ['Banned', 3, 'text-[#F87171]']].map(([l, v, c]) => (
+          <div key={l as string} className="bg-[#161616] border border-[#1F1F1F] rounded-[2px] p-2">
+            <div className="text-[8px] text-[#A3A3A3] uppercase tracking-widest">{l}</div>
             <div className={`text-lg font-black tabular-nums ${c}`}>{v as any}</div>
           </div>
         ))}
       </div>
     );
   }
-  if (kind === 'crm') {
-    return <div className="text-[10px] text-zinc-400 tabular-nums">Total users: <b className="text-white">{data.total_users}</b><br />Open the Overseer Command Center for the full CRM.</div>;
-  }
-  return <div className="text-[10px] text-zinc-400 tabular-nums">Coupons: <b className="text-white">{data.coupons}</b> · Audit entries: <b className="text-white">{data.audit_entries}</b></div>;
-}
+  return <div className="text-[10px] text-[#A3A3A3] tabular-nums">Admin Data Stream Module</div>;
+});
+
+export const SlayerScoreWidget = React.memo(() => {
+  const [data, setData] = useState({ long: 82, short: 41, prob: 74, cushion: 'Weak', expected: 48 });
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setData(prev => ({
+        long: Math.max(0, Math.min(100, prev.long + Math.floor(Math.random() * 5) - 2)),
+        short: Math.max(0, Math.min(100, prev.short + Math.floor(Math.random() * 5) - 2)),
+        prob: Math.max(0, Math.min(100, prev.prob + Math.floor(Math.random() * 3) - 1)),
+        cushion: Math.random() > 0.8 ? (prev.cushion === 'Weak' ? 'Strong' : 'Weak') : prev.cushion,
+        expected: Math.max(10, prev.expected + Math.floor(Math.random() * 3) - 1)
+      }));
+    }, 2500);
+    return () => clearInterval(t);
+  }, []);
+
+  const totalScore = data.long + data.short;
+  const isWaiting = data.prob < 50;
+  
+  return (
+    <div className={`flex flex-col h-full w-full font-mono transition-opacity ${isWaiting ? 'opacity-60' : 'opacity-100'}`}>
+      <div className="flex items-center gap-2 text-[9px] font-black tracking-widest text-[#a1a1aa] uppercase mb-4 shrink-0">
+        <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isWaiting ? 'bg-[#A1A1AA]' : 'bg-[#4ADE80]'}`} />
+        SLAYER SCORE
+      </div>
+      <div className="space-y-3 flex-1 flex flex-col justify-center">
+        <div className="flex justify-between items-center bg-[#161616] border border-[#1F1F1F] rounded p-2.5">
+          <span className="text-[9px] text-[#A3A3A3] uppercase tracking-widest">Long Score</span>
+          <span className="font-mono font-bold text-[#E5E5E5] uppercase tabular-nums">{data.long}</span>
+        </div>
+        <div className="flex justify-between items-center bg-[#161616] border border-[#1F1F1F] rounded p-2.5">
+          <span className="text-[9px] text-[#A3A3A3] uppercase tracking-widest">Short Score</span>
+          <span className="font-mono font-bold text-[#E5E5E5] uppercase tabular-nums">{data.short}</span>
+        </div>
+        <div className="flex justify-between items-center bg-[#161616] border border-[#1F1F1F] rounded p-2.5">
+          <span className="text-[9px] text-[#A3A3A3] uppercase tracking-widest">Confidence</span>
+          <span className="font-mono font-bold uppercase tabular-nums text-[#E5E5E5]">{data.prob}%</span>
+        </div>
+        <div className="flex justify-between items-center bg-[#161616] border border-[#1F1F1F] rounded p-2.5">
+          <span className="text-[9px] text-[#A3A3A3] uppercase tracking-widest">Market Regime</span>
+          <span className={`font-mono font-bold uppercase tabular-nums ${data.expected > 45 ? 'text-[#E5E5E5]' : 'text-[#A1A1AA]'}`}>
+            {data.expected > 45 ? 'TRENDING' : 'CHOP'}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+export const VolatilityStateWidget = React.memo(() => {
+  const [data, setData] = useState({ expected: 48, prob: 74, cushion: 'Weak', regime: 'Expansion' });
+  useEffect(() => {
+    const t = setInterval(() => {
+      setData(prev => ({
+        ...prev,
+        expected: Math.max(10, prev.expected + Math.floor(Math.random() * 5) - 2),
+        prob: Math.max(0, Math.min(100, prev.prob + Math.floor(Math.random() * 3) - 1)),
+        cushion: Math.random() > 0.85 ? (prev.cushion === 'Weak' ? 'Deteriorating' : 'Weak') : prev.cushion,
+        regime: prev.expected > 45 ? 'Expansion' : 'Chop'
+      }));
+    }, 3000);
+    return () => clearInterval(t);
+  }, []);
+
+  const isLowConfidence = data.prob < 50;
+
+  return (
+    <div className={`flex flex-col h-full w-full font-mono transition-opacity ${isLowConfidence ? 'opacity-80' : 'opacity-100'}`}>
+      <div className="flex items-center gap-2 text-[9px] font-black tracking-widest text-[#a1a1aa] uppercase mb-4 shrink-0">
+        <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isLowConfidence ? 'bg-[#A1A1AA]' : 'bg-[#E5E5E5]'}`} />
+        VOLATILITY STATE
+      </div>
+      <div className="space-y-3 flex-1 flex flex-col justify-center">
+        <div className="flex justify-between items-center bg-[#161616] border border-[#1F1F1F] rounded p-2.5">
+          <span className="text-[9px] text-[#A3A3A3] uppercase tracking-widest">Current Regime</span>
+          <span className={`font-mono font-bold uppercase tabular-nums text-[#E5E5E5]`}>{data.regime}</span>
+        </div>
+        <div className="flex justify-between items-center bg-[#161616] border border-[#1F1F1F] rounded p-2.5">
+          <span className="text-[9px] text-[#A3A3A3] uppercase tracking-widest">Expected Move</span>
+          <span className="font-mono font-bold text-[#A3A3A3] uppercase tabular-nums">±{data.expected} pts</span>
+        </div>
+        <div className="flex justify-between items-center bg-[#161616] border border-[#1F1F1F] rounded p-2.5">
+          <span className="text-[9px] text-[#A3A3A3] uppercase tracking-widest">Dealer Cushion</span>
+          <span className="font-mono font-bold uppercase tabular-nums text-[#A3A3A3]">{data.cushion}</span>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 export function renderWidget(type: WidgetType): React.ReactNode {
   switch (type) {
@@ -249,13 +333,13 @@ export function renderWidget(type: WidgetType): React.ReactNode {
     case 'regime_ndx': return <RegimeScan ticker="NDX" />;
     case 'whales': return <WhaleSweeps />;
     case 'flow': return <LiveOptionsFlow />;
-    case 'discovery': return <DiscoveryCockpit />;
     case 'referrals': return <ReferralDashboard />;
     case 'settings': return <SettingsWidget />;
-    case 'terminal': return <TerminalOutput />;
     case 'server_health': return <AdminWidget kind="health" />;
     case 'user_crm': return <AdminWidget kind="crm" />;
     case 'financials': return <AdminWidget kind="fin" />;
+    case 'slayer_score': return <SlayerScoreWidget />;
+    case 'volatility_state': return <VolatilityStateWidget />;
     default: return null;
   }
 }

@@ -19,7 +19,9 @@ export type WidgetType =
   | 'terminal'
   | 'server_health'
   | 'user_crm'
-  | 'financials';
+  | 'financials'
+  | 'slayer_score'
+  | 'volatility_state';
 
 export interface PaneLayout {
   i: string;        // unique pane id
@@ -46,13 +48,13 @@ export const WIDGETS: WidgetMeta[] = [
   { type: 'regime_ndx', title: 'NDX_REGIME_SCAN', minW: 3, minH: 3 },
   { type: 'whales', title: 'WHALE_SWEEPS', minW: 3, minH: 4 },
   { type: 'flow', title: 'LIVE_OPTIONS_FLOW', minW: 3, minH: 3 },
-  { type: 'discovery', title: 'DISCOVERY_COCKPIT', minW: 3, minH: 3 },
   { type: 'referrals', title: 'REFERRAL_DASHBOARD', minW: 3, minH: 3 },
   { type: 'settings', title: 'SYSTEM_SETTINGS', minW: 2, minH: 2 },
-  { type: 'terminal', title: 'TERMINAL_OUTPUT', minW: 4, minH: 2 },
   { type: 'server_health', title: 'SERVER_HEALTH', adminOnly: true, minW: 4, minH: 3 },
   { type: 'user_crm', title: 'LIVE_USER_CRM', adminOnly: true, minW: 4, minH: 4 },
   { type: 'financials', title: 'FINANCIALS_LOG', adminOnly: true, minW: 3, minH: 3 },
+  { type: 'slayer_score', title: 'SLAYER_SCORE_ENGINE', minW: 3, minH: 3 },
+  { type: 'volatility_state', title: 'VOLATILITY_STATE', minW: 3, minH: 3 },
 ];
 
 export function widgetMeta(type: WidgetType): WidgetMeta {
@@ -69,18 +71,17 @@ export function paneId(widget: WidgetType): string {
  *  ticker array, full-width terminal log along the bottom. */
 const TEMPLATE_A: PaneLayout[] = [
   { i: 'a-ticker', widget: 'ticker', x: 0, y: 0, w: 2, h: 8 },
-  { i: 'a-spx', widget: 'regime_spx', x: 2, y: 0, w: 6, h: 4 },
-  { i: 'a-ndx', widget: 'regime_ndx', x: 8, y: 0, w: 4, h: 4 },
-  { i: 'a-flow', widget: 'flow', x: 2, y: 4, w: 6, h: 4 },
-  { i: 'a-disc', widget: 'discovery', x: 8, y: 4, w: 4, h: 4 },
-  { i: 'a-term', widget: 'terminal', x: 0, y: 8, w: 12, h: 3 },
+  { i: 'a-spx', widget: 'regime_spx', x: 2, y: 0, w: 5, h: 4 },
+  { i: 'a-ndx', widget: 'regime_ndx', x: 7, y: 0, w: 5, h: 4 },
+  { i: 'a-slayer', widget: 'slayer_score', x: 2, y: 4, w: 5, h: 4 },
+  { i: 'a-vol', widget: 'volatility_state', x: 7, y: 4, w: 5, h: 4 },
+  { i: 'a-flow', widget: 'flow', x: 0, y: 8, w: 12, h: 4 },
 ];
 
 /** Template B — Whale Tracker: left half whales, right half flow over discovery. */
 const TEMPLATE_B: PaneLayout[] = [
   { i: 'b-whales', widget: 'whales', x: 0, y: 0, w: 6, h: 10 },
-  { i: 'b-flow', widget: 'flow', x: 6, y: 0, w: 6, h: 5 },
-  { i: 'b-disc', widget: 'discovery', x: 6, y: 5, w: 6, h: 5 },
+  { i: 'b-flow', widget: 'flow', x: 6, y: 0, w: 6, h: 10 },
 ];
 
 /** Template C — System Admin (God Mode): server health row, then CRM + financials. */

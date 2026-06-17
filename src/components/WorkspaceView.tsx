@@ -138,17 +138,17 @@ export function WorkspaceView({ isSuperAdmin }: Props) {
     <div className="w-full h-[calc(100vh-150px)] flex flex-col font-mono">
       <div className="flex items-center justify-between mb-2 px-1">
         <span className="text-[11px] font-black tracking-widest text-zinc-400 uppercase flex items-center gap-2">
-          <LayoutGrid className="w-4 h-4 text-emerald-400" /> Terminal Workspace
+          <LayoutGrid className="w-4 h-4 text-[#4ADE80]" /> Terminal Workspace
         </span>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <button onClick={() => { setLoadOpen(!loadOpen); setAddOpen(false); }} className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-300 bg-[#0a0a0c] border border-zinc-800 rounded-[2px] px-3 py-1.5 hover:border-zinc-600">
+            <button onClick={() => { setLoadOpen(!loadOpen); setAddOpen(false); }} className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#4ADE80] bg-black border border-black rounded-[2px] px-3 py-1.5 hover:border-black">
               Load Workspace <ChevronDown className="w-3 h-3" />
             </button>
             {loadOpen && (
-              <div className="absolute right-0 mt-1 w-60 bg-[#0a0a0c] border border-zinc-800 rounded-[2px] z-50 p-1 shadow-2xl">
+              <div className="absolute right-0 mt-1 w-60 bg-black border border-black rounded-[2px] z-50 p-1 shadow-2xl">
                 {templateKeys.map((k) => (
-                  <button key={k} onClick={() => loadTemplate(k)} className="w-full text-left px-2 py-1.5 text-[10px] text-zinc-300 hover:bg-zinc-900 rounded-[2px]">
+                  <button key={k} onClick={() => loadTemplate(k)} className="w-full text-left px-2 py-1.5 text-[10px] text-[#4ADE80] hover:bg-black rounded-[2px]">
                     Template {k} — {TEMPLATES[k].name}
                   </button>
                 ))}
@@ -156,13 +156,13 @@ export function WorkspaceView({ isSuperAdmin }: Props) {
             )}
           </div>
           <div className="relative">
-            <button onClick={() => { setAddOpen(!addOpen); setLoadOpen(false); }} className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-[2px] px-3 py-1.5 hover:bg-emerald-500/20">
+            <button onClick={() => { setAddOpen(!addOpen); setLoadOpen(false); }} className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#4ADE80] bg-[#4ADE80] text-black/10 border border-black rounded-[2px] px-3 py-1.5 hover:bg-black/40">
               <Plus className="w-3 h-3" /> Add Pane
             </button>
             {addOpen && (
-              <div className="absolute right-0 mt-1 w-60 max-h-72 overflow-auto bg-[#0a0a0c] border border-zinc-800 rounded-[2px] z-50 p-1 shadow-2xl">
+              <div className="absolute right-0 mt-1 w-60 max-h-72 overflow-auto bg-black border border-black rounded-[2px] z-50 p-1 shadow-2xl">
                 {visibleWidgets.map((w) => (
-                  <button key={w.type} onClick={() => addWidget(w.type)} className="w-full text-left px-2 py-1.5 text-[10px] text-zinc-300 hover:bg-zinc-900 rounded-[2px]">{w.title}</button>
+                  <button key={w.type} onClick={() => addWidget(w.type)} className="w-full text-left px-2 py-1.5 text-[10px] text-[#4ADE80] hover:bg-black rounded-[2px]">{w.title}</button>
                 ))}
               </div>
             )}
@@ -171,7 +171,7 @@ export function WorkspaceView({ isSuperAdmin }: Props) {
       </div>
 
       {/* Grid surface — viewport-locked: only this region scrolls. */}
-      <div ref={containerRef} className="relative flex-1 overflow-auto bg-black/30 border border-zinc-900 rounded-[2px]">
+      <div ref={containerRef} className="relative flex-1 overflow-auto bg-black/30 border border-black rounded-[2px]">
         <div className="relative" style={{ height: gridHeight }}>
           {layout.map((p) => {
             const meta = widgetMeta(p.widget);

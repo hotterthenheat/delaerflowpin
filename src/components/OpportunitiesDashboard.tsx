@@ -94,32 +94,32 @@ export function OpportunitiesDashboard({
 
   // Combined Top Opportunities for Bento Highlight Grid
   const topThree = [
-    { ...calls[0], rank: '#1', badgeColor: 'border-emerald-600 bg-emerald-950/20 text-emerald-400' },
-    { ...calls[1], rank: '#2', badgeColor: 'border-emerald-800 bg-zinc-900 text-zinc-200' },
-    { ...calls[2], rank: '#3', badgeColor: 'border-emerald-800 bg-zinc-900 text-zinc-300' },
+    { ...calls[0], rank: '#1', badgeColor: 'border-black bg-black/40 text-[#4ADE80]' },
+    { ...calls[1], rank: '#2', badgeColor: 'border-black bg-black text-zinc-200' },
+    { ...calls[2], rank: '#3', badgeColor: 'border-black bg-black text-[#4ADE80]' },
   ];
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       
       {/* 1. Market Regime Highlight Bar */}
-      <section className="bg-zinc-950/40 border border-zinc-850 p-4 md:p-5 rounded-sm flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-zinc-950/60 to-zinc-900/40">
+      <section className="bg-black/40 border border-black p-4 md:p-5 rounded-sm flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-zinc-950/60 to-zinc-900/40">
         <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="w-10 h-10 bg-emerald-950/50 border border-emerald-900 flex items-center justify-center rounded-sm">
-            <Activity className="w-5 text-emerald-400 animate-pulse" />
+          <div className="w-10 h-10 bg-black/40 border border-black flex items-center justify-center rounded-sm">
+            <Activity className="w-5 text-[#4ADE80] animate-pulse" />
           </div>
           <div>
             <span className="text-[10px] text-zinc-500 block uppercase font-mono tracking-widest">Global Intelligence System</span>
-            <span className="text-sm font-bold font-mono tracking-tight text-white uppercase">
+            <span className="text-sm font-bold font-mono tracking-tight text-[#E5E5E5] uppercase">
               ACTIVE COALITION REGIME STATE
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 md:gap-12 w-full md:w-auto justify-items-center md:justify-items-start border-t md:border-t-0 border-zinc-900 pt-3 md:pt-0">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 md:gap-12 w-full md:w-auto justify-items-center md:justify-items-start border-t md:border-t-0 border-black pt-3 md:pt-0">
           <div className="text-center md:text-left">
             <span className="text-[9px] text-zinc-500 uppercase font-mono block">Regime Trend</span>
-            <span className="text-sm font-mono text-emerald-400 font-bold uppercase flex items-center gap-1">
+            <span className="text-sm font-mono text-[#4ADE80] font-bold uppercase flex items-center gap-1">
               [holding] BULLISH
             </span>
           </div>
@@ -133,7 +133,7 @@ export function OpportunitiesDashboard({
           </div>
           <div className="text-center md:text-left">
             <span className="text-[9px] text-zinc-500 uppercase font-mono block">Momentum Acceleration</span>
-            <span className="text-sm font-mono text-emerald-400 font-bold uppercase flex items-center gap-1 animate-pulse">
+            <span className="text-sm font-mono text-[#4ADE80] font-bold uppercase flex items-center gap-1 animate-pulse">
               [testing] Increasing
             </span>
           </div>
@@ -144,7 +144,7 @@ export function OpportunitiesDashboard({
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold font-mono tracking-wider text-zinc-400 uppercase flex items-center gap-2">
-            <Sparkles className="w-3.5 text-emerald-400" /> HIGHLIGHT OPPORTUNITY ENGINE
+            <Sparkles className="w-3.5 text-[#4ADE80]" /> HIGHLIGHT OPPORTUNITY ENGINE
           </h3>
           <span className="text-[9px] font-mono text-zinc-600 uppercase">SORTED BY CONVECTIVE WEIGHT</span>
         </div>
@@ -154,14 +154,14 @@ export function OpportunitiesDashboard({
             <div
               key={opp.id}
               onClick={() => onSelectOpportunity(opp)}
-              className="group bg-zinc-950/60 border border-zinc-850 hover:border-emerald-500/60 transition-all p-4 rounded-sm flex flex-col justify-between cursor-pointer shadow-lg hover:shadow-emerald-950/10 hover:bg-[#121214]/80"
+              className="group bg-black/60 border border-black hover:border-black transition-all p-4 rounded-sm flex flex-col justify-between cursor-pointer shadow-lg hover:shadow-zinc-300/10 hover:bg-black/80"
             >
-              <div className="flex justify-between items-start border-b border-zinc-900 pb-2 mb-3">
+              <div className="flex justify-between items-start border-b border-black pb-2 mb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold font-mono text-zinc-600 tracking-wider">
                     {opp.rank}
                   </span>
-                  <span className="text-[13px] font-bold font-mono text-zinc-100 group-hover:text-emerald-400 tracking-wider transition-colors">
+                  <span className="text-[13px] font-bold font-mono text-zinc-100 group-hover:text-[#4ADE80] tracking-wider transition-colors">
                     {opp.contract}
                   </span>
                 </div>
@@ -170,7 +170,7 @@ export function OpportunitiesDashboard({
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 my-2 text-center bg-zinc-950/30 p-2.5 rounded-sm border border-zinc-900/60 group-hover:bg-zinc-950/80 transition-colors">
+              <div className="grid grid-cols-2 gap-4 my-2 text-center bg-black/30 p-2.5 rounded-sm border border-black/60 group-hover:bg-black/80 transition-colors">
                 <div>
                   <span className="block text-[8.5px] text-zinc-500 uppercase tracking-wider font-mono">Current Val</span>
                   <span className="text-sm font-mono font-bold text-zinc-100 mt-1 block">
@@ -179,21 +179,21 @@ export function OpportunitiesDashboard({
                 </div>
                 <div>
                   <span className="block text-[8.5px] text-zinc-500 uppercase tracking-wider font-mono">Fair Value</span>
-                  <span className="text-sm font-mono font-bold text-zinc-300 mt-1 block">
+                  <span className="text-sm font-mono font-bold text-[#4ADE80] mt-1 block">
                     ${opp.fairValue.toFixed(opp.ticker === 'EURUSD' ? 4 : 2)}
                   </span>
                 </div>
               </div>
 
-              <div className="mt-3 pt-2 border-t border-zinc-900 flex justify-between items-center">
+              <div className="mt-3 pt-2 border-t border-black flex justify-between items-center">
                 <span className="text-[9px] font-mono text-zinc-500">RECOMMENDATION</span>
                 <div className="flex items-center gap-1.5">
                   <span className={`text-[10px] font-mono font-bold uppercase ${
-                    opp.recommendation === 'BUY' ? 'text-emerald-400 font-semibold' : 'text-amber-500'
+                    opp.recommendation === 'BUY' ? 'text-[#4ADE80] font-semibold' : 'text-amber-500'
                   }`}>
                     {opp.recommendation}
                   </span>
-                  <ArrowRight className="w-3 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-emerald-400" />
+                  <ArrowRight className="w-3 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-[#4ADE80]" />
                 </div>
               </div>
             </div>
@@ -206,17 +206,17 @@ export function OpportunitiesDashboard({
         
         {/* Top 10 Calls List */}
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between border-b border-zinc-805 pb-1">
-            <span className="text-xs font-semibold font-mono tracking-wider text-emerald-400 flex items-center gap-1.5 uppercase">
+          <div className="flex items-center justify-between border-b border-black pb-1">
+            <span className="text-xs font-semibold font-mono tracking-wider text-[#4ADE80] flex items-center gap-1.5 uppercase">
               [holding] Top 10 Call Opportunities
             </span>
             <span className="text-[9px] font-mono text-zinc-605">ACCELERATIVE HIGH IMPULSE</span>
           </div>
 
-          <div className="bg-zinc-950/30 border border-zinc-850 overflow-x-auto rounded-sm">
+          <div className="bg-black/30 border border-black overflow-x-auto rounded-sm">
             <table className="w-full text-left font-mono text-xs divide-y divide-zinc-900 whitespace-nowrap">
               <thead>
-                <tr className="bg-zinc-950/70 text-[9px] text-zinc-500 uppercase font-mono tracking-wider">
+                <tr className="bg-black/70 text-[9px] text-zinc-500 uppercase font-mono tracking-wider">
                   <th className="p-2.5">Contract</th>
                   <th className="p-2.5">Underlying</th>
                   <th className="p-2.5">Bias</th>
@@ -226,24 +226,24 @@ export function OpportunitiesDashboard({
                   <th className="p-2.5 text-center">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-900 bg-zinc-950/20">
+              <tbody className="divide-y divide-zinc-900 bg-black/20">
                 {calls.map((opp, idx) => (
                   <tr
                     key={opp.id}
                     onClick={() => onSelectOpportunity(opp)}
-                    className="hover:bg-zinc-900/60 hover:text-white cursor-pointer transition-colors group"
+                    className="hover:bg-black/60 hover:text-[#E5E5E5] cursor-pointer transition-colors group"
                   >
-                    <td className="p-2.5 text-zinc-100 font-bold group-hover:text-emerald-400 flex items-center gap-1">
+                    <td className="p-2.5 text-zinc-100 font-bold group-hover:text-[#4ADE80] flex items-center gap-1">
                       <span className="text-[9px] text-zinc-600">#{idx+1}</span> {opp.contract}
                     </td>
                     <td className="p-2.5 text-zinc-400 text-[11px]">{opp.name}</td>
-                    <td className="p-2.5 text-emerald-500 text-[10px] font-bold uppercase">{opp.direction}</td>
-                    <td className="p-2.5 text-center text-zinc-300 font-bold">{opp.confidence}%</td>
+                    <td className="p-2.5 text-[#4ADE80] text-[10px] font-bold uppercase">{opp.direction}</td>
+                    <td className="p-2.5 text-center text-[#4ADE80] font-bold">{opp.confidence}%</td>
                     <td className="p-2.5 text-right text-zinc-100 font-medium">${opp.price.toFixed(opp.ticker === 'EURUSD' ? 4 : 2)}</td>
                     <td className="p-2.5 text-right text-zinc-400">${opp.fairValue.toFixed(opp.ticker === 'EURUSD' ? 4 : 2)}</td>
                     <td className="p-2.5 text-center">
                       <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded-sm ${
-                        opp.recommendation === 'BUY' ? 'bg-emerald-950/55 border border-emerald-900 text-emerald-400' : 'bg-zinc-905 border border-zinc-800 text-zinc-400'
+                        opp.recommendation === 'BUY' ? 'bg-black/40 border border-black text-[#4ADE80]' : 'bg-black border border-black text-zinc-400'
                       }`}>
                         {opp.recommendation}
                       </span>
@@ -257,17 +257,17 @@ export function OpportunitiesDashboard({
 
         {/* Top 10 Puts List */}
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between border-b border-zinc-805 pb-1">
-            <span className="text-xs font-semibold font-mono tracking-wider text-rose-400 flex items-center gap-1.5 uppercase">
+          <div className="flex items-center justify-between border-b border-black pb-1">
+            <span className="text-xs font-semibold font-mono tracking-wider text-[#F87171] flex items-center gap-1.5 uppercase">
               [failing] Top 10 Put Opportunities
             </span>
             <span className="text-[9px] font-mono text-zinc-605">ACCELERATIVE DOWN SHIFT</span>
           </div>
 
-          <div className="bg-zinc-950/30 border border-zinc-850 overflow-x-auto rounded-sm">
+          <div className="bg-black/30 border border-black overflow-x-auto rounded-sm">
             <table className="w-full text-left font-mono text-xs divide-y divide-zinc-900 whitespace-nowrap">
               <thead>
-                <tr className="bg-zinc-950/70 text-[9px] text-zinc-500 uppercase font-mono tracking-wider">
+                <tr className="bg-black/70 text-[9px] text-zinc-500 uppercase font-mono tracking-wider">
                   <th className="p-2.5">Contract</th>
                   <th className="p-2.5">Underlying</th>
                   <th className="p-2.5">Bias</th>
@@ -277,24 +277,24 @@ export function OpportunitiesDashboard({
                   <th className="p-2.5 text-center">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-900 bg-zinc-950/20">
+              <tbody className="divide-y divide-zinc-900 bg-black/20">
                 {puts.map((opp, idx) => (
                   <tr
                     key={opp.id}
                     onClick={() => onSelectOpportunity(opp)}
-                    className="hover:bg-zinc-900/60 hover:text-white cursor-pointer transition-colors group"
+                    className="hover:bg-black/60 hover:text-[#E5E5E5] cursor-pointer transition-colors group"
                   >
-                    <td className="p-2.5 text-zinc-100 font-bold group-hover:text-rose-450 flex items-center gap-1">
+                    <td className="p-2.5 text-zinc-100 font-bold group-hover:text-[#F87171] flex items-center gap-1">
                       <span className="text-[9px] text-zinc-600">#{idx+1}</span> {opp.contract}
                     </td>
                     <td className="p-2.5 text-zinc-400 text-[11px]">{opp.name}</td>
-                    <td className="p-2.5 text-rose-400 text-[10px] font-bold uppercase">{opp.direction}</td>
+                    <td className="p-2.5 text-[#F87171] text-[10px] font-bold uppercase">{opp.direction}</td>
                     <td className="p-2.5 text-center text-zinc-305 font-bold">{opp.confidence}%</td>
                     <td className="p-2.5 text-right text-zinc-100 font-medium">${opp.price.toFixed(opp.ticker === 'EURUSD' ? 4 : 2)}</td>
                     <td className="p-2.5 text-right text-zinc-400">${opp.fairValue.toFixed(opp.ticker === 'EURUSD' ? 4 : 2)}</td>
                     <td className="p-2.5 text-center">
                       <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded-sm ${
-                        opp.recommendation === 'BUY' ? 'bg-emerald-950/55 border border-emerald-900 text-emerald-400' : 'bg-zinc-905 border border-zinc-800 text-zinc-400'
+                        opp.recommendation === 'BUY' ? 'bg-black/40 border border-black text-[#4ADE80]' : 'bg-black border border-black text-zinc-400'
                       }`}>
                         {opp.recommendation}
                       </span>
