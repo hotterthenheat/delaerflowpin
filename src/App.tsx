@@ -669,10 +669,14 @@ export default function App() {
     };
 
     
-    const flushData = () => {
-      if (latestPayload) {
+    // Throttle SSE flushes to ~7/sec. Candle/greek data doesn't need 60fps, and
+    // flushing on every animation frame forced a full app-tree reconcile (jank).
+    let lastFlush = 0;
+    const flushData = (ts: number) => {
+      if (latestPayload && ts - lastFlush >= 150) {
         updateFromSSE(latestPayload);
         latestPayload = null;
+        lastFlush = ts;
       }
       flushInterval = requestAnimationFrame(flushData);
     };

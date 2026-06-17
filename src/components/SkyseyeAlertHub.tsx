@@ -282,7 +282,9 @@ export function SkyseyeAlertHub() {
         }, 4500));
       }
     }
-  }, [serverState]);
+    // selectedAsset is read inside (premium/health math); include it so the closure
+    // never goes stale. The de-dup refs above prevent duplicate toasts on re-run.
+  }, [serverState, selectedAsset]);
 
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id));

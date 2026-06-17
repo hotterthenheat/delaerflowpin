@@ -1839,6 +1839,32 @@ const dbSetUser = async (email: string, userObj: any, expectedVersion?: number) 
   }
 };
 
+// Persist mutations to an EXISTING user with a single optimistic-concurrency retry.
+// After the in-memory -> Postgres migration, many handlers mutated the user object
+// but never wrote it back; this is the single safe write-back path. Returns true on
+// a committed write, false otherwise (caller may surface a 500 on critical paths).
+async function persistUser(email: string, user: any): Promise<boolean> {
+  try {
+    await dbSetUser(email, user, user.version);
+    if (typeof user.version === 'number') user.version += 1;
+    return true;
+  } catch (err) {
+    // OCC conflict or transient failure: re-read the latest version and retry once.
+    try {
+      const fresh = await dbGetUser(email);
+      if (fresh && typeof fresh.version === 'number') {
+        await dbSetUser(email, user, fresh.version);
+        user.version = fresh.version + 1;
+        return true;
+      }
+    } catch (retryErr) {
+      console.error('persistUser retry failed for', email, retryErr);
+    }
+    console.error('persistUser failed for', email, err);
+    return false;
+  }
+}
+
 const dbDeleteUser = async (email: string) => {
   await pgDb.delete(users).where(eq(users.email, email.toLowerCase().trim()));
 };
@@ -2015,6 +2041,7 @@ app.post('/api/auth/clerk-signup', express.json(), async (req, res) => {
 
     if (referrerMatch) {
       referrerMatch.referral_tokens_pool = (referrerMatch.referral_tokens_pool || 0) + 1;
+      await persistUser(referrerMatch.email, referrerMatch);
       referralCreditApplied = true;
       creditedReferrerEmail = referrerMatch.email;
       console.log(`[PASSIVE REFERRAL ENGINE CREDITED] User ${userEmail} registered via referral code/username "${referralCode}". Referrer "${referrerMatch.email}" token pool credited +1 (New count: ${referrerMatch.referral_tokens_pool}).`);
@@ -2037,7 +2064,7 @@ app.post('/api/auth/clerk-signup', express.json(), async (req, res) => {
     custom_referral_code: newUser.custom_referral_code
   };
 
-  setSessionCookie(res, userSession, req);
+  await setSessionCookie(res, userSession, req);
   res.json({ success: true, user: sanitizeUser(newUser), referral_credited: referralCreditApplied, referrer: creditedReferrerEmail });
 });
 
@@ -2118,7 +2145,7 @@ app.post('/api/auth/clerk-login', express.json(), async (req, res) => {
     cover_photo: user.cover_photo || ''
   };
 
-  setSessionCookie(res, userSession, req);
+  await setSessionCookie(res, userSession, req);
   res.json({ success: true, user: sanitizeUser(user) });
 });
 
@@ -2159,7 +2186,7 @@ app.get('/api/auth/callback', async (req, res) => {
     cover_photo: user.cover_photo
   };
 
-  setSessionCookie(res, userSession, req);
+  await setSessionCookie(res, userSession, req);
   res.redirect('/');
 });
 
@@ -2252,9 +2279,11 @@ app.post('/api/auth/refresh', async (req, res) => {
 app.post('/api/auth/logout', async (req, res) => {
   const session = await getSessionFromCookies(req.headers.cookie);
   if (session && session.email) {
-    const user = await dbGetUser(session.email.toLowerCase().trim());
+    const logoutEmail = session.email.toLowerCase().trim();
+    const user = await dbGetUser(logoutEmail);
     if (user) {
       user.active_ip = null;
+      await persistUser(logoutEmail, user);
     }
     if (session.session_id) {
       activeSessionsDb.delete(session.session_id);
@@ -2345,7 +2374,8 @@ app.post('/api/auth/verify-password', express.json(), async (req, res) => {
   }
 
   const { password } = req.body;
-  const user = await dbGetUser(session.email.toLowerCase().trim());
+  const verifyEmail = session.email.toLowerCase().trim();
+  const user = await dbGetUser(verifyEmail);
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2364,6 +2394,8 @@ app.post('/api/auth/verify-password', express.json(), async (req, res) => {
     user.passwordHash = bcrypt.hashSync(password, 12);
   }
 
+  const saved = await persistUser(verifyEmail, user);
+  if (!saved) return res.status(500).json({ error: 'Could not persist change. Please retry.' });
   res.json({ success: true, message: 'Password verified.' });
 });
 
@@ -2375,7 +2407,8 @@ app.post('/api/auth/change-password', express.json(), async (req, res) => {
   }
 
   const { currentPassword, newPassword } = req.body;
-  const user = await dbGetUser(session.email.toLowerCase().trim());
+  const changeEmail = session.email.toLowerCase().trim();
+  const user = await dbGetUser(changeEmail);
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2393,6 +2426,8 @@ app.post('/api/auth/change-password', express.json(), async (req, res) => {
   }
 
   user.passwordHash = bcrypt.hashSync(newPassword, 12);
+  const saved = await persistUser(changeEmail, user);
+  if (!saved) return res.status(500).json({ error: 'Could not persist change. Please retry.' });
   res.json({ success: true, message: 'Password changed successfully.' });
 });
 
@@ -2403,7 +2438,8 @@ app.post('/api/auth/generate-2fa', express.json(), async (req, res) => {
     return res.status(401).json({ error: 'Authentication required.' });
   }
 
-  const user = await dbGetUser(session.email.toLowerCase().trim());
+  const gen2faEmail = session.email.toLowerCase().trim();
+  const user = await dbGetUser(gen2faEmail);
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2417,10 +2453,12 @@ app.post('/api/auth/generate-2fa', express.json(), async (req, res) => {
   const otpauth_url = `otpauth://totp/Skyseye:${user.email}?secret=${secret}&issuer=Skyseye`;
   user.temp_2fa_secret = secret;
 
-  res.json({ 
-    success: true, 
-    secret, 
-    otpauth_url 
+  const saved = await persistUser(gen2faEmail, user);
+  if (!saved) return res.status(500).json({ error: 'Could not persist change. Please retry.' });
+  res.json({
+    success: true,
+    secret,
+    otpauth_url
   });
 });
 
@@ -2432,7 +2470,8 @@ app.post('/api/auth/verify-totp', express.json(), async (req, res) => {
   }
 
   const { token } = req.body;
-  const user = await dbGetUser(session.email.toLowerCase().trim());
+  const verifyTotpEmail = session.email.toLowerCase().trim();
+  const user = await dbGetUser(verifyTotpEmail);
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2458,9 +2497,11 @@ app.post('/api/auth/verify-totp', express.json(), async (req, res) => {
   });
   user.backup_codes = backupCodes;
 
-  res.json({ 
-    success: true, 
-    backupCodes 
+  const saved = await persistUser(verifyTotpEmail, user);
+  if (!saved) return res.status(500).json({ error: 'Could not persist change. Please retry.' });
+  res.json({
+    success: true,
+    backupCodes
   });
 });
 
@@ -2535,7 +2576,8 @@ app.post('/api/auth/request-email-update', express.json(), async (req, res) => {
     return res.status(400).json({ error: 'Email address already in use by another account.' });
   }
 
-  const user = await dbGetUser(session.email.toLowerCase().trim());
+  const requestEmailUpdateEmail = session.email.toLowerCase().trim();
+  const user = await dbGetUser(requestEmailUpdateEmail);
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2544,6 +2586,7 @@ app.post('/api/auth/request-email-update', express.json(), async (req, res) => {
   user.temp_new_email = cleanEmail;
   user.email_otp = otp;
   user.email_otp_expiry = Date.now() + 15 * 60 * 1000;
+  await persistUser(requestEmailUpdateEmail, user);
 
   console.log(`\n--- [EMAIL SECURITY VERIFICATION TRIGGERS] ---`);
   console.log(`Initiator User: ${user.name}`);
@@ -2900,6 +2943,8 @@ app.post('/api/billing/webhook', express.json(), async (req, res) => {
 
   console.log(`[WEBHOOK METRICS RECONCILED] Idempotency Key: ${idempotencyKey} | User: ${userEmail} -> Plan Tier: ${targetTier} | CUSTOMER ID: ${user.customer_id}`);
 
+  const saved = await persistUser(userEmail, user);
+  if (!saved) return res.status(500).json({ error: 'Could not persist change. Please retry.' });
   res.json({
     success: true,
     reconciled: true,
@@ -2927,12 +2972,15 @@ app.post('/api/billing/cancel', express.json(), async (req, res) => {
 
   console.log(`[AUDIT LOG] SUBSCRIPTION CANCELLATION REQUESTED AND SAVED. User: ${userEmail}. Restraining further charges. User active access remains functional until period end.`);
 
+  const saved = await persistUser(userEmail, user);
+  if (!saved) return res.status(500).json({ error: 'Could not persist change. Please retry.' });
+
   // Sync cookie with the updated cancels_at_period_end parameter
   const updatedSession = {
     ...session,
     cancels_at_period_end: true
   };
-  setSessionCookie(res, updatedSession, req);
+  await setSessionCookie(res, updatedSession, req);
 
   res.json({
     success: true,
@@ -2985,6 +3033,7 @@ app.post('/api/billing/apply-coupon', express.json(), async (req, res) => {
 
   // Credit the referrer with exactly 1 Token
   referrerMatch.referral_tokens_pool = (referrerMatch.referral_tokens_pool || 0) + 1;
+  await persistUser(referrerMatch.email, referrerMatch);
   console.log(`[ACTIVE REFERRAL ENGAGED] Credited +1 token to referrer: "${referrerMatch.email}". New count: ${referrerMatch.referral_tokens_pool}`);
 
   res.json({
@@ -3052,6 +3101,10 @@ app.post('/api/billing/process', express.json(), async (req, res) => {
   user.access_tier = targetTier;
   user.no_refund_policy_logged = true; // permanently write to DB row (Module 3, rule 4)
 
+  // Persist the tier/billing mutation BEFORE telling the client it succeeded.
+  const saved = await persistUser(userEmail, user);
+  if (!saved) return res.status(500).json({ error: 'Could not persist change. Please retry.' });
+
   // Referral Token Allocator logic (Module 5)
   let referralCreditLogs = 'No referral code entered.';
   let referrerCredited: string | null = null;
@@ -3070,6 +3123,7 @@ app.post('/api/billing/process', express.json(), async (req, res) => {
 
     if (referrerMatch) {
       referrerMatch.referral_tokens_pool = (referrerMatch.referral_tokens_pool || 0) + 1; // exactly 1 Token added to referrer (Module 5, rule 3)
+      await persistUser(referrerMatch.email, referrerMatch);
       referrerCredited = referrerMatch.email;
       referralCreditLogs = `SUCCESS // Credited 1 token to referrer: "${referrerMatch.email}" (New pool: ${referrerMatch.referral_tokens_pool} tokens). 5% discount verified on Referee transaction.`;
     } else {
@@ -3126,7 +3180,7 @@ app.post('/api/billing/process', express.json(), async (req, res) => {
     payment_method_id: user.payment_method_id,
     cancels_at_period_end: user.cancels_at_period_end
   };
-  setSessionCookie(res, freshSession, req);
+  await setSessionCookie(res, freshSession, req);
 
   res.json({
     success: true,
@@ -3346,10 +3400,12 @@ app.get('/api/users/workspace', async (req, res) => {
 app.patch('/api/users/workspace', express.json({ limit: '5mb' }), async (req, res) => {
   const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized.' });
-  const user = await dbGetUser(session.email.toLowerCase().trim());
+  const workspaceEmail = session.email.toLowerCase().trim();
+  const user = await dbGetUser(workspaceEmail);
   if (!user) return res.status(404).json({ error: 'User not found.' });
   if (req.body && Array.isArray(req.body.layout)) {
     user.workspace_layout = req.body.layout;
+    await persistUser(workspaceEmail, user);
     return res.json({ success: true });
   }
   res.status(400).json({ error: 'A layout array is required.' });
@@ -3468,7 +3524,8 @@ app.patch('/api/users/preferences', express.json({ limit: '50mb' }), async (req,
     username: user.username,
     cover_photo: user.cover_photo
   };
-  setSessionCookie(res, userSession, req);
+  await persistUser(userEmail, user);
+  await setSessionCookie(res, userSession, req);
 
   res.json({
     success: true,
@@ -3517,6 +3574,7 @@ app.post('/api/billing/sim-cron-invoice', express.json(), async (req, res) => {
 
   // Update token pool database variables
   user.referral_tokens_pool = initialTokens - tokensToDeduct;
+  await persistUser(userEmail, user);
 
   res.json({
     success: true,
@@ -3576,6 +3634,7 @@ app.get('/api/stream', async (req, res) => {
         sseClients = sseClients.filter(c => c.id !== previousClient.id);
       }
       user.active_ip = clientIp;
+      await persistUser(userEmail, user);
     }
   }
 
@@ -3970,7 +4029,8 @@ app.patch('/api/admin/users/:email/tier', requireAdmin(['super_admin', 'support'
   const user = await dbGetUser(email);
   if (!user) return res.status(404).json({ error: 'User not found' });
   user.access_tier = req.body.access_tier;
-  
+  await persistUser(email, user);
+
   // instant invalidate
   for (const client of sseClients) {
     if (client.userEmail === email && !client.res.finished) {
@@ -4045,7 +4105,7 @@ app.post('/api/admin/impersonate/:email', requireAdmin(['super_admin']), async (
   const targetEmail = String(req.params.email || '').toLowerCase().trim();
   const target = await dbGetUser(targetEmail);
   if (!target) return res.status(404).json({ error: 'Target user not found.' });
-  setSessionCookie(res, {
+  await setSessionCookie(res, {
     authenticated: true,
     provider: 'impersonation',
     name: target.name,
