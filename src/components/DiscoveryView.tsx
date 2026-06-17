@@ -880,6 +880,9 @@ export function DiscoveryView({
   // HIGH FREQUENCY LOCAL TICK FLUIDITY (Make prices dynamically tick in real-time for high-performance scalp feel!)
   useEffect(() => {
     const tickInterval = setInterval(() => {
+      // Compute purely inside the updater; collect the flash side-effect to run AFTER.
+      let flashedId: any = null;
+      let flashDir: 'up' | 'down' = 'up';
       setContracts(prev => {
         return prev.map(c => {
           // 8% chance of tick fluctuation on any option premium row
@@ -891,10 +894,8 @@ export function DiscoveryView({
             const bidDev = isUp ? c.bid + (deviation * 0.9) : c.bid - (deviation * 0.9);
             const askDev = isUp ? c.ask + (deviation * 1.1) : c.ask - (deviation * 1.1);
 
-            // Trigger a micro visual flash
-            setLastFlashingId(c.id);
-            setFlashDirection(isUp ? 'up' : 'down');
-            setTimeout(() => setLastFlashingId(null), 600);
+            flashedId = c.id;
+            flashDir = isUp ? 'up' : 'down';
 
             return {
               ...c,
@@ -906,6 +907,13 @@ export function DiscoveryView({
           return c;
         });
       });
+      // Side effects OUTSIDE the reducer — avoids duplicate timers/state under
+      // StrictMode/concurrent rendering (the updater can run twice).
+      if (flashedId) {
+        setLastFlashingId(flashedId);
+        setFlashDirection(flashDir);
+        setTimeout(() => setLastFlashingId(null), 600);
+      }
     }, 2800);
 
     return () => clearInterval(tickInterval);

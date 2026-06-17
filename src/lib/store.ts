@@ -115,19 +115,21 @@ export interface ContractStore {
 }
 
 // Global NY/CBOE Market State check function (Bug #8)
-export function getMarketState(currentTime = new Date()): MarketState {
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York',
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    hour12: false
-  });
+// Hoisted to module scope: building an Intl.DateTimeFormat is expensive and
+// getMarketState runs every second from the market-state ticker.
+const NY_TIME_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/New_York',
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  hour12: false
+});
 
-  const parts = formatter.formatToParts(currentTime);
+export function getMarketState(currentTime = new Date()): MarketState {
+  const parts = NY_TIME_FORMATTER.formatToParts(currentTime);
   const getPart = (type: string) => parseInt(parts.find(p => p.type === type)!.value, 10);
 
   const year = getPart('year');
