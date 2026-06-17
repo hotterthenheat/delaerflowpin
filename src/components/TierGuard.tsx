@@ -189,27 +189,24 @@ export default function TierGuard({
     if (userHasAccount) {
       setIsProcessing(true);
       try {
-        const res = await fetch('/api/billing/process', {
+        const res = await fetch('/api/billing/create-checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             plan: planKey,
-            address: '1-Click Fast Checkout Override',
-            zip: '90001',
-            card_number: '1-CLICK OVERRIDE',
-            cvc: '000',
-            expiry: '12/99',
-            noRefundAgreed: true
+            billingCycle: 'monthly'
           })
         });
         if (res.ok) {
-          // Immediately apply local state
-          useContractStore.getState().setPurchasedTier(requiredTier);
-          // And refresh to ensure session gets updated via cookie on backend
-          if ((window as any).refreshSlayerSession) {
-            (window as any).refreshSlayerSession();
+          const { url } = await res.json();
+          if (url) {
+            // Redirect the browser to the hosted Stripe Checkout page.
+            window.location.href = url;
+            return;
           }
-          setIsProcessing(false);
+          // No URL returned — fall back to the in-app pricing flow.
+          setCheckoutPlan(planKey);
+          setActiveTab('home');
         } else {
           setCheckoutPlan(planKey);
           setActiveTab('home');

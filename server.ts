@@ -6,6 +6,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
+import Stripe from 'stripe';
 import { GoogleGenAI } from '@google/genai';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
@@ -53,6 +54,39 @@ function getGeminiClient() {
   }
   return aiClient;
 }
+
+// ============================================================
+// STRIPE BILLING CONFIG
+// Lazily initialised so the app still boots without a secret key configured
+// (e.g. local/dev). When STRIPE_SECRET_KEY is absent, billing endpoints that
+// require Stripe respond with 503 instead of crashing at startup.
+// No explicit apiVersion is passed: the installed SDK pins its own version,
+// which keeps the types clean. Override with STRIPE_API_VERSION only if needed.
+// ============================================================
+const stripeClient = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
+
+// Central pricing config. Amounts are in CENTS, mirroring the pricing UI in
+// src/components/SubscriptionPricing.tsx.
+// IMPORTANT: these amounts MUST be verified against the live Stripe dashboard /
+// Product catalog before going to production — they are duplicated here for the
+// inline price_data path and can drift from the marketing page otherwise.
+// `accessTier` maps each marketing plan key onto the internal UserAccount
+// access_tier union (see UserAccount.access_tier), which is what the paywall and
+// tier-validation logic actually read.
+const TIER_PRICING: Record<string, {
+  tier: number;
+  name: string;
+  monthly: number;
+  annual: number;
+  oneTime?: number;
+  accessTier: 'discord' | 'intraday' | 'quant' | 'enterprise' | 'lifetime';
+}> = {
+  discord:   { tier: 1, name: 'Discord Plan',      monthly: 6500,   annual: 66000,   accessTier: 'discord' },
+  skyvision: { tier: 2, name: 'SkyVision Cockpit', monthly: 35000,  annual: 348000,  accessTier: 'intraday' },
+  pinpoint:  { tier: 3, name: 'Pinpoint Gexbot',   monthly: 50000,  annual: 504000,  accessTier: 'quant' },
+  quant:     { tier: 4, name: 'Quant Suite',       monthly: 150000, annual: 1500000, accessTier: 'enterprise' },
+  lifetime:  { tier: 5, name: 'Lifetime Pass',     monthly: 0,      annual: 0,       oneTime: 500000, accessTier: 'lifetime' },
+};
 
 // API middleware
 app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '12mb' }));
@@ -2877,81 +2911,179 @@ app.get('/api/users/download-export/:token', async (req, res) => {
   res.send(archive.payload);
 });
 
-// Webhook Idempotency Store to prevent network double upgrade retries
-const webhookIdempotencyKeys = new Set<string>();
-
-// Subscriptions driven by server-to-server webhooks with idempotency lock checks
-app.post('/api/billing/webhook', express.json(), async (req, res) => {
-  const idempotencyKey = String(req.headers['idempotency-key'] || req.body.idempotency_key || '').trim();
-  
-  if (!idempotencyKey) {
-    return res.status(400).json({ error: 'Idempotency Key of signature header/body is required.' });
+// ============================================================
+// STRIPE CHECKOUT — create a hosted Checkout Session and return its URL.
+// The frontend redirects the browser to the returned url. On completion Stripe
+// fires the webhook below, which is the single source of truth for granting
+// access (we never elevate a user's tier from this endpoint directly).
+// ============================================================
+app.post('/api/billing/create-checkout-session', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
+  if (!session || !session.email) {
+    return res.status(401).json({ error: 'Authentication required to start checkout.' });
   }
 
-  if (webhookIdempotencyKeys.has(idempotencyKey)) {
-    console.log(`[WEBHOOK RECORD RECOVERY] Double upgrade transaction blocked for idempotency: ${idempotencyKey}`);
-    return res.json({
-      success: true,
-      message: 'This subscription transaction has already been successfully reconciled by our server ledger webhook.',
-      idempotency_key: idempotencyKey
-    });
+  if (!stripeClient) {
+    return res.status(503).json({ error: 'Payments are not configured yet.' });
   }
 
-  // Record key (bounded — evict oldest beyond a cap so the set can't grow forever).
-  webhookIdempotencyKeys.add(idempotencyKey);
-  if (webhookIdempotencyKeys.size > 5000) { const oldest = webhookIdempotencyKeys.values().next().value; if (oldest !== undefined) webhookIdempotencyKeys.delete(oldest); }
+  const { plan } = req.body || {};
+  const billingCycle: 'monthly' | 'annual' = req.body?.billingCycle === 'annual' ? 'annual' : 'monthly';
 
-  const { event, customer_id, payment_method_id, plan, email } = req.body;
-
-  if (!email || !plan) {
-    return res.status(400).json({ error: 'Webhook processing failed: Missing user email or plan level.' });
+  const pricing = typeof plan === 'string' ? TIER_PRICING[plan] : undefined;
+  if (!pricing) {
+    return res.status(400).json({ error: 'Unknown subscription plan.' });
   }
 
-  const userEmail = email.toLowerCase().trim();
-  let user = await dbGetUser(userEmail);
+  const email = session.email.toLowerCase().trim();
+  const appUrl = process.env.APP_URL || 'http://localhost:3000';
 
-  if (!user) {
-    user = {
-      id: `usr-wh-${Math.random().toString(36).substring(2, 10)}`,
-      name: userEmail.split('@')[0],
-      email: userEmail,
-      access_tier: 'discord',
-      referral_tokens_pool: 0,
-      custom_referral_code: `SLAYERX_${Math.floor(Math.random() * 1000)}`,
-      selected_font_scale: 'STANDARD',
-      compact_view_enabled: false,
-      selected_theme: 'SLAYER PURE DARK',
-      no_refund_policy_logged: true,
-      active_ip: null,
-      avatar: `https://cdn.discordapp.com/embed/avatars/${Math.floor(Math.random() * 5)}.png`
+  try {
+    const isLifetime = plan === 'lifetime';
+
+    const baseParams: Stripe.Checkout.SessionCreateParams = {
+      customer_email: session.email,
+      success_url: `${appUrl}/?upgrade=success`,
+      cancel_url: `${appUrl}/?upgrade=cancel`,
+      metadata: {
+        email,
+        plan,
+        tier: String(pricing.tier),
+      },
     };
-    await dbSetUser(userEmail, user, user.version);
+
+    let checkoutSession: Stripe.Checkout.Session;
+
+    if (isLifetime) {
+      // One-time payment for the Lifetime Pass.
+      checkoutSession = await stripeClient.checkout.sessions.create({
+        ...baseParams,
+        mode: 'payment',
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: 'usd',
+              product_data: { name: pricing.name },
+              unit_amount: pricing.oneTime ?? 0,
+            },
+          },
+        ],
+      });
+    } else {
+      // Recurring subscription (monthly or annual).
+      checkoutSession = await stripeClient.checkout.sessions.create({
+        ...baseParams,
+        mode: 'subscription',
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: 'usd',
+              product_data: { name: pricing.name },
+              unit_amount: billingCycle === 'annual' ? pricing.annual : pricing.monthly,
+              recurring: { interval: billingCycle === 'annual' ? 'year' : 'month' },
+            },
+          },
+        ],
+        subscription_data: {
+          metadata: { email, plan },
+        },
+      });
+    }
+
+    return res.json({ url: checkoutSession.url });
+  } catch (err: any) {
+    console.error('[STRIPE CHECKOUT ERROR]', err);
+    return res.status(500).json({ error: err?.message || 'Failed to create checkout session.' });
+  }
+});
+
+// ============================================================
+// STRIPE WEBHOOK — the single source of truth for granting/revoking access.
+// Stripe POSTs raw JSON here; the signature is verified against the raw body
+// (hence express.raw — express.json would mangle the bytes and break the HMAC).
+// ============================================================
+app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  if (!stripeClient) {
+    return res.status(503).json({ error: 'Payments are not configured yet.' });
   }
 
-  // Elevate subscription tier state
-  let targetTier: 'discord' | 'intraday' | 'quant' | 'enterprise' | 'lifetime' = 'discord';
-  if (plan === 'discord') targetTier = 'discord';
-  else if (plan === 'skyvision') targetTier = 'intraday';
-  else if (plan === 'pinpoint') targetTier = 'quant';
-  else if (plan === 'quant') targetTier = 'enterprise';
-  else if (plan === 'lifetime') targetTier = 'lifetime';
+  const sig = req.headers['stripe-signature'];
+  let event: Stripe.Event;
+  try {
+    event = stripeClient.webhooks.constructEvent(req.body, sig as string, process.env.STRIPE_WEBHOOK_SECRET!);
+  } catch (e: any) {
+    console.error('[STRIPE WEBHOOK] Signature verification failed:', e?.message);
+    return res.status(400).send('Webhook signature verification failed');
+  }
 
-  user.access_tier = targetTier;
-  user.customer_id = customer_id || `cus_wh_${Math.random().toString(36).substring(2, 10)}`;
-  user.payment_method_id = payment_method_id || `pm_wh_${Math.random().toString(36).substring(2, 10)}`;
-  user.cancels_at_period_end = false; // Reset cancellation when active subscription event occurs
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const checkoutSession = event.data.object as Stripe.Checkout.Session;
+        const email = (checkoutSession.metadata?.email || checkoutSession.customer_email || '').toLowerCase().trim();
+        const plan = checkoutSession.metadata?.plan || '';
+        const pricing = TIER_PRICING[plan];
 
-  console.log(`[WEBHOOK METRICS RECONCILED] Idempotency Key: ${idempotencyKey} | User: ${userEmail} -> Plan Tier: ${targetTier} | CUSTOMER ID: ${user.customer_id}`);
+        if (email && pricing) {
+          const user = await dbGetUser(email);
+          if (user) {
+            user.access_tier = pricing.accessTier;
+            user.customer_id = (typeof checkoutSession.customer === 'string'
+              ? checkoutSession.customer
+              : checkoutSession.customer?.id) || user.customer_id;
+            user.cancels_at_period_end = false;
+            await persistUser(email, user);
+            console.log(`[STRIPE WEBHOOK] checkout.session.completed -> ${email} upgraded to ${pricing.accessTier} (plan: ${plan})`);
+          } else {
+            console.warn(`[STRIPE WEBHOOK] checkout.session.completed for unknown user: ${email}`);
+          }
+        } else {
+          console.warn('[STRIPE WEBHOOK] checkout.session.completed missing email or unknown plan', { email, plan });
+        }
+        break;
+      }
 
-  const saved = await persistUser(userEmail, user);
-  if (!saved) return res.status(500).json({ error: 'Could not persist change. Please retry.' });
-  res.json({
-    success: true,
-    reconciled: true,
-    idempotency_key: idempotencyKey,
-    user: userEmail,
-    access_tier: targetTier
-  });
+      case 'customer.subscription.deleted': {
+        const sub = event.data.object as Stripe.Subscription;
+        const email = (sub.metadata?.email || '').toLowerCase().trim();
+        if (email) {
+          const user = await dbGetUser(email);
+          if (user) {
+            user.access_tier = 'guest';
+            await persistUser(email, user);
+            console.log(`[STRIPE WEBHOOK] customer.subscription.deleted -> ${email} downgraded to guest`);
+          }
+        }
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const sub = event.data.object as Stripe.Subscription;
+        const email = (sub.metadata?.email || '').toLowerCase().trim();
+        if (email) {
+          const user = await dbGetUser(email);
+          if (user) {
+            user.cancels_at_period_end = !!sub.cancel_at_period_end;
+            await persistUser(email, user);
+            console.log(`[STRIPE WEBHOOK] customer.subscription.updated -> ${email} cancels_at_period_end=${user.cancels_at_period_end}`);
+          }
+        }
+        break;
+      }
+
+      default:
+        // Unhandled event types are acknowledged so Stripe stops retrying.
+        break;
+    }
+  } catch (e: any) {
+    console.error('[STRIPE WEBHOOK] Handler error:', e?.message);
+    // Still acknowledge so Stripe does not hammer us with retries on a transient
+    // internal error; surface the failure via logs/alerting instead.
+  }
+
+  return res.json({ received: true });
 });
 
 // Cancellation Flow mapped to /api/billing/cancel
