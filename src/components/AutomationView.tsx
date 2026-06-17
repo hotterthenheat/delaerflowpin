@@ -72,17 +72,17 @@ export function AutomationView() {
   }, [dispatchLogs]);
 
   return (
-    <div className="w-full text-zinc-300 flex flex-col font-mono select-none antialiased space-y-6">
+    <div className="w-full text-[#4ADE80] flex flex-col font-mono select-none antialiased space-y-6">
       
       {/* 1. HEADER (DISPATCH SEQUENCE) */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center apple-glass p-5 rounded-2xl gap-2 shadow-lg">
         <div className="flex gap-2 items-center">
-          <Cpu className="w-4 h-4 text-[#30d158] animate-pulse" />
-          <span className="text-[9.5px] text-zinc-300 uppercase tracking-widest font-black">
+          <Cpu className="w-4 h-4 text-[#4ADE80] animate-pulse" />
+          <span className="text-[9.5px] text-[#4ADE80] uppercase tracking-widest font-black">
             SLAYER AUTOMATION PIPELINE MANAGER // SMS DISPATCH
           </span>
         </div>
-        <div className="flex items-center gap-1.5 bg-black/40 p-1 px-1.5 border border-white/5 rounded-lg text-[9px] text-[#30d158] font-bold uppercase">
+        <div className="flex items-center gap-1.5 bg-black/40 p-1 px-1.5 border border-white/5 rounded-lg text-[9px] text-[#4ADE80] font-bold uppercase">
           TWILIO CARRIER GATEWAY ACTIVE
         </div>
       </div>
@@ -90,13 +90,13 @@ export function AutomationView() {
       {/* 2. PRIMARY HERO CARD (Animated SVG node network) */}
       <div className="w-full animate-fadeIn">
         <div className="apple-glass rounded-2xl p-6 relative overflow-hidden shadow-2xl space-y-4 border border-white/5">
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#30d158] via-indigo-500 to-[#30d158]" />
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#4ADE80] via-indigo-500 to-[#4ADE80]" />
 
           {/* Node Graph Header */}
-          <div className="border-b border-zinc-900/40 pb-3 flex justify-between items-start">
+          <div className="border-b border-black/40 pb-3 flex justify-between items-start">
             <div className="text-left space-y-1">
               <span className="text-[8px] text-zinc-500 tracking-[0.25em] font-black block">SYSTEM LOGICAL FLOW INTERFACE</span>
-              <h2 className="text-xl font-black text-white uppercase tracking-tight font-sans">
+              <h2 className="text-xl font-black text-[#E5E5E5] uppercase tracking-tight font-sans">
                 REALTIME DISPATCH NETWORK ENGINE
               </h2>
             </div>
@@ -113,7 +113,7 @@ export function AutomationView() {
               <defs>
                 <linearGradient id="silver-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#1e1e24" />
-                  <stop offset="50%" stopColor="#30d158" />
+                  <stop offset="50%" stopColor="#d4d4d8" />
                   <stop offset="100%" stopColor="#1e1e24" />
                 </linearGradient>
               </defs>
@@ -134,10 +134,10 @@ export function AutomationView() {
             <div className="bg-black/40 border border-white/5 p-3.5 h-[95px] w-[135px] rounded-xl text-left flex flex-col justify-between z-10 shadow-md">
               <div>
                 <span className="text-[7.5px] text-zinc-550 font-bold block uppercase">FEED</span>
-                <span className="text-[9.5px] font-black text-white block uppercase animate-pulse">CME DIRECT</span>
+                <span className="text-[9.5px] font-black text-[#E5E5E5] block uppercase animate-pulse">CME DIRECT</span>
               </div>
               <div className="flex items-center gap-1.5 text-[8px] text-zinc-400">
-                <Wifi className="w-3 text-[#30d158]" />
+                <Wifi className="w-3 text-[#d4d4d8]" />
                 <span>0.8s sync</span>
               </div>
             </div>
@@ -146,7 +146,7 @@ export function AutomationView() {
             <div className="bg-black/40 border border-white/5 p-3.5 h-[95px] w-[135px] rounded-xl text-left flex flex-col justify-between z-10 shadow-md">
               <div>
                 <span className="text-[7.5px] text-zinc-550 font-bold block uppercase">ENGINE</span>
-                <span className="text-[9.5px] font-black text-white block uppercase">GEX MAPS</span>
+                <span className="text-[9.5px] font-black text-[#E5E5E5] block uppercase">GEX MAPS</span>
               </div>
               <div className="flex items-center gap-1.5 text-[8px] text-zinc-400">
                 <Database className="w-3 text-indigo-400" />
@@ -158,7 +158,7 @@ export function AutomationView() {
             <div className="bg-black/40 border border-white/5 p-3.5 h-[95px] w-[135px] rounded-xl text-left flex flex-col justify-between z-10 shadow-md">
               <div>
                 <span className="text-[7.5px] text-zinc-550 font-bold block uppercase">RISK</span>
-                <span className="text-[9.5px] font-black text-white block uppercase">TAIL MONITOR</span>
+                <span className="text-[9.5px] font-black text-[#E5E5E5] block uppercase">TAIL MONITOR</span>
               </div>
               <div className="flex items-center gap-1.5 text-[8px] text-zinc-400">
                 <Layers className="w-3 text-purple-400" />
@@ -169,10 +169,10 @@ export function AutomationView() {
             {/* Node 4 */}
             <div className="bg-black/60 border border-white/10 p-3.5 h-[95px] w-[135px] rounded-xl text-left flex flex-col justify-between z-10 shadow-lg bg-gradient-to-tr from-black/80 to-zinc-950/20">
               <div>
-                <span className="text-[7.5px] text-[#30d158] font-bold block uppercase text-[#30d158]">DISPATCH</span>
-                <span className="text-[9.5px] font-black text-white block uppercase">SUBSCRIBER</span>
+                <span className="text-[7.5px] text-[#d4d4d8] font-bold block uppercase text-[#d4d4d8]">DISPATCH</span>
+                <span className="text-[9.5px] font-black text-[#E5E5E5] block uppercase">SUBSCRIBER</span>
               </div>
-              <div className="flex items-center gap-1.5 text-[8px] text-[#30d158] font-bold">
+              <div className="flex items-center gap-1.5 text-[8px] text-[#d4d4d8] font-bold">
                 <Smartphone className="w-3" />
                 <span>Outbound queue</span>
               </div>
@@ -189,8 +189,8 @@ export function AutomationView() {
         {/* Left Side: SMS Cockpit Input & Handshake Logs */}
         <div className="apple-glass p-6 rounded-2xl flex flex-col justify-between space-y-4 shadow-lg border border-white/5">
           <div className="text-left space-y-3">
-            <div className="flex items-center justify-between border-b border-zinc-900/40 pb-2">
-              <span className="text-xs font-black text-white uppercase tracking-wider">SMS CONTROL CHANNELS</span>
+            <div className="flex items-center justify-between border-b border-black/40 pb-2">
+              <span className="text-xs font-black text-[#E5E5E5] uppercase tracking-wider">SMS CONTROL CHANNELS</span>
               <span className="text-[7px] text-zinc-500 font-bold">TELECOM PORT: SMPP5</span>
             </div>
 
@@ -209,14 +209,14 @@ export function AutomationView() {
                     value={phoneNumber}
                     onChange={handlePhoneChange}
                     disabled={isDispatching}
-                    className="w-full bg-black/40 text-white border border-white/10 focus:border-[#30d158]/50 rounded-lg py-2.5 pl-8 pr-3 text-xs focus:outline-none transition-all font-mono font-bold"
+                    className="w-full bg-black/40 text-[#E5E5E5] border border-white/10 focus:border-black rounded-lg py-2.5 pl-8 pr-3 text-xs focus:outline-none transition-all font-mono font-bold"
                   />
                 </div>
 
                 <button
                   onClick={handleSendSMS}
                   disabled={isDispatching || phoneNumber.replace(/\D/g, '').length < 10}
-                  className="px-5 py-2.5 bg-white hover:bg-zinc-100 text-black font-extrabold uppercase rounded-lg cursor-pointer disabled:opacity-30 disabled:hover:bg-white transition-all text-[9.5px] flex items-center gap-1 shrink-0 shadow hover:scale-[1.01]"
+                  className="px-5 py-2.5 bg-white hover:bg-black text-black font-extrabold uppercase rounded-lg cursor-pointer disabled:opacity-30 disabled:hover:bg-white transition-all text-[9.5px] flex items-center gap-1 shrink-0 shadow hover:scale-[1.01]"
                 >
                   {isDispatching ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   <span>{isDispatching ? 'ROUTING' : 'DISPATCH'}</span>
@@ -232,13 +232,13 @@ export function AutomationView() {
             {/* Handshake Logs */}
             {dispatchLogs.length > 0 && (
               <div className="bg-black/40 border border-white/5 rounded-xl p-3 h-[110px] overflow-y-auto text-[8.5px] leading-relaxed text-zinc-400 scrolling-auto select-text font-mono">
-                <span className="text-zinc-500 font-bold block uppercase border-b border-zinc-900/40 pb-1 mb-1.5 font-sans tracking-wide">
+                <span className="text-zinc-500 font-bold block uppercase border-b border-black/40 pb-1 mb-1.5 font-sans tracking-wide">
                   COGNITIVE CARRIER SOCKET STREAM
                 </span>
                 {dispatchLogs.map((log, i) => {
                   const isLast = i === dispatchLogs.length - 1;
                   return (
-                    <div key={i} className={isLast ? 'text-white font-bold' : 'text-zinc-550'}>
+                    <div key={i} className={isLast ? 'text-[#E5E5E5] font-bold' : 'text-zinc-550'}>
                       {log}
                     </div>
                   );
@@ -252,9 +252,9 @@ export function AutomationView() {
         {/* Right Side: Mock Device Preview Phone Screen */}
         <div className="apple-glass p-6 rounded-2xl flex flex-col justify-between shadow-lg border border-white/5">
           <div className="text-left space-y-3">
-            <div className="border-b border-zinc-900/40 pb-2">
+            <div className="border-b border-black/40 pb-2">
               <span className="text-[8px] text-zinc-500 uppercase tracking-widest font-black block">SUBSCRIBER MOBILE HUB PREVIEW</span>
-              <h3 className="text-[11px] font-black text-white uppercase tracking-wider mt-0.5">
+              <h3 className="text-[11px] font-black text-[#E5E5E5] uppercase tracking-wider mt-0.5">
                 Physical Device Simulation
               </h3>
             </div>
@@ -262,20 +262,20 @@ export function AutomationView() {
             <div className="bg-black/40 border border-white/5 rounded-xl p-4 font-sans relative overflow-hidden min-h-[140px] flex flex-col justify-between">
               
               {/* Phone Status Grid */}
-              <div className="flex justify-between items-center text-[7.5px] text-zinc-600 font-mono tracking-wider border-b border-zinc-900/40 pb-1 mb-2 font-black">
+              <div className="flex justify-between items-center text-[7.5px] text-zinc-600 font-mono tracking-wider border-b border-black/40 pb-1 mb-2 font-black">
                 <span>SLAYER NODE HUB</span>
                 <div className="flex gap-2 items-center">
                   <span>NET5</span>
-                  <span className="text-[#30d158] font-bold">100% SECURE</span>
+                  <span className="text-[#d4d4d8] font-bold">100% SECURE</span>
                 </div>
               </div>
 
               {sentAlerts.length > 0 ? (
                 <div className="flex flex-col gap-2">
                   {sentAlerts.slice(0, 1).map((alert, idx) => (
-                    <div key={idx} className="bg-black/80 text-white p-3 rounded-lg text-[9.5px] leading-relaxed w-[95%] ml-auto shadow-md border border-white/5 animate-slideUp relative">
+                    <div key={idx} className="bg-black/80 text-[#E5E5E5] p-3 rounded-lg text-[9.5px] leading-relaxed w-[95%] ml-auto shadow-md border border-white/5 animate-slideUp relative">
                       <span className="absolute -left-9 text-[7px] font-mono text-zinc-650 top-1">{alert.timestamp}</span>
-                      <div className="font-extrabold font-mono text-[8px] text-[#30d158] mb-0.5">SLAYER.TRADE</div>
+                      <div className="font-extrabold font-mono text-[8px] text-[#d4d4d8] mb-0.5">SLAYER.TRADE</div>
                       {alert.message}
                     </div>
                   ))}
@@ -298,7 +298,7 @@ export function AutomationView() {
       <div className="apple-glass p-6 rounded-2xl text-left space-y-3 shadow-lg border border-white/5">
         <div className="flex items-center gap-2 border-b border-white/5 pb-2">
           <Layers className="w-3.5 h-3.5 text-zinc-550" />
-          <h4 className="text-[10.5px] font-black text-white uppercase tracking-wider block">
+          <h4 className="text-[10.5px] font-black text-[#E5E5E5] uppercase tracking-wider block">
             SMPP Carrier Gateway Routing Rules
           </h4>
         </div>
@@ -315,8 +315,8 @@ export function AutomationView() {
       {/* 5. STATUS BAR */}
       <div className="apple-glass min-h-[30px] p-3 rounded-xl flex items-center justify-between text-[8px] text-zinc-400 uppercase tracking-widest pl-4 font-black shadow-md">
         <span>SMPP CONNECTION STYLED SYNC ENGINE OVER CARRIER TR-8</span>
-        <div className="flex items-center gap-1.5 text-[#30d158] font-bold">
-          <span className="h-1.5 w-1.5 bg-[#30d158] rounded-full animate-ping" />
+        <div className="flex items-center gap-1.5 text-[#d4d4d8] font-bold">
+          <span className="h-1.5 w-1.5 bg-black rounded-full animate-ping" />
           <span>SOCKET CONNECTED</span>
         </div>
       </div>

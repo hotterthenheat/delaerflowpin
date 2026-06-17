@@ -56,20 +56,20 @@ export function TargetsSection({ targets, assetName, decimals }: TargetsSectionP
   });
 
   return (
-    <div className="bg-[#121214] border border-[#2A2A2D] rounded-sm font-mono overflow-hidden shadow-lg p-5">
-      <div className="flex items-center justify-between border-b border-[#2A2A2D] pb-3 mb-4">
+    <div className="bg-black border border-black rounded-sm font-mono overflow-hidden shadow-lg p-5">
+      <div className="flex items-center justify-between border-b border-black pb-3 mb-4">
         <div className="flex items-center gap-1.5">
-          <Crosshair className="w-4 h-4 text-emerald-400 animate-spin" style={{ animationDuration: '6s' }} />
+          <Crosshair className="w-4 h-4 text-[#4ADE80] animate-spin" style={{ animationDuration: '6s' }} />
           <span className="text-xs tracking-[0.2em] font-bold text-[#E0E0E0]">PROJECTION TARGET ENGINE</span>
         </div>
-        <span className="text-[9px] text-[#888888] font-bold tracking-widest border border-zinc-800 px-2 py-0.5 bg-black/40">MODEL: OPTION ESTIMATOR V3</span>
+        <span className="text-[9px] text-[#888888] font-bold tracking-widest border border-black px-2 py-0.5 bg-black/40">MODEL: OPTION ESTIMATOR V3</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {optionTargets.map((item, idx) => {
-          let sideBorder = 'border-l-2 border-emerald-500';
-          let badgeBgColor = 'bg-emerald-950/40 text-emerald-400 border border-emerald-900/30';
-          let icon = <Target className="w-4 h-4 text-emerald-400" />;
+          let sideBorder = 'border-l-2 border-black';
+          let badgeBgColor = 'bg-black/40 text-[#4ADE80] border border-black';
+          let icon = <Target className="w-4 h-4 text-[#4ADE80]" />;
 
           if (idx === 2) {
             sideBorder = 'border-l-2 border-amber-500';
@@ -77,17 +77,17 @@ export function TargetsSection({ targets, assetName, decimals }: TargetsSectionP
             icon = <Milestone className="w-4 h-4 text-amber-500" />;
           } else if (idx === 3) {
             sideBorder = 'border-l-2 border-rose-500';
-            badgeBgColor = 'bg-rose-950/40 text-rose-450 border border-rose-900/30';
-            icon = <Zap className="w-4 h-4 text-rose-450" />;
+            badgeBgColor = 'bg-rose-950/40 text-[#F87171] border border-[#F87171]/30';
+            icon = <Zap className="w-4 h-4 text-[#F87171]" />;
           }
 
           return (
             <div
               key={item.id}
-              className={`bg-black/35 p-4 border border-[#2A2A2D] flex flex-col justify-between rounded-sm ${sideBorder} hover:border-[#3A3A3D] transition-colors`}
+              className={`bg-black/35 p-4 border border-black flex flex-col justify-between rounded-sm ${sideBorder} hover:border-[#3A3A3D] transition-colors`}
             >
               <div>
-                <div className="flex items-center justify-between border-b border-zinc-900 pb-2 mb-3">
+                <div className="flex items-center justify-between border-b border-black pb-2 mb-3">
                   <span className="text-[9.5px] text-[#888888] font-bold uppercase tracking-wider">{item.title}</span>
                   {icon}
                 </div>
@@ -95,13 +95,13 @@ export function TargetsSection({ targets, assetName, decimals }: TargetsSectionP
                 {/* Option Value */}
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] text-[#888888] uppercase select-none">Option Value</span>
-                  <span className="text-sm font-black text-white font-mono tracking-wide">{item.optionValue}</span>
+                  <span className="text-sm font-black text-[#E5E5E5] font-mono tracking-wide">{item.optionValue}</span>
                 </div>
 
                 {/* Probability */}
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] text-[#888888] uppercase select-none">Probability</span>
-                  <span className="text-xs font-bold text-white font-mono">{item.probability}%</span>
+                  <span className="text-xs font-bold text-[#E5E5E5] font-mono">{item.probability}%</span>
                 </div>
 
                 {/* Confidence Level */}
@@ -115,14 +115,14 @@ export function TargetsSection({ targets, assetName, decimals }: TargetsSectionP
                 {/* Risk Reward */}
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] text-[#888888] uppercase select-none">Risk / Reward</span>
-                  <span className="text-xs font-bold text-emerald-400 font-mono">{item.riskReward}</span>
+                  <span className="text-xs font-bold text-[#4ADE80] font-mono">{item.riskReward}</span>
                 </div>
               </div>
 
               {/* Footer ETA */}
-              <div className="mt-4 pt-2.5 border-t border-zinc-900 flex justify-between items-center text-[10px]">
+              <div className="mt-4 pt-2.5 border-t border-black flex justify-between items-center text-[10px]">
                 <span className="text-[#66666A] uppercase font-bold tracking-tight">target eta</span>
-                <span className="text-zinc-300 font-bold font-mono">{item.eta}</span>
+                <span className="text-[#4ADE80] font-bold font-mono">{item.eta}</span>
               </div>
             </div>
           );

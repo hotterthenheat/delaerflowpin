@@ -275,23 +275,23 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
         whileInView={{ opacity: 1, y: 0, scale: 1 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 py-10 px-6 max-w-[1400px] mx-auto w-full border-t border-zinc-900"
+        className="relative z-10 py-10 px-6 max-w-[1400px] mx-auto w-full border-t border-black"
       >
         <div className="text-center space-y-2 mb-10">
           <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-[0.3em] block">
             SUBSCRIPTION MODELS & PLATFORM SERVICES
           </span>
-          <h2 className="text-2xl font-black text-white uppercase tracking-tight font-sans">
+          <h2 className="text-2xl font-black text-[#E5E5E5] uppercase tracking-tight font-sans">
             Simple Subscriptions
           </h2>
         </div>
 
         <div className="flex justify-center mb-10 w-full">
-          <div className="flex items-center gap-2 bg-black border border-zinc-800 p-1 rounded-lg">
+          <div className="flex items-center gap-2 bg-black border border-black p-1 rounded-lg">
             <button
               onClick={() => setBillingCycle('monthly')}
               className={`px-6 py-2 rounded-md text-[11px] font-bold tracking-widest uppercase transition-all ${
-                billingCycle === 'monthly' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'
+                billingCycle === 'monthly' ? 'bg-black text-[#E5E5E5]' : 'text-zinc-500 hover:text-[#E5E5E5] hover:bg-black'
               }`}
             >
               Monthly
@@ -299,10 +299,10 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             <button
               onClick={() => setBillingCycle('annual')}
               className={`px-6 py-2 rounded-md text-[11px] font-bold tracking-widest uppercase transition-all flex items-center gap-2 ${
-                billingCycle === 'annual' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'
+                billingCycle === 'annual' ? 'bg-black text-[#E5E5E5]' : 'text-zinc-500 hover:text-[#E5E5E5] hover:bg-black'
               }`}
             >
-              Annual <span className="text-[9px] bg-[#30d158]/20 text-[#30d158] px-1.5 py-0.5 rounded-sm">Save ~20%</span>
+              Annual <span className="text-[9px] bg-black/20 text-[#4ADE80] px-1.5 py-0.5 rounded-sm">Save ~20%</span>
             </button>
           </div>
         </div>
@@ -324,31 +324,31 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             className="apple-glass rounded-2xl p-6 flex flex-col justify-between relative transition-all duration-150 w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.33%-16px)] xl:w-[calc(20%-20px)] min-w-[240px] max-w-[280px] lg:order-1 xl:order-1"
           >
             <div className="space-y-4">
-              <div className="flex justify-between items-baseline border-b border-zinc-900/40 pb-4">
+              <div className="flex justify-between items-baseline border-b border-black/40 pb-4">
                 <div>
                   <span className="text-zinc-500 text-[10px] uppercase tracking-wider block font-bold">Platform</span>
-                  <span className="text-[12px] font-mono font-black text-rose-400 block mt-1">COMMUNITY CHAT</span>
+                  <span className="text-[12px] font-mono font-black text-[#F87171] block mt-1">COMMUNITY CHAT</span>
                 </div>
                 <div className="text-right">
                   <span className="text-[#A1A1AA] text-xs block font-bold">DISCORD</span>
-                  <span className="text-3xl font-black text-white">{billingCycle === 'monthly' ? '$65' : '$55'}</span>
+                  <span className="text-3xl font-black text-[#E5E5E5]">{billingCycle === 'monthly' ? '$65' : '$55'}</span>
                   <span className="text-[10px] text-zinc-650 block">/ Month</span>
                 </div>
               </div>
 
               <div className="space-y-3.5 text-xs font-sans">
                 <span className="text-[11px] text-[#71717A] block uppercase font-mono tracking-wider font-bold">Inclusions:</span>
-                <ul className="space-y-2.5 font-mono text-xs text-zinc-300">
+                <ul className="space-y-2.5 font-mono text-xs text-[#4ADE80]">
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Real-time Discord Chat & Alerts</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Daily Option Discovery Reports</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Verified Historic Trade Archive</span>
                   </li>
                 </ul>
@@ -358,7 +358,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             <div className="pt-6">
               <button 
                 onClick={() => handleCheckoutPlan('discord')}
-                className="w-full py-4 bg-zinc-900/90 hover:bg-white hover:text-black border border-zinc-800 text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
+                className="w-full py-4 bg-black/90 hover:bg-white hover:text-black border border-black text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
               >
                 Select Plan
               </button>
@@ -380,35 +380,35 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             className="apple-glass rounded-2xl p-6 flex flex-col justify-between relative transition-all duration-150 w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.33%-16px)] xl:w-[calc(20%-20px)] min-w-[240px] max-w-[280px] lg:order-3 xl:order-2"
           >
             <div className="space-y-4">
-              <div className="flex justify-between items-baseline border-b border-zinc-900/40 pb-4">
+              <div className="flex justify-between items-baseline border-b border-black/40 pb-4">
                 <div>
                   <span className="text-zinc-500 text-[10px] uppercase tracking-wider block font-bold">Dashboard</span>
                   <span className="text-[12px] font-mono font-black text-indigo-400 block mt-1 uppercase">DECISION ENGINE</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-white text-xs block font-black">SKYVISION</span>
-                  <span className="text-3xl font-black text-white">{billingCycle === 'monthly' ? '$350' : '$290'}</span>
+                  <span className="text-[#E5E5E5] text-xs block font-black">SKYVISION</span>
+                  <span className="text-3xl font-black text-[#E5E5E5]">{billingCycle === 'monthly' ? '$350' : '$290'}</span>
                   <span className="text-[10px] text-zinc-650 block">/ Month</span>
                 </div>
               </div>
 
               <div className="space-y-3.5 text-xs font-sans">
                 <span className="text-[11px] text-[#71717A] block uppercase font-mono tracking-wider font-bold">Inclusions:</span>
-                <ul className="space-y-2.5 font-mono text-xs text-zinc-300">
+                <ul className="space-y-2.5 font-mono text-xs text-[#4ADE80]">
                   <li className="flex gap-2.5 items-center">
                     <Check className="w-4 h-4 text-indigo-400 shrink-0" />
-                    <span className="font-medium text-white">All Discord Tier Features ($65 Value)</span>
+                    <span className="font-medium text-[#E5E5E5]">All Discord Tier Features ($65 Value)</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>SkyVision Decision Dashboard</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Real-time Trade Health Indexes</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Live Dealer Hedging Models</span>
                   </li>
                 </ul>
@@ -418,7 +418,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             <div className="pt-6">
               <button 
                 onClick={() => handleCheckoutPlan('skyvision')}
-                className="w-full py-4 bg-zinc-900/90 hover:bg-white hover:text-black border border-zinc-800 text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
+                className="w-full py-4 bg-black/90 hover:bg-white hover:text-black border border-black text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
               >
                 Select Plan
               </button>
@@ -437,42 +437,42 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
               opacity: { duration: 0.6, delay: 0.3 }
             }}
             whileHover={{ scale: 1.08, y: -12, boxShadow: "0 30px 60px -10px rgba(48, 209, 88, 0.3)" }}
-            className="apple-glass-bright rounded-2xl p-6 flex flex-col justify-between relative transition-all duration-150 border-2 border-emerald-500/40 shadow-[0_0_25px_rgba(48,209,88,0.15)] w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.33%-16px)] xl:w-[calc(20%-20px)] min-w-[240px] max-w-[280px] lg:order-2 xl:order-3"
+            className="apple-glass-bright rounded-2xl p-6 flex flex-col justify-between relative transition-all duration-150 border-2 border-black shadow-[0_0_25px_rgba(48,209,88,0.15)] w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.33%-16px)] xl:w-[calc(20%-20px)] min-w-[240px] max-w-[280px] lg:order-2 xl:order-3"
           >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-emerald-500 to-emerald-400 text-[#050506] text-[9.5px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow-lg whitespace-nowrap z-10 border border-emerald-300/30">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-zinc-300 to-zinc-300 text-[#000000] text-[9.5px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow-lg whitespace-nowrap z-10 border border-black">
               🔥 BEST VALUE // MOST SUBSCRIBED
             </div>
 
             <div className="space-y-4">
-              <div className="flex justify-between items-baseline border-b border-zinc-900/40 pb-4">
+              <div className="flex justify-between items-baseline border-b border-black/40 pb-4">
                 <div>
                   <span className="text-zinc-500 text-[10px] uppercase tracking-wider block font-bold">Automated GEX</span>
-                  <span className="text-[12px] font-mono font-black text-emerald-400 block mt-1 uppercase">POSITION TRACKING</span>
+                  <span className="text-[12px] font-mono font-black text-[#4ADE80] block mt-1 uppercase">POSITION TRACKING</span>
                 </div>
                 <div className="text-right">
                   <span className="text-[#A1A1AA] text-xs block font-bold">GEXBOT CORE</span>
-                  <span className="text-3xl font-black text-white">{billingCycle === 'monthly' ? '$500' : '$420'}</span>
+                  <span className="text-3xl font-black text-[#E5E5E5]">{billingCycle === 'monthly' ? '$500' : '$420'}</span>
                   <span className="text-[10px] text-zinc-650 block">/ Month</span>
                 </div>
               </div>
 
               <div className="space-y-3.5 text-xs font-sans">
                 <span className="text-[11px] text-[#71717A] block uppercase font-mono tracking-wider font-bold">Inclusions:</span>
-                <ul className="space-y-2.5 font-mono text-xs text-zinc-300">
+                <ul className="space-y-2.5 font-mono text-xs text-[#4ADE80]">
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span className="font-bold text-white text-[10.5px]">All SkyVision + Discord Features</span>
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
+                    <span className="font-bold text-[#E5E5E5] text-[10.5px]">All SkyVision + Discord Features</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Pinpoint Gexbot Live Feed</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Institutional Tape Tracking</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Gamma Exposure Visualizer</span>
                   </li>
                 </ul>
@@ -482,7 +482,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             <div className="pt-6">
               <button 
                 onClick={() => handleCheckoutPlan('pinpoint')}
-                className="w-full py-4 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-300 hover:to-emerald-400 text-[#000000] font-black uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-[0_10px_30px_rgba(48,209,88,0.25)] hover:scale-[1.01]"
+                className="w-full py-4 bg-gradient-to-r from-zinc-300 to-zinc-300 hover:from-zinc-300 hover:to-zinc-300 text-[#000000] font-black uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-[0_10px_30px_rgba(48,209,88,0.25)] hover:scale-[1.01]"
               >
                 SELECT GEXBOT
               </button>
@@ -504,35 +504,35 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             className="apple-glass rounded-2xl p-6 flex flex-col justify-between relative transition-all duration-150 w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.33%-16px)] xl:w-[calc(20%-20px)] min-w-[240px] max-w-[280px] lg:order-4 xl:order-4"
           >
             <div className="space-y-4">
-              <div className="flex justify-between items-baseline border-b border-zinc-900/40 pb-4">
+              <div className="flex justify-between items-baseline border-b border-black/40 pb-4">
                 <div>
                   <span className="text-zinc-500 text-[10px] uppercase tracking-wider block font-bold">Full Arsenal</span>
                   <span className="text-[12px] font-mono font-black text-amber-400 block mt-1 uppercase">EVERYTHING</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-white text-xs block font-black font-mono text-zinc-400">QUANT SUITE</span>
-                  <span className="text-3xl font-black text-white">{billingCycle === 'monthly' ? '$1500' : '$1250'}</span>
+                  <span className="text-[#E5E5E5] text-xs block font-black font-mono text-zinc-400">QUANT SUITE</span>
+                  <span className="text-3xl font-black text-[#E5E5E5]">{billingCycle === 'monthly' ? '$1500' : '$1250'}</span>
                   <span className="text-[10px] text-zinc-650 block">/ Month</span>
                 </div>
               </div>
 
               <div className="space-y-3.5 text-xs font-sans">
                 <span className="text-[11px] text-[#71717A] block uppercase font-mono tracking-wider font-bold">Inclusions:</span>
-                <ul className="space-y-2.5 font-mono text-xs text-zinc-300">
+                <ul className="space-y-2.5 font-mono text-xs text-[#4ADE80]">
                   <li className="flex gap-2.5 items-center">
                     <Check className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span className="font-medium text-white">All Gexbot + SkyVision + Discord Features</span>
+                    <span className="font-medium text-[#E5E5E5]">All Gexbot + SkyVision + Discord Features</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
                     <Check className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span className="font-medium text-white">Full Quant Engine Access</span>
+                    <span className="font-medium text-[#E5E5E5]">Full Quant Engine Access</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Dealer Flow Tracking</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Trust Archive & Registry</span>
                   </li>
                 </ul>
@@ -542,7 +542,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             <div className="pt-6">
               <button 
                 onClick={() => handleCheckoutPlan('quant')}
-                className="w-full py-4 bg-zinc-900/90 hover:bg-white hover:text-black border border-zinc-800 text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
+                className="w-full py-4 bg-black/90 hover:bg-white hover:text-black border border-black text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
               >
                 Select Plan
               </button>
@@ -564,37 +564,37 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             className="apple-glass rounded-2xl p-6 flex flex-col justify-between relative transition-all duration-150 w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.33%-16px)] xl:w-[calc(20%-20px)] min-w-[240px] max-w-[280px] lg:order-5 xl:order-5"
           >
             <div className="space-y-4">
-              <div className="flex justify-between items-baseline border-b border-zinc-900/40 pb-4">
+              <div className="flex justify-between items-baseline border-b border-black/40 pb-4">
                 <div>
                   <span className="text-zinc-500 text-[10px] uppercase tracking-wider block font-bold">Permanent</span>
-                  <span className="text-[12px] font-mono font-black text-white block mt-1 uppercase">UNLIMITED TIER</span>
+                  <span className="text-[12px] font-mono font-black text-[#E5E5E5] block mt-1 uppercase">UNLIMITED TIER</span>
                 </div>
                 <button 
                   onClick={() => handleCheckoutPlan('lifetime')}
                   className="text-right focus:outline-none focus:ring-1 focus:ring-white/20 rounded p-1 hover:opacity-85 transition-all text-left block text-right cursor-pointer"
                 >
                   <span className="text-[#A1A1AA] text-[10.5px] block font-bold tracking-wider uppercase font-mono">LIFETIME</span>
-                  <span className="text-[18px] font-black text-white uppercase tracking-tight block border-b border-dashed border-white/40">CONTACT US</span>
+                  <span className="text-[18px] font-black text-[#E5E5E5] uppercase tracking-tight block border-b border-dashed border-white/40">CONTACT US</span>
                 </button>
               </div>
 
               <div className="space-y-3.5 text-xs font-sans">
                 <span className="text-[11px] text-[#71717A] block uppercase font-mono tracking-wider font-bold">Inclusions:</span>
-                <ul className="space-y-2.5 font-mono text-xs text-zinc-300">
+                <ul className="space-y-2.5 font-mono text-xs text-[#4ADE80]">
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-white shrink-0" />
-                    <span className="font-medium text-white">All Features Unlocked</span>
+                    <Check className="w-4 h-4 text-[#E5E5E5] shrink-0" />
+                    <span className="font-medium text-[#E5E5E5]">All Features Unlocked</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Permanent Platform Access</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Private 1-on-1 Onboarding</span>
                   </li>
                   <li className="flex gap-2.5 items-center">
-                    <Check className="w-4 h-4 text-[#30d158] shrink-0" />
+                    <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
                     <span>Early Beta Access to Tools</span>
                   </li>
                 </ul>
@@ -604,7 +604,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             <div className="pt-6">
               <button 
                 onClick={() => handleCheckoutPlan('lifetime')}
-                className="w-full py-4 bg-zinc-900/90 hover:bg-white hover:text-black border border-zinc-800 text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
+                className="w-full py-4 bg-black/90 hover:bg-white hover:text-black border border-black text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
               >
                 CONTACT US
               </button>
@@ -620,7 +620,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="border-t border-zinc-900 bg-[#000000] py-12 px-6 text-center text-[10px] text-zinc-500 font-mono mt-auto relative z-10 w-full"
+        className="border-t border-black bg-black py-12 px-6 text-center text-[10px] text-zinc-500 font-mono mt-auto relative z-10 w-full"
       >
         <p>&copy; 2026 slayertrade. ALL RIGHTS RESERVED.</p>
         <p className="mt-1 text-[8px] text-zinc-650 uppercase tracking-widest">
@@ -642,12 +642,12 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-[#0c0c0e] border border-zinc-800 rounded-2xl w-full max-w-2xl my-auto overflow-hidden shadow-2xl flex flex-col"
+              className="bg-black border border-black rounded-2xl w-full max-w-2xl my-auto overflow-hidden shadow-2xl flex flex-col"
             >
               {/* Modal Top Ribbon Header */}
-              <div className="bg-[#050506] border-b border-zinc-900/80 px-6 py-4 flex items-center justify-between">
+              <div className="bg-black border-b border-black/80 px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <div className="w-2 h-2 rounded-full bg-[#4ADE80] hover:bg-[#4ADE80]/90 text-black shadow-[0_0_15px_rgba(0,255,136,0.5)] animate-pulse" />
                   <span className="text-[10px] uppercase font-black tracking-widest text-[#a1a1aa]">
                     SECURE SSL PLATFORM UPGRADE HANDSHAKE
                   </span>
@@ -655,7 +655,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                 {checkoutStep !== 'processing' ? (
                   <button
                     onClick={() => setSelectedPlanForCheckout(null)}
-                    className="text-zinc-500 hover:text-white transition-all cursor-pointer p-1.5 hover:bg-zinc-900 rounded-lg flex items-center justify-center"
+                    className="text-zinc-500 hover:text-[#E5E5E5] transition-all cursor-pointer p-1.5 hover:bg-black rounded-lg flex items-center justify-center"
                     title="Close (Esc)"
                   >
                     <X className="w-4 h-4" />
@@ -669,11 +669,11 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
               <div className="flex-grow overflow-y-auto p-6 space-y-6">
                 
                 {/* 1. PLAN SUMMARY CARD */}
-                <div className="bg-[#070708] border border-zinc-900 p-5 rounded-xl space-y-3">
+                <div className="bg-black border border-black p-5 rounded-xl space-y-3">
                   <div className="flex justify-between items-start">
                     <div>
                       <span className="text-[10px] text-zinc-500 uppercase tracking-widest block font-bold">SELECTED CLASSIFICATION</span>
-                      <h3 className="text-xl font-black text-white mt-1 uppercase tracking-tight font-sans">
+                      <h3 className="text-xl font-black text-[#E5E5E5] mt-1 uppercase tracking-tight font-sans">
                         {selectedPlanForCheckout === 'discord' && "Discord Plan"}
                         {selectedPlanForCheckout === 'skyvision' && "SkyVision Cockpit"}
                         {selectedPlanForCheckout === 'pinpoint' && "Pinpoint Gexbot"}
@@ -690,7 +690,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                     </div>
                     <div className="text-right">
                       <span className="text-[10px] text-indigo-400 block tracking-widest font-black">RATE</span>
-                      <span className={`${selectedPlanForCheckout === 'lifetime' ? 'text-[11px] font-mono font-bold tracking-widest text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1.5 border border-emerald-500/20 rounded-md' : 'text-2xl font-black text-white font-mono'}`}>
+                      <span className={`${selectedPlanForCheckout === 'lifetime' ? 'text-[11px] font-mono font-bold tracking-widest text-[#4ADE80] uppercase bg-black/40 px-3 py-1.5 border border-black rounded-md' : 'text-2xl font-black text-[#E5E5E5] font-mono'}`}>
                         {selectedPlanForCheckout === 'lifetime' 
                           ? 'Quote Needed' 
                           : billingCycle === 'monthly' 
@@ -705,7 +705,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                   </div>
 
                   {selectedPlanForCheckout !== 'lifetime' && (
-                    <div className="text-[10px] text-emerald-400/80 bg-emerald-500/10 border border-emerald-500/10 rounded-lg p-2 flex items-center justify-between">
+                    <div className="text-[10px] text-[#4ADE80] bg-black/40 border border-black rounded-lg p-2 flex items-center justify-between">
                       <span className="uppercase font-bold tracking-widest">Billing Schedule:</span>
                       <span className="font-extrabold uppercase">
                         {billingCycle === 'monthly' ? "Renew Monthly" : "Annually (20% Savings Loaded)"}
@@ -717,12 +717,12 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                 {checkoutStep === 'details' && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-fadeIn animate-duration-150">
                     {/* RIGHT COLUMN */}
-                    <div className="order-1 md:order-2 border border-zinc-800 bg-zinc-950/70 rounded-xl p-4 flex flex-col justify-between min-h-[420px]">
+                    <div className="order-1 md:order-2 border border-black bg-black/70 rounded-xl p-4 flex flex-col justify-between min-h-[420px]">
                       {selectedPlanForCheckout === 'lifetime' ? (
                         <div ref={paymentAreaRef} className="space-y-4 flex flex-col justify-between h-full">
                           <div className="space-y-3.5">
-                            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-[#a1a1aa] font-black border-b border-zinc-900 pb-1.5">
-                              <Mail className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-[#a1a1aa] font-black border-b border-black pb-1.5">
+                              <Mail className="w-3.5 h-3.5 text-[#4ADE80] shrink-0" />
                               Contact Form
                             </div>
 
@@ -737,8 +737,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                   onClick={() => setLifetimeContactType('individual')}
                                   className={`py-2 px-3 text-xs font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${
                                     lifetimeContactType === 'individual'
-                                      ? 'bg-emerald-500/10 border-emerald-500 text-white'
-                                      : 'bg-[#050506] border-zinc-900 text-zinc-500 hover:text-white hover:border-zinc-700'
+                                      ? 'bg-black/40 border-black text-[#E5E5E5]'
+                                      : 'bg-black border-black text-zinc-500 hover:text-[#E5E5E5] hover:border-black'
                                   }`}
                                 >
                                   Individual
@@ -748,8 +748,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                   onClick={() => setLifetimeContactType('corporate')}
                                   className={`py-2 px-3 text-xs font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${
                                     lifetimeContactType === 'corporate'
-                                      ? 'bg-emerald-500/10 border-emerald-500 text-white'
-                                      : 'bg-[#050506] border-zinc-900 text-zinc-500 hover:text-white hover:border-zinc-700'
+                                      ? 'bg-black/40 border-black text-[#E5E5E5]'
+                                      : 'bg-black border-black text-zinc-500 hover:text-[#E5E5E5] hover:border-black'
                                   }`}
                                 >
                                   Business
@@ -769,7 +769,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                     value={lifetimeIndName}
                                     onChange={(e) => setLifetimeIndName(e.target.value)}
                                     placeholder="Your Name"
-                                    className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                    className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                   />
                                 </div>
 
@@ -783,7 +783,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       value={lifetimeIndEmail}
                                       onChange={(e) => setLifetimeIndEmail(e.target.value)}
                                       placeholder="you@example.com"
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                     />
                                   </div>
                                   <div>
@@ -795,7 +795,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       value={lifetimeIndPhone}
                                       onChange={(e) => setLifetimeIndPhone(e.target.value)}
                                       placeholder="+1 (555) 0123"
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                     />
                                   </div>
                                 </div>
@@ -807,15 +807,15 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                   <select
                                     value={lifetimeIndReferralSource}
                                     onChange={(e) => setLifetimeIndReferralSource(e.target.value)}
-                                    className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal text-left cursor-pointer"
+                                    className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal text-left cursor-pointer"
                                   >
-                                    <option value="" disabled className="bg-zinc-950 text-zinc-500">Select an option</option>
-                                    <option value="Twitter / X" className="bg-zinc-950 text-white">Twitter / X</option>
-                                    <option value="Telegram" className="bg-zinc-950 text-white">Telegram</option>
-                                    <option value="Friend / Referral" className="bg-zinc-950 text-white">Friend / Referral</option>
-                                    <option value="Search Engine" className="bg-zinc-950 text-white">Search Engine</option>
-                                    <option value="YouTube" className="bg-zinc-950 text-white">YouTube</option>
-                                    <option value="Other" className="bg-zinc-950 text-white">Other</option>
+                                    <option value="" disabled className="bg-black text-zinc-500">Select an option</option>
+                                    <option value="Twitter / X" className="bg-black text-[#E5E5E5]">Twitter / X</option>
+                                    <option value="Telegram" className="bg-black text-[#E5E5E5]">Telegram</option>
+                                    <option value="Friend / Referral" className="bg-black text-[#E5E5E5]">Friend / Referral</option>
+                                    <option value="Search Engine" className="bg-black text-[#E5E5E5]">Search Engine</option>
+                                    <option value="YouTube" className="bg-black text-[#E5E5E5]">YouTube</option>
+                                    <option value="Other" className="bg-black text-[#E5E5E5]">Other</option>
                                   </select>
                                 </div>
                               </div>
@@ -831,7 +831,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                     value={lifetimeBusName}
                                     onChange={(e) => setLifetimeBusName(e.target.value)}
                                     placeholder="Your Name"
-                                    className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                    className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                   />
                                 </div>
 
@@ -845,7 +845,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       value={lifetimeBusEmail}
                                       onChange={(e) => setLifetimeBusEmail(e.target.value)}
                                       placeholder="you@example.com"
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                     />
                                   </div>
                                   <div>
@@ -857,7 +857,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       value={lifetimeBusPhone}
                                       onChange={(e) => setLifetimeBusPhone(e.target.value)}
                                       placeholder="+1 (555) 0123"
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                     />
                                   </div>
                                 </div>
@@ -872,7 +872,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       value={lifetimeBusCompanyName}
                                       onChange={(e) => setLifetimeBusCompanyName(e.target.value)}
                                       placeholder="Company Name"
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                     />
                                   </div>
                                   <div>
@@ -882,15 +882,15 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                     <select
                                       value={lifetimeBusReferralSource}
                                       onChange={(e) => setLifetimeBusReferralSource(e.target.value)}
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal text-left cursor-pointer"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal text-left cursor-pointer"
                                     >
-                                      <option value="" disabled className="bg-[#050506] text-zinc-500">Select an option</option>
-                                      <option value="Twitter / X" className="bg-zinc-950 text-white">Twitter / X</option>
-                                      <option value="Telegram" className="bg-zinc-950 text-white">Telegram</option>
-                                      <option value="Friend / Referral" className="bg-zinc-950 text-white">Friend / Referral</option>
-                                      <option value="Search Engine" className="bg-zinc-950 text-white">Search Engine</option>
-                                      <option value="YouTube" className="bg-zinc-950 text-white">YouTube</option>
-                                      <option value="Other" className="bg-zinc-950 text-white">Other</option>
+                                      <option value="" disabled className="bg-black text-zinc-500">Select an option</option>
+                                      <option value="Twitter / X" className="bg-black text-[#E5E5E5]">Twitter / X</option>
+                                      <option value="Telegram" className="bg-black text-[#E5E5E5]">Telegram</option>
+                                      <option value="Friend / Referral" className="bg-black text-[#E5E5E5]">Friend / Referral</option>
+                                      <option value="Search Engine" className="bg-black text-[#E5E5E5]">Search Engine</option>
+                                      <option value="YouTube" className="bg-black text-[#E5E5E5]">YouTube</option>
+                                      <option value="Other" className="bg-black text-[#E5E5E5]">Other</option>
                                     </select>
                                   </div>
                                 </div>
@@ -910,7 +910,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                     value={lifetimeBusMessage}
                                     onChange={(e) => setLifetimeBusMessage(e.target.value)}
                                     placeholder="Explain your needs, custom setup details, or what premium features you require..."
-                                    className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2 text-xs focus:outline-none focus:border-zinc-700 transition-colors resize-none font-sans font-normal text-left"
+                                    className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2 text-xs focus:outline-none focus:border-black transition-colors resize-none font-sans font-normal text-left"
                                   />
                                   {lifetimeBusMessage.length >= 500 && (
                                     <div className="text-[10px] text-red-500 font-bold mt-1 uppercase text-left">
@@ -953,7 +953,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                 }
                               }
                             }}
-                            className={`w-full mt-4 py-3 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-neutral-950 font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer transform hover:scale-[1.01] ${isPaymentInFlight ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`w-full mt-4 py-3 rounded-lg bg-black/40 hover:bg-black/40 text-neutral-950 font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer transform hover:scale-[1.01] ${isPaymentInFlight ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
                             <span>{isPaymentInFlight ? 'PROBING PIPELINE...' : 'SUBMIT MESSAGE'}</span>
                           </button>
@@ -963,7 +963,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                           {checkoutSubStep === 'details' ? (
                             <div className="space-y-4 flex flex-col justify-between h-full">
                               <div className="space-y-3.5">
-                                <div className="flex items-center justify-between border-b border-zinc-900 pb-1.5">
+                                <div className="flex items-center justify-between border-b border-black pb-1.5">
                                   <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-[#a1a1aa] font-black">
                                     <User className="w-3.5 h-3.5 text-indigo-400" />
                                     STEP 1: Contact Details
@@ -981,8 +981,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       onClick={() => setContactType('individual')}
                                       className={`py-2 px-3 text-xs font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${
                                         contactType === 'individual'
-                                          ? 'bg-[#101014] border-indigo-500 text-white'
-                                          : 'bg-[#050506] border-zinc-900 text-zinc-500 hover:text-white hover:border-zinc-700'
+                                          ? 'bg-black border-indigo-500 text-[#E5E5E5]'
+                                          : 'bg-black border-black text-zinc-500 hover:text-[#E5E5E5] hover:border-black'
                                       }`}
                                     >
                                       Individual
@@ -992,8 +992,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       onClick={() => setContactType('corporate')}
                                       className={`py-2 px-3 text-xs font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${
                                         contactType === 'corporate'
-                                          ? 'bg-[#101014] border-indigo-500 text-white'
-                                          : 'bg-[#050506] border-zinc-900 text-zinc-500 hover:text-white hover:border-zinc-700'
+                                          ? 'bg-black border-indigo-500 text-[#E5E5E5]'
+                                          : 'bg-black border-black text-zinc-500 hover:text-[#E5E5E5] hover:border-black'
                                       }`}
                                     >
                                       Business
@@ -1014,7 +1014,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                         onChange={(e) => setRegIndName(e.target.value)}
                                         placeholder="John Doe"
                                         required
-                                        className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                        className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                       />
                                     </div>
 
@@ -1028,7 +1028,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                         onChange={(e) => setRegIndEmail(e.target.value)}
                                         placeholder="you@example.com"
                                         required
-                                        className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                        className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                       />
                                     </div>
 
@@ -1042,7 +1042,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                         onChange={(e) => setRegIndPhone(e.target.value)}
                                         placeholder="+1 (555) 0199"
                                         required
-                                        className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                        className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                       />
                                     </div>
 
@@ -1053,15 +1053,15 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       <select
                                         value={regIndReferralSource}
                                         onChange={(e) => setRegIndReferralSource(e.target.value)}
-                                        className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal text-left cursor-pointer animate-fadeIn"
+                                        className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal text-left cursor-pointer animate-fadeIn"
                                       >
-                                        <option value="" disabled className="bg-zinc-950 text-zinc-500">Select an option</option>
-                                        <option value="Twitter / X" className="bg-zinc-950 text-white">Twitter / X</option>
-                                        <option value="Telegram" className="bg-zinc-950 text-white">Telegram</option>
-                                        <option value="Friend / Referral" className="bg-zinc-950 text-white">Friend / Referral</option>
-                                        <option value="Search Engine" className="bg-zinc-950 text-white">Search Engine</option>
-                                        <option value="YouTube" className="bg-zinc-950 text-white">YouTube</option>
-                                        <option value="Other" className="bg-zinc-950 text-white">Other</option>
+                                        <option value="" disabled className="bg-black text-zinc-500">Select an option</option>
+                                        <option value="Twitter / X" className="bg-black text-[#E5E5E5]">Twitter / X</option>
+                                        <option value="Telegram" className="bg-black text-[#E5E5E5]">Telegram</option>
+                                        <option value="Friend / Referral" className="bg-black text-[#E5E5E5]">Friend / Referral</option>
+                                        <option value="Search Engine" className="bg-black text-[#E5E5E5]">Search Engine</option>
+                                        <option value="YouTube" className="bg-black text-[#E5E5E5]">YouTube</option>
+                                        <option value="Other" className="bg-black text-[#E5E5E5]">Other</option>
                                       </select>
                                     </div>
                                   </div>
@@ -1078,7 +1078,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                         onChange={(e) => setRegBusName(e.target.value)}
                                         placeholder="John Doe"
                                         required
-                                        className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                        className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                       />
                                     </div>
 
@@ -1092,7 +1092,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                         onChange={(e) => setRegBusEmail(e.target.value)}
                                         placeholder="you@example.com"
                                         required
-                                        className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                        className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                       />
                                     </div>
 
@@ -1106,7 +1106,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                         onChange={(e) => setRegBusPhone(e.target.value)}
                                         placeholder="+1 (555) 0199"
                                         required
-                                        className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                        className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                       />
                                     </div>
 
@@ -1120,7 +1120,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                           value={regBusCompanyName}
                                           onChange={(e) => setRegBusCompanyName(e.target.value)}
                                           placeholder="E.g. Capital Ltd"
-                                          className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal"
+                                          className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal"
                                         />
                                       </div>
                                       <div>
@@ -1130,15 +1130,15 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                         <select
                                           value={regBusReferralSource}
                                           onChange={(e) => setRegBusReferralSource(e.target.value)}
-                                          className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-sans font-normal text-left cursor-pointer animate-fadeIn"
+                                          className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-sans font-normal text-left cursor-pointer animate-fadeIn"
                                         >
-                                          <option value="" disabled className="bg-zinc-950 text-zinc-500">Select an option</option>
-                                          <option value="Twitter / X" className="bg-zinc-950 text-white">Twitter / X</option>
-                                          <option value="Telegram" className="bg-zinc-950 text-white">Telegram</option>
-                                          <option value="Friend / Referral" className="bg-zinc-950 text-white">Friend / Referral</option>
-                                          <option value="Search Engine" className="bg-zinc-950 text-white">Search Engine</option>
-                                          <option value="YouTube" className="bg-zinc-950 text-white">YouTube</option>
-                                          <option value="Other" className="bg-zinc-950 text-white">Other</option>
+                                          <option value="" disabled className="bg-black text-zinc-500">Select an option</option>
+                                          <option value="Twitter / X" className="bg-black text-[#E5E5E5]">Twitter / X</option>
+                                          <option value="Telegram" className="bg-black text-[#E5E5E5]">Telegram</option>
+                                          <option value="Friend / Referral" className="bg-black text-[#E5E5E5]">Friend / Referral</option>
+                                          <option value="Search Engine" className="bg-black text-[#E5E5E5]">Search Engine</option>
+                                          <option value="YouTube" className="bg-black text-[#E5E5E5]">YouTube</option>
+                                          <option value="Other" className="bg-black text-[#E5E5E5]">Other</option>
                                         </select>
                                       </div>
                                     </div>
@@ -1162,7 +1162,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                     }
                                   }
                                 }}
-                                className="w-full mt-4 py-3 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                                className="w-full mt-4 py-3 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-[#E5E5E5] font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                               >
                                 <span>Continue to Billing Info</span>
                                 <ArrowRight className="w-4 h-4" />
@@ -1171,7 +1171,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                           ) : (
                             <div className="space-y-4 flex flex-col justify-between h-full animate-fadeIn">
                               <div className="space-y-3">
-                                <div className="flex items-center justify-between border-b border-zinc-900 pb-1.5">
+                                <div className="flex items-center justify-between border-b border-black pb-1.5">
                                   <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-[#a1a1aa] font-black">
                                     <CreditCard className="w-3.5 h-3.5 text-indigo-400" />
                                     STEP 2: Billing & Card Details
@@ -1190,7 +1190,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       onChange={(e) => setUserAddress(e.target.value)}
                                       placeholder="123 Main St"
                                       required
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-mono"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-mono"
                                     />
                                   </div>
                                   <div>
@@ -1203,7 +1203,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       onChange={(e) => setUserZip(e.target.value)}
                                       placeholder="New York, NY 10001"
                                       required
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-mono"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors font-mono"
                                     />
                                   </div>
                                 </div>
@@ -1217,7 +1217,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       type="text"
                                       value={mockCardNumber}
                                       onChange={(e) => setMockCardNumber(e.target.value)}
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 pr-10 text-xs focus:outline-none focus:border-zinc-700 transition-colors font-mono"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 pr-10 text-xs focus:outline-none focus:border-black transition-colors font-mono"
                                     />
                                     <CreditCard className="w-3.5 h-3.5 text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2" />
                                   </div>
@@ -1232,7 +1232,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       type="text"
                                       value={mockCardExpiry}
                                       onChange={(e) => setMockCardExpiry(e.target.value)}
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors text-center font-mono"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors text-center font-mono"
                                     />
                                   </div>
 
@@ -1244,7 +1244,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       type="text"
                                       value={mockCardCvv}
                                       onChange={(e) => setMockCardCvv(e.target.value)}
-                                      className="w-full bg-[#050506] border border-zinc-850 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-zinc-700 transition-colors text-center font-mono"
+                                      className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-2.5 text-xs focus:outline-none focus:border-black transition-colors text-center font-mono"
                                     />
                                   </div>
                                 </div>
@@ -1254,7 +1254,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                 <button
                                   type="button"
                                   onClick={() => setCheckoutSubStep('details')}
-                                  className="py-3 px-2 text-zinc-400 hover:text-white border border-zinc-900 hover:border-zinc-800 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors cursor-pointer text-center"
+                                  className="py-3 px-2 text-zinc-400 hover:text-[#E5E5E5] border border-black hover:border-black rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors cursor-pointer text-center"
                                 >
                                   Back
                                 </button>
@@ -1281,7 +1281,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                                       alert('Please enter your Billing Address and Zip code.');
                                     }
                                   }}
-                                  className="py-3 px-2 bg-emerald-400 hover:bg-emerald-300 text-neutral-950 font-black text-[10px] uppercase tracking-widest rounded-lg shadow-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer transform hover:scale-[1.01]"
+                                  className="py-3 px-2 bg-black/40 hover:bg-black/40 text-neutral-950 font-black text-[10px] uppercase tracking-widest rounded-lg shadow-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer transform hover:scale-[1.01]"
                                 >
                                   <Lock className="w-3.5 h-3.5 shrink-0" />
                                   <span>{isPaymentInFlight ? 'PROCESSING...' : 'Pay & Activate'}</span>
@@ -1295,10 +1295,10 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
 
                     {/* LEFT COLUMN: ACTIVE PLAN CRITERIA & TARIFF DETAILS */}
                     <div className="order-2 md:order-1 space-y-4">
-                      <div className="bg-[#070708] border border-zinc-900/80 p-4 rounded-xl space-y-3">
+                      <div className="bg-black border border-black/80 p-4 rounded-xl space-y-3">
                         <div>
                           <span className="text-[9px] text-zinc-500 uppercase tracking-widest block font-bold">SELECTED PLAN</span>
-                          <h3 className="text-lg font-black text-white mt-1 uppercase tracking-tight font-sans">
+                          <h3 className="text-lg font-black text-[#E5E5E5] mt-1 uppercase tracking-tight font-sans">
                             {selectedPlanForCheckout === 'discord' && "Discord Plan"}
                             {selectedPlanForCheckout === 'skyvision' && "SkyVision Cockpit"}
                             {selectedPlanForCheckout === 'pinpoint' && "Pinpoint Gexbot"}
@@ -1306,9 +1306,9 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                             {selectedPlanForCheckout === 'lifetime' && "Lifetime Access"}
                           </h3>
                         </div>
-                        <div className="flex justify-between items-center border-t border-zinc-900/60 pt-2">
+                        <div className="flex justify-between items-center border-t border-black/60 pt-2">
                           <span className="text-[10px] text-zinc-400 capitalize tracking-wide font-medium">Subscription Price:</span>
-                          <span className={`${selectedPlanForCheckout === 'lifetime' ? 'text-[10px] font-mono font-semibold tracking-wider text-emerald-400 uppercase bg-emerald-500/10 px-2.5 py-1.5 border border-emerald-500/20 rounded-md' : 'text-xl font-black text-white font-mono'}`}>
+                          <span className={`${selectedPlanForCheckout === 'lifetime' ? 'text-[10px] font-mono font-semibold tracking-wider text-[#4ADE80] uppercase bg-black/40 px-2.5 py-1.5 border border-black rounded-md' : 'text-xl font-black text-[#E5E5E5] font-mono'}`}>
                             {selectedPlanForCheckout === 'lifetime' 
                               ? 'Quote Needed' 
                               : billingCycle === 'monthly' 
@@ -1318,9 +1318,9 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                             {selectedPlanForCheckout !== 'lifetime' && <span className="text-[10px] text-zinc-500 font-normal ml-0.5">/mo</span>}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center border-t border-[#141417] pt-2 text-[10px]">
+                        <div className="flex justify-between items-center border-t border-black pt-2 text-[10px]">
                           <span className="text-zinc-550">Billing Cycle:</span>
-                          <span className="text-emerald-400 font-black uppercase font-mono">
+                          <span className="text-[#4ADE80] font-black uppercase font-mono">
                             {selectedPlanForCheckout === 'lifetime' ? 'PERMANENT ALL-ACCESS' : (billingCycle === 'monthly' ? "RENEW MONTHLY" : "ANNUAL (20% OFF)")}
                           </span>
                         </div>
@@ -1329,46 +1329,46 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                       {/* Cumulative lock status */}
                       <div className="space-y-2">
                         <div className="flex items-center gap-1.5 text-[9px] uppercase font-black tracking-widest text-[#a1a1aa]">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <ShieldCheck className="w-3.5 h-3.5 text-[#4ADE80] shrink-0" />
                           <span>GUARANTEED PLAN FEATURES</span>
                         </div>
                         <p className="text-[9px] text-zinc-500 leading-relaxed font-mono uppercase">
                           ALL TIERS ARE INCLUSIVE. YOUR SUBSCRIPTION AUTOMATICALLY UNLOCKS:
                         </p>
-                        <div className="bg-zinc-950/60 border border-zinc-900/65 rounded-xl p-3.5 space-y-1.5 text-[10px] font-mono">
+                        <div className="bg-black/60 border border-black/65 rounded-xl p-3.5 space-y-1.5 text-[10px] font-mono">
                           {selectedPlanForCheckout === 'discord' && (
                             <>
-                              <div className="flex items-center gap-1.5 text-emerald-400"><Check className="w-3.5 h-3.5 shrink-0" /> Discord Live Alerts ($65 Value)</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> Discord Live Alerts ($65 Value)</div>
                               <div className="flex items-center gap-1.5 text-zinc-650 line-through"><X className="w-3.5 h-3.5 shrink-0" /> SkyVision Decision Core</div>
                               <div className="flex items-center gap-1.5 text-zinc-650 line-through"><X className="w-3.5 h-3.5 shrink-0" /> Pinpoint Gexbot Feed</div>
                             </>
                           )}
                           {selectedPlanForCheckout === 'skyvision' && (
                             <>
-                              <div className="flex items-center gap-1.5 text-emerald-400"><Check className="w-3.5 h-3.5 shrink-0" /> Discord Chat & Alerts (Included)</div>
-                              <div className="flex items-center gap-1.5 text-emerald-400"><Check className="w-3.5 h-3.5 shrink-0" /> SkyVision Decision Cockpit ($350)</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> Discord Chat & Alerts (Included)</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> SkyVision Decision Cockpit ($350)</div>
                               <div className="flex items-center gap-1.5 text-zinc-650 line-through"><X className="w-3.5 h-3.5 shrink-0" /> Pinpoint Gexbot Feed</div>
                             </>
                           )}
                           {selectedPlanForCheckout === 'pinpoint' && (
                             <>
-                              <div className="flex items-center gap-1.5 text-emerald-400"><Check className="w-3.5 h-3.5 shrink-0" /> Discord Chat + SkyVision Cockpit</div>
-                              <div className="flex items-center gap-1.5 text-emerald-400"><Check className="w-3.5 h-3.5 shrink-0" /> Pinpoint Gexbot Exposure Feed ($500)</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> Discord Chat + SkyVision Cockpit</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> Pinpoint Gexbot Exposure Feed ($500)</div>
                               <div className="flex items-center gap-1.5 text-zinc-650 line-through"><X className="w-3.5 h-3.5 shrink-0" /> Full Quant Engine suite</div>
                             </>
                           )}
                           {selectedPlanForCheckout === 'quant' && (
                             <>
-                              <div className="flex items-center gap-1.5 text-emerald-400"><Check className="w-3.5 h-3.5 shrink-0" /> Discord + SkyVision + Pinpoint</div>
-                              <div className="flex items-center gap-1.5 text-emerald-400"><Check className="w-3.5 h-3.5 shrink-0" /> Institutional Quant Auditor ($1500)</div>
-                              <div className="flex items-center gap-1.5 text-emerald-450"><Check className="w-3.5 h-3.5 shrink-0" /> Real-time Dealer Flow Heatmaps</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> Discord + SkyVision + Pinpoint</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> Institutional Quant Auditor ($1500)</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> Real-time Dealer Flow Heatmaps</div>
                             </>
                           )}
                           {selectedPlanForCheckout === 'lifetime' && (
                             <>
-                              <div className="flex items-center gap-1.5 text-emerald-400"><Check className="w-3.5 h-3.5 shrink-0" /> Permanent Lifetime Access (All Tiers)</div>
-                              <div className="flex items-center gap-1.5 text-emerald-400"><Check className="w-3.5 h-3.5 shrink-0" /> Private 1-on-1 Strategy Setup</div>
-                              <div className="flex items-center gap-1.5 text-emerald-400"><Check className="w-3.5 h-3.5 shrink-0" /> Priority Custom API Bridges</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> Permanent Lifetime Access (All Tiers)</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> Private 1-on-1 Strategy Setup</div>
+                              <div className="flex items-center gap-1.5 text-[#4ADE80]"><Check className="w-3.5 h-3.5 shrink-0" /> Priority Custom API Bridges</div>
                             </>
                           )}
                         </div>
@@ -1384,8 +1384,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                       <Lock className="w-5 h-5 text-indigo-400 absolute animate-pulse" />
                     </div>
 
-                    <div className="w-full bg-black/60 rounded-lg p-4 font-mono text-[9px] text-[#a1a1aa] leading-released border border-zinc-950/40 space-y-1.5 bg-[#050506] min-h-[140px]">
-                      <div className="text-zinc-650 text-[8px] font-black border-b border-zinc-900/50 pb-1 mb-2 uppercase">SECURE PAYMENT PIPELINE CONSOLE</div>
+                    <div className="w-full bg-black/60 rounded-lg p-4 font-mono text-[9px] text-[#a1a1aa] leading-released border border-black space-y-1.5 bg-black min-h-[140px]">
+                      <div className="text-zinc-650 text-[8px] font-black border-b border-black/50 pb-1 mb-2 uppercase">SECURE PAYMENT PIPELINE CONSOLE</div>
                       {processingLogs.map((log, idx) => (
                         <div key={idx} className="flex gap-2">
                           <span className="text-indigo-400 shrink-0">&gt;&gt;</span>
@@ -1399,7 +1399,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                 {checkoutStep === 'waiting_for_webhook' && (
                   <div className="py-6 space-y-5 animate-fadeIn flex flex-col items-center">
                     {/* Dynamic state badge */}
-                    <div className="w-full flex justify-between items-center bg-[#070709] border border-zinc-900 rounded-lg p-3 px-4 font-mono text-[9px]">
+                    <div className="w-full flex justify-between items-center bg-black border border-black rounded-lg p-3 px-4 font-mono text-[9px]">
                       <div className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                         <span className="text-[#a1a1aa] uppercase font-black tracking-widest">
@@ -1420,7 +1420,7 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                     </div>
 
                     <div className="text-center space-y-1 max-w-md mx-auto">
-                      <h4 className="text-sm font-black text-white uppercase tracking-tight font-sans">
+                      <h4 className="text-sm font-black text-[#E5E5E5] uppercase tracking-tight font-sans">
                         LISTENING FOR GATEWAY CLEARANCE
                       </h4>
                       <p className="text-zinc-400 text-[10.5px]">
@@ -1429,8 +1429,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                     </div>
 
                     {/* Console Logs */}
-                    <div className="w-full bg-[#050506] border border-zinc-900 rounded-xl p-4 font-mono text-[9px] text-[#8e8e93] leading-relaxed text-left space-y-1.5 min-h-[140px]">
-                      <div className="text-zinc-650 text-[8px] font-black tracking-widest uppercase border-b border-zinc-900/40 pb-1 mb-2">
+                    <div className="w-full bg-black border border-black rounded-xl p-4 font-mono text-[9px] text-[#8e8e93] leading-relaxed text-left space-y-1.5 min-h-[140px]">
+                      <div className="text-zinc-650 text-[8px] font-black tracking-widest uppercase border-b border-black/40 pb-1 mb-2">
                         DECENTRALIZED MEMPOOL TRANSACTION LISTENERS
                       </div>
                       {successValidationLogs.map((log, index) => (
@@ -1449,14 +1449,14 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                 {checkoutStep === 'confirmation' && (
                   <div className="py-4 space-y-5 animate-fadeIn flex flex-col items-center">
                     {/* Dynamic state badge */}
-                    <div className="w-full flex justify-between items-center bg-[#070709] border border-zinc-900 rounded-lg p-3 px-4 font-mono text-[9px]">
+                    <div className="w-full flex justify-between items-center bg-black border border-black rounded-lg p-3 px-4 font-mono text-[9px]">
                       <div className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-black/40" />
                         <span className="text-[#a1a1aa] uppercase font-black tracking-widest">
                           VALIDATION COMPLETE
                         </span>
                       </div>
-                      <span className="font-black uppercase tracking-wider text-emerald-400">
+                      <span className="font-black uppercase tracking-wider text-[#4ADE80]">
                         SUCCESS // READY
                       </span>
                     </div>
@@ -1466,15 +1466,15 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                       <motion.div 
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="w-20 h-20 rounded-full flex items-center justify-center border-2 bg-emerald-500/10 border-emerald-400 shadow-[0_0_30px_rgba(48,209,88,0.25)]"
+                        className="w-20 h-20 rounded-full flex items-center justify-center border-2 bg-black/40 border-black shadow-[0_0_30px_rgba(48,209,88,0.25)]"
                       >
-                        <Check className="w-10 h-10 text-emerald-400" />
+                        <Check className="w-10 h-10 text-[#4ADE80]" />
                       </motion.div>
                     </div>
 
                     {/* Status descriptions */}
                     <div className="text-center space-y-1.5 max-w-md mx-auto">
-                      <h4 className="text-base font-black text-white uppercase tracking-tight font-sans">
+                      <h4 className="text-base font-black text-[#E5E5E5] uppercase tracking-tight font-sans">
                         SUBSCRIPTION LEVEL ENGAGED
                       </h4>
                       <p className="text-zinc-400 text-[11px] leading-relaxed">
@@ -1483,26 +1483,26 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                     </div>
 
                     {/* Validation Pipeline Log Console Terminal */}
-                    <div className="w-full bg-[#050506] border border-zinc-900 rounded-xl p-4 font-mono text-[9px] text-[#8e8e93] leading-relaxed text-left space-y-1.5 relative overflow-hidden min-h-[150px]">
+                    <div className="w-full bg-black border border-black rounded-xl p-4 font-mono text-[9px] text-[#8e8e93] leading-relaxed text-left space-y-1.5 relative overflow-hidden min-h-[150px]">
                       <div className="absolute top-0 right-0 p-2 font-mono text-[8px] text-zinc-650 tracking-widest font-bold">ST-V8 ENGINE</div>
                       
-                      <div className="text-[8px] text-zinc-650 font-black tracking-widest uppercase border-b border-zinc-900/40 pb-1 mb-2">
+                      <div className="text-[8px] text-zinc-650 font-black tracking-widest uppercase border-b border-black/40 pb-1 mb-2">
                         DATABASE RECONCILIATION AUDIT MATRIX
                       </div>
 
                       {successValidationLogs.map((log, index) => (
                         <div key={index} className="flex gap-2.5 items-center">
-                          <span className="text-emerald-400 shrink-0 font-bold">&gt;&gt;</span>
+                          <span className="text-[#4ADE80] shrink-0 font-bold">&gt;&gt;</span>
                           <span className="truncate">{log}</span>
                         </div>
                       ))}
                     </div>
 
                     {/* Cleared Active Features grid */}
-                    <div className="bg-zinc-950/40 border border-zinc-900 p-4 rounded-xl w-full text-left space-y-2.5 animate-fadeIn">
-                      <div className="text-[9.5px] text-zinc-450 font-extrabold uppercase border-b border-zinc-900/60 pb-1 flex justify-between">
+                    <div className="bg-black/40 border border-black p-4 rounded-xl w-full text-left space-y-2.5 animate-fadeIn">
+                      <div className="text-[9.5px] text-zinc-450 font-extrabold uppercase border-b border-black/60 pb-1 flex justify-between">
                         <span>Verified Subscriptions Access</span>
-                        <span className="text-emerald-400 flex items-center gap-1">
+                        <span className="text-[#4ADE80] flex items-center gap-1">
                           <CheckCircle2 className="w-3.5 h-3.5" /> CONFIRMED SECURE
                         </span>
                       </div>
@@ -1524,8 +1524,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                           };
 
                           return tiersToShow.map(key => (
-                            <div key={key} className="flex items-center gap-1.5 text-zinc-300">
-                              <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                            <div key={key} className="flex items-center gap-1.5 text-[#4ADE80]">
+                              <span className="w-1 h-1 rounded-full bg-black/40" />
                               <span className="truncate text-[9.5px]">{listLabels[key] || key}</span>
                             </div>
                           ));
@@ -1538,11 +1538,11 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
               </div>
 
               {/* Modal Bottom Controls */}
-              <div className="bg-[#050506] border-t border-zinc-900/80 px-6 py-4 flex gap-3 justify-center items-center">
+              <div className="bg-black border-t border-black/80 px-6 py-4 flex gap-3 justify-center items-center">
                 {checkoutStep === 'details' && (
                   <button
                     onClick={() => setSelectedPlanForCheckout(null)}
-                    className="w-full py-3 rounded-lg bg-[#0d0d11] border border-zinc-850 hover:bg-zinc-900 text-zinc-400 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-lg bg-black border border-black hover:bg-black text-zinc-400 hover:text-[#E5E5E5] font-bold text-[10px] uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2"
                   >
                     <span>Cancel & Choose Other Plan</span>
                   </button>
@@ -1584,8 +1584,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                     }}
                     className={`w-full py-4 font-extrabold uppercase tracking-widest text-[#000000] text-center text-[10px] rounded-lg transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2 ${
                       isValidatingSuccess 
-                        ? 'bg-zinc-850 text-zinc-550 border border-zinc-800 cursor-not-allowed opacity-50' 
-                        : 'bg-white hover:bg-zinc-200 text-black'
+                        ? 'bg-black text-zinc-550 border border-black cursor-not-allowed opacity-50' 
+                        : 'bg-[#4ADE80] hover:bg-[#4ADE80]/90 text-black shadow-[0_0_15px_rgba(0,255,136,0.5)]'
                     }`}
                   >
                     <span>{isValidatingSuccess ? 'VALIDATING SECURITY CLEARANCES...' : 'VALIDATE ACCESS & ENTER WORKSPACE'}</span>

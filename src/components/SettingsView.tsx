@@ -9,17 +9,17 @@ export function SettingsView() {
   const [sandboxMode, setSandboxMode] = useState(true);
 
   return (
-    <div className="w-full text-zinc-300 flex flex-col font-mono select-none antialiased space-y-6">
+    <div className="w-full text-[#4ADE80] flex flex-col font-mono select-none antialiased space-y-6">
       
       {/* 1. HEADER (CONFIGS HEADER) */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center apple-glass p-5 rounded-2xl gap-2 shadow-lg">
         <div className="flex gap-2 items-center">
-          <Key className="w-4 h-4 text-[#30d158]" />
-          <span className="text-[9.5px] text-zinc-300 uppercase tracking-widest font-black">
+          <Key className="w-4 h-4 text-[#4ADE80]" />
+          <span className="text-[9.5px] text-[#4ADE80] uppercase tracking-widest font-black">
             SLAYER CONFIG SYSTEM SETTINGS // RECENT SESSION
           </span>
         </div>
-        <div className="flex items-center gap-1.5 bg-[#30d158]/10 text-[#30d158] border border-[#30d158]/20 px-3 py-1 rounded-lg text-[9px] font-black uppercase">
+        <div className="flex items-center gap-1.5 bg-black/10 text-[#4ADE80] border border-black px-3 py-1 rounded-lg text-[9px] font-black uppercase">
           CLIENT STATE LOCAL VALIDATED
         </div>
       </div>
@@ -28,12 +28,12 @@ export function SettingsView() {
       <div className="w-full flex justify-center animate-fadeIn">
         <div className="max-w-3xl w-full apple-glass rounded-2xl p-6 sm:p-10 relative overflow-hidden shadow-2xl flex flex-col justify-between border border-white/5">
           
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#30d158] via-indigo-500 to-[#30d158]" />
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#4ADE80] via-indigo-500 to-[#4ADE80]" />
 
           {/* Settings title */}
           <div className="border-b border-white/5 pb-5 mb-6 text-left">
             <span className="text-[8px] text-zinc-550 tracking-[0.25em] font-black block uppercase">PREFERENCES HUB</span>
-            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight uppercase leading-none font-sans mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-black text-[#E5E5E5] tracking-tight uppercase leading-none font-sans mt-0.5">
               SYSTEM CONFIGURATIONS
             </h2>
           </div>
@@ -44,7 +44,7 @@ export function SettingsView() {
             {/* Control index 1 */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-5">
               <div className="space-y-1 max-w-md">
-                <span className="text-[11px] font-black text-white uppercase tracking-wider block">
+                <span className="text-[11px] font-black text-[#E5E5E5] uppercase tracking-wider block">
                   Model Strict Compliance mode
                 </span>
                 <p className="text-[10px] text-zinc-450 font-sans leading-relaxed leading-snug">
@@ -55,16 +55,16 @@ export function SettingsView() {
               {/* Minimal toggle switch */}
               <button 
                 onClick={() => setStrictCompliance(!strictCompliance)}
-                className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none relative self-start sm:self-center cursor-pointer ${strictCompliance ? 'bg-[#30d158]' : 'bg-black/40 border border-white/10'}`}
+                className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none relative self-start sm:self-center cursor-pointer ${strictCompliance ? 'bg-[#d4d4d8]' : 'bg-black/40 border border-white/10'}`}
               >
-                <div className={`w-5 h-5 rounded-full transition-transform duration-200 transform shadow ${strictCompliance ? 'translate-x-5 bg-black' : 'translate-x-0 bg-zinc-500'}`} />
+                <div className={`w-5 h-5 rounded-full transition-transform duration-200 transform shadow ${strictCompliance ? 'translate-x-5 bg-black' : 'translate-x-0 bg-black'}`} />
               </button>
             </div>
 
             {/* Control index 2 */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-5">
               <div className="space-y-1 max-w-md">
-                <span className="text-[11px] font-black text-white uppercase tracking-wider block">
+                <span className="text-[11px] font-black text-[#E5E5E5] uppercase tracking-wider block">
                   CME Stream Dampener frequency
                 </span>
                 <p className="text-[10px] text-zinc-450 font-sans leading-relaxed leading-snug">
@@ -74,16 +74,16 @@ export function SettingsView() {
 
               <button 
                 onClick={() => setStreamDampener(!streamDampener)}
-                className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none relative self-start sm:self-center cursor-pointer ${streamDampener ? 'bg-[#30d158]' : 'bg-black/40 border border-white/10'}`}
+                className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none relative self-start sm:self-center cursor-pointer ${streamDampener ? 'bg-[#d4d4d8]' : 'bg-black/40 border border-white/10'}`}
               >
-                <div className={`w-5 h-5 rounded-full transition-transform duration-200 transform shadow ${streamDampener ? 'translate-x-5 bg-black' : 'translate-x-0 bg-zinc-500'}`} />
+                <div className={`w-5 h-5 rounded-full transition-transform duration-200 transform shadow ${streamDampener ? 'translate-x-5 bg-black' : 'translate-x-0 bg-black'}`} />
               </button>
             </div>
 
             {/* Control index 3 */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-5">
               <div className="space-y-1 max-w-md">
-                <span className="text-[11px] font-black text-white uppercase tracking-wider block">
+                <span className="text-[11px] font-black text-[#E5E5E5] uppercase tracking-wider block">
                   High Performance Latency limit
                 </span>
                 <p className="text-[10px] text-zinc-450 font-sans leading-relaxed leading-snug">
@@ -93,16 +93,16 @@ export function SettingsView() {
 
               <button 
                 onClick={() => setLatencyLimit(!latencyLimit)}
-                className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none relative self-start sm:self-center cursor-pointer ${latencyLimit ? 'bg-[#30d158]' : 'bg-black/40 border border-white/10'}`}
+                className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none relative self-start sm:self-center cursor-pointer ${latencyLimit ? 'bg-[#d4d4d8]' : 'bg-black/40 border border-white/10'}`}
               >
-                <div className={`w-5 h-5 rounded-full transition-transform duration-200 transform shadow ${latencyLimit ? 'translate-x-5 bg-black' : 'translate-x-0 bg-zinc-500'}`} />
+                <div className={`w-5 h-5 rounded-full transition-transform duration-200 transform shadow ${latencyLimit ? 'translate-x-5 bg-black' : 'translate-x-0 bg-black'}`} />
               </button>
             </div>
 
             {/* Control index 4 */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1 max-w-md">
-                <span className="text-[11px] font-black text-white uppercase tracking-wider block">
+                <span className="text-[11px] font-black text-[#E5E5E5] uppercase tracking-wider block">
                   Simulated Sandbox engine
                 </span>
                 <p className="text-[10px] text-zinc-450 font-sans leading-relaxed leading-snug">
@@ -112,9 +112,9 @@ export function SettingsView() {
 
               <button 
                 onClick={() => setSandboxMode(!sandboxMode)}
-                className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none relative self-start sm:self-center cursor-pointer ${sandboxMode ? 'bg-[#30d158]' : 'bg-black/40 border border-white/10'}`}
+                className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none relative self-start sm:self-center cursor-pointer ${sandboxMode ? 'bg-[#d4d4d8]' : 'bg-black/40 border border-white/10'}`}
               >
-                <div className={`w-5 h-5 rounded-full transition-transform duration-200 transform shadow ${sandboxMode ? 'translate-x-5 bg-black' : 'translate-x-0 bg-zinc-500'}`} />
+                <div className={`w-5 h-5 rounded-full transition-transform duration-200 transform shadow ${sandboxMode ? 'translate-x-5 bg-black' : 'translate-x-0 bg-black'}`} />
               </button>
             </div>
 
@@ -129,8 +129,8 @@ export function SettingsView() {
         {/* API Credentials */}
         <div className="apple-glass p-5 rounded-2xl flex flex-col justify-between text-left space-y-4 border border-white/5 bg-black/30 shadow-md">
           <div className="space-y-1.5">
-            <span className="text-[8px] text-[#30d158] block uppercase font-bold tracking-widest">TELECOM WEBHOOK CHANNELS</span>
-            <h4 className="text-xs font-black text-white uppercase">TWILIO INTEGRATION CREDENTIALS</h4>
+            <span className="text-[8px] text-[#d4d4d8] block uppercase font-bold tracking-widest">TELECOM WEBHOOK CHANNELS</span>
+            <h4 className="text-xs font-black text-[#E5E5E5] uppercase">TWILIO INTEGRATION CREDENTIALS</h4>
             <p className="text-[10px] text-zinc-450 font-sans leading-relaxed uppercase leading-snug">
               SMS dispatch channels route through a default client-side simulation. Real keys reside safely on standard server environment maps.
             </p>
@@ -143,7 +143,7 @@ export function SettingsView() {
             </div>
             <div className="p-3 bg-black/40 border border-white/5 rounded-xl flex justify-between items-center shadow-inner">
               <span className="text-zinc-550 block uppercase text-[8px] font-bold">AUTH TIMEOUT</span>
-              <span className="text-[#30d158] font-bold font-mono text-[10px]">15.0 SECONDS</span>
+              <span className="text-[#d4d4d8] font-bold font-mono text-[10px]">15.0 SECONDS</span>
             </div>
           </div>
         </div>
@@ -151,8 +151,8 @@ export function SettingsView() {
         {/* System parameters logs view */}
         <div className="apple-glass p-5 rounded-2xl flex flex-col justify-between text-left space-y-4 border border-white/5 bg-black/30 shadow-md">
           <div className="space-y-1.5">
-            <span className="text-[8px] text-[#30d158] block uppercase font-bold tracking-widest">CUSTODY SYSTEM METRIC DECK</span>
-            <h4 className="text-xs font-black text-white uppercase">CALIBRATOR ATTRIBUTES</h4>
+            <span className="text-[8px] text-[#d4d4d8] block uppercase font-bold tracking-widest">CUSTODY SYSTEM METRIC DECK</span>
+            <h4 className="text-xs font-black text-[#E5E5E5] uppercase">CALIBRATOR ATTRIBUTES</h4>
             <p className="text-[10px] text-zinc-455 font-sans leading-relaxed uppercase leading-snug">
               Verify local browser storage cache status, software build numbers, and system diagnostic integrity bounds.
             </p>
@@ -161,7 +161,7 @@ export function SettingsView() {
           <div className="space-y-2 text-xs">
             <div className="p-3 bg-black/40 border border-white/5 rounded-xl flex justify-between items-center shadow-inner">
               <span className="text-zinc-550 block uppercase text-[8px] font-bold">LOCAL STORAGE CHRONOLOGY</span>
-              <span className="text-[#30d158] font-bold font-mono text-[9.5px]">ACTIVE CACHED (68.4 KB)</span>
+              <span className="text-[#d4d4d8] font-bold font-mono text-[9.5px]">ACTIVE CACHED (68.4 KB)</span>
             </div>
             <div className="p-3 bg-black/40 border border-white/5 rounded-xl flex justify-between items-center shadow-inner">
               <span className="text-zinc-550 block uppercase text-[8px] font-bold">VERSION BUILD ID</span>
@@ -176,7 +176,7 @@ export function SettingsView() {
       <div className="apple-glass p-6 rounded-2xl text-left space-y-3 shadow-lg border border-white/5">
         <div className="flex items-center gap-2 border-b border-white/5 pb-2">
           <Layers className="w-3.5 h-3.5 text-zinc-550" />
-          <h4 className="text-[10.5px] font-black text-white uppercase tracking-wider block">
+          <h4 className="text-[10.5px] font-black text-[#E5E5E5] uppercase tracking-wider block">
             End-User License Agreement Boundary Notes
           </h4>
         </div>
@@ -193,8 +193,8 @@ export function SettingsView() {
       {/* 5. STATUS BAR */}
       <div className="apple-glass min-h-[30px] p-3 rounded-xl flex items-center justify-between text-[8px] text-zinc-400 uppercase tracking-widest pl-4 font-black shadow-md">
         <span>PREFERENCES SUCCESSFULLY WRITTEN AND COMMITTED LOCALLY</span>
-        <div className="flex items-center gap-1.5 text-white">
-          <span className="h-1.5 w-1.5 bg-[#30d158] rounded-full animate-ping" />
+        <div className="flex items-center gap-1.5 text-[#E5E5E5]">
+          <span className="h-1.5 w-1.5 bg-[#d4d4d8] rounded-full animate-ping" />
           <span>PREFS WRITTEN</span>
         </div>
       </div>

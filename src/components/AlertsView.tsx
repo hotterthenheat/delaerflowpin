@@ -188,18 +188,18 @@ export function AlertsView() {
   };
 
   return (
-    <div className="w-full text-zinc-300 flex flex-col font-mono select-none antialiased space-y-6">
+    <div className="w-full text-[#4ADE80] flex flex-col font-mono select-none antialiased space-y-6">
       
       {/* 1. HEADER (COMMAND DECK) */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center apple-glass p-5 rounded-2xl gap-2 shadow-lg">
         <div className="flex gap-2 items-center">
-          <Terminal className="w-4 h-4 text-[#30d158] animate-pulse" />
-          <span className="text-[9.5px] text-zinc-300 uppercase tracking-widest font-black">
+          <Terminal className="w-4 h-4 text-[#4ADE80] animate-pulse" />
+          <span className="text-[9.5px] text-[#4ADE80] uppercase tracking-widest font-black">
             SLAYER PRIORITIZED ALERTS COCKPIT // REALTIME SIGNAL STREAM
           </span>
         </div>
         <div className="flex items-center gap-1.5 bg-black/40 p-1 px-1.5 border border-white/5 rounded-lg">
-          <span className="text-[8.5px] uppercase tracking-widest text-[#30d158] px-2 font-black">
+          <span className="text-[8.5px] uppercase tracking-widest text-[#4ADE80] px-2 font-black">
             LIVE TELEMETRY ACTIVE
           </span>
         </div>
@@ -219,7 +219,7 @@ export function AlertsView() {
                   <AlertTriangle className="w-3.5 h-3.5 animate-bounce" />
                   <span>Multiple Trades Found</span>
                 </div>
-                <h2 className="text-xl md:text-2xl font-black text-white font-sans uppercase tracking-tight">
+                <h2 className="text-xl md:text-2xl font-black text-[#E5E5E5] font-sans uppercase tracking-tight">
                   OPTION DISCOVERY CLUSTER DETECTED
                 </h2>
               </div>
@@ -229,7 +229,7 @@ export function AlertsView() {
             </div>
 
             <p className="text-[11px] font-sans text-zinc-400 leading-relaxed text-left max-w-3xl">
-              The automated quantitative engine has surfaced **{bestTradesList.length} trades** with exceptional ratings. In accordance with system safety constraints, execution is restricted to <span className="text-white font-bold">one isolated contract at a time</span> to avoid overlapping GEX hedge correlation. Select one option setup from the cluster below to lock the focused 100% Best Trade:
+              The automated quantitative engine has surfaced **{bestTradesList.length} trades** with exceptional ratings. In accordance with system safety constraints, execution is restricted to <span className="text-[#E5E5E5] font-bold">one isolated contract at a time</span> to avoid overlapping GEX hedge correlation. Select one option setup from the cluster below to lock the focused 100% Best Trade:
             </p>
 
             {/* List of high confidence options during "Multiple Found" mode */}
@@ -243,22 +243,22 @@ export function AlertsView() {
                   <div className="flex justify-between items-start">
                     <div>
                       <span className="text-[8px] text-zinc-500 font-black block tracking-widest uppercase">OPTION TARGET</span>
-                      <span className="text-lg font-black text-white">{trade.ticker} {trade.strike} {trade.type}</span>
+                      <span className="text-lg font-black text-[#E5E5E5]">{trade.ticker} {trade.strike} {trade.type}</span>
                     </div>
                     <div className="text-right">
                       <span className="text-[8.5px] text-zinc-500 block">HEALTH INDEX</span>
-                      <span className="text-[#30d158] font-black text-sm">{trade.health}/100</span>
+                      <span className="text-[#4ADE80] font-black text-sm">{trade.health}/100</span>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-[10.5px] py-1 border-t border-white/5">
                     <div>
                       <span className="text-zinc-500 text-[8px] block">MARKET VALUE</span>
-                      <span className="text-zinc-300 font-bold">${trade.marketPrice.toFixed(2)}</span>
+                      <span className="text-[#4ADE80] font-bold">${trade.marketPrice.toFixed(2)}</span>
                     </div>
                     <div>
                       <span className="text-zinc-500 text-[8px] block">EXPECTED ZONE</span>
-                      <span className="text-zinc-300 font-bold">{trade.entryZone}</span>
+                      <span className="text-[#4ADE80] font-bold">{trade.entryZone}</span>
                     </div>
                   </div>
 
@@ -280,16 +280,16 @@ export function AlertsView() {
         ) : (
           /* SINGLE 100% BEST TRADE LOCKED STATE */
           activeTrade && (
-            <div className="apple-glass rounded-2xl p-6 md:p-8 relative overflow-hidden shadow-2xl border border-[#30d158]/10 space-y-5">
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#30d158] via-emerald-500 to-[#30d158] shadow-lg" />
+            <div className="apple-glass rounded-2xl p-6 md:p-8 relative overflow-hidden shadow-2xl border border-black space-y-5">
+              <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#4ADE80] via-zinc-300 to-[#d4d4d8] shadow-lg" />
 
               <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-white/10 pb-4">
                 <div className="space-y-1 text-left">
-                  <div className="inline-flex items-center gap-1.5 bg-[#30d158]/10 text-[#30d158] px-3 py-1 border border-[#30d158]/20 rounded-md text-[9px] font-black uppercase tracking-widest">
+                  <div className="inline-flex items-center gap-1.5 bg-black/10 text-[#d4d4d8] px-3 py-1 border border-[#d4d4d8]/20 rounded-md text-[9px] font-black uppercase tracking-widest">
                     <CheckCircle2 className="w-3.5 h-3.5 animate-pulse" />
                     <span>100% Best Trade Locked</span>
                   </div>
-                  <h2 className="text-2xl font-black text-white font-sans uppercase tracking-tight">
+                  <h2 className="text-2xl font-black text-[#E5E5E5] font-sans uppercase tracking-tight">
                     OPTIMAL CONSOLIDATING EXPOSURE BOUNDS
                   </h2>
                 </div>
@@ -298,7 +298,7 @@ export function AlertsView() {
                 {bestTradesList.length > 1 && (
                   <button 
                     onClick={() => setLockedTradeId(null)}
-                    className="bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white px-2.5 py-1 text-[8px] border border-white/10 rounded uppercase font-bold shrink-0 self-start sm:self-center transition-colors"
+                    className="bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-[#E5E5E5] px-2.5 py-1 text-[8px] border border-white/10 rounded uppercase font-bold shrink-0 self-start sm:self-center transition-colors"
                   >
                     Show Other Candidates ({bestTradesList.length})
                   </button>
@@ -312,7 +312,7 @@ export function AlertsView() {
                 <div className="bg-black/40 border border-white/5 p-5 rounded-2xl flex flex-col justify-between text-left space-y-4 shadow-md md:col-span-1">
                   <div>
                     <span className="text-[8px] text-zinc-500 tracking-wider uppercase block">LOCKED CONTRACT</span>
-                    <span className="text-2xl font-black text-white font-sans block tracking-tight uppercase leading-snug pt-1">
+                    <span className="text-2xl font-black text-[#E5E5E5] font-sans block tracking-tight uppercase leading-snug pt-1">
                       {activeTrade.ticker} {activeTrade.strike}{activeTrade.isCall ? 'C' : 'P'}
                     </span>
                     <span className="text-[10px] text-zinc-400 block pt-1 uppercase">Direction: {activeTrade.type} EXPOSURE</span>
@@ -321,7 +321,7 @@ export function AlertsView() {
                   <div className="pt-2 border-t border-white/5 flex justify-between items-end">
                     <div>
                       <span className="text-[8.5px] text-zinc-500 uppercase block">DECISION SCORES</span>
-                      <span className="text-xl font-extrabold text-[#30d158]">{activeTrade.health} <span className="text-[10px] text-zinc-550 font-bold uppercase">SECURED</span></span>
+                      <span className="text-xl font-extrabold text-[#d4d4d8]">{activeTrade.health} <span className="text-[10px] text-zinc-550 font-bold uppercase">SECURED</span></span>
                     </div>
                     <span className="text-[8px] text-zinc-650 uppercase font-black">V11 PLATINUM CODE</span>
                   </div>
@@ -332,17 +332,17 @@ export function AlertsView() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
                       <span className="text-zinc-500 text-[8.5px] block uppercase">SPOT REF</span>
-                      <span className="text-white font-bold text-sm">
+                      <span className="text-[#E5E5E5] font-bold text-sm">
                         ${(serverState?.pinpoint_map?.spot_price || 6100).toFixed(1)}
                       </span>
                     </div>
                     <div>
                       <span className="text-zinc-500 text-[8.5px] block uppercase">MARKET BID</span>
-                      <span className="text-[#30d158] font-bold text-sm">${activeTrade.marketPrice.toFixed(2)}</span>
+                      <span className="text-[#d4d4d8] font-bold text-sm">${activeTrade.marketPrice.toFixed(2)}</span>
                     </div>
                     <div>
                       <span className="text-zinc-500 text-[8.5px] block uppercase">MODEL VALUE</span>
-                      <span className="text-white font-bold text-sm">${activeTrade.modelValue.toFixed(2)}</span>
+                      <span className="text-[#E5E5E5] font-bold text-sm">${activeTrade.modelValue.toFixed(2)}</span>
                     </div>
                     <div>
                       <span className="text-zinc-500 text-[8.5px] block uppercase">MISPRICING SKEW</span>
@@ -355,11 +355,11 @@ export function AlertsView() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-white/5 text-[11px] font-sans">
                     <div className="flex justify-between items-center bg-black/40 px-3 py-2 rounded-lg border border-white/5">
                       <span className="text-zinc-500 font-mono text-[9px] uppercase font-bold">Entry Zone:</span>
-                      <span className="text-[#30d158] font-mono font-bold text-xs">{activeTrade.entryZone}</span>
+                      <span className="text-[#d4d4d8] font-mono font-bold text-xs">{activeTrade.entryZone}</span>
                     </div>
                     <div className="flex justify-between items-center bg-black/40 px-3 py-2 rounded-lg border border-white/5">
                       <span className="text-zinc-500 font-mono text-[9px] uppercase font-bold">Goalposts:</span>
-                      <span className="text-white font-mono font-bold text-xs">T1: +25% | T2: +50%</span>
+                      <span className="text-[#E5E5E5] font-mono font-bold text-xs">T1: +25% | T2: +50%</span>
                     </div>
                   </div>
                 </div>
@@ -374,7 +374,7 @@ export function AlertsView() {
                 
                 <button 
                   onClick={() => handleActivateOnWorkspace(activeTrade)}
-                  className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-zinc-250 text-black font-extrabold uppercase text-[10px] tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:scale-[1.02] shrink-0"
+                  className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-black text-black font-extrabold uppercase text-[10px] tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:scale-[1.02] shrink-0"
                 >
                   <span>Activate Option Terminal Workspace</span>
                   <ArrowRight className="w-4 h-4 text-black" />
@@ -390,16 +390,16 @@ export function AlertsView() {
       {/* 3. DYNAMIC INCIDENT LIST TABLE (Now Apple glass styled) */}
       <div className="w-full animate-fadeIn">
         <div className="apple-glass rounded-2xl p-6 md:p-8 relative overflow-hidden shadow-2xl space-y-4">
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#30d158]/50 via-indigo-500/50 to-rose-450/50" />
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#d4d4d8]/50 via-indigo-500/50 to-rose-450/50" />
           
-          <div className="border-b border-zinc-900 pb-3 flex justify-between items-start">
+          <div className="border-b border-black pb-3 flex justify-between items-start">
             <div className="text-left space-y-1">
-              <span className="text-[8px] text-[#30d158] tracking-[0.25em] font-black block">SYSTEM SEVERITY DISPATCH QUEUE</span>
-              <h2 className="text-xl font-black text-white uppercase tracking-tight font-sans">
+              <span className="text-[8px] text-[#d4d4d8] tracking-[0.25em] font-black block">SYSTEM SEVERITY DISPATCH QUEUE</span>
+              <h2 className="text-xl font-black text-[#E5E5E5] uppercase tracking-tight font-sans">
                 TELEMETRY PRIORITY BOARD
               </h2>
             </div>
-            <div className="text-right bg-rose-400/10 text-rose-400 font-extrabold border border-rose-400/20 px-3 py-1 rounded-lg text-sm">
+            <div className="text-right bg-rose-400/10 text-[#F87171] font-extrabold border border-rose-400/20 px-3 py-1 rounded-lg text-sm">
               <span className="text-zinc-500 uppercase text-[8px] block">CRITICAL STATUS</span>
               <span className="font-extrabold text-[13px] block">
                 {telemetryAlerts.filter(a => a.priority === 'CRITICAL').length}
@@ -417,12 +417,12 @@ export function AlertsView() {
               telemetryAlerts.map((al) => {
                 const priorityClasses = 
                   al.priority === 'CRITICAL'
-                    ? 'text-white border-white bg-white/5'
+                    ? 'text-[#E5E5E5] border-white bg-white/5'
                     : al.priority === 'HIGH'
-                    ? 'text-zinc-300 border-zinc-650 bg-zinc-950'
+                    ? 'text-[#4ADE80] border-black bg-black'
                     : al.priority === 'MEDIUM'
-                    ? 'text-zinc-450 border-zinc-800 bg-zinc-950'
-                    : 'text-zinc-550 border-zinc-900 bg-black/40';
+                    ? 'text-zinc-450 border-black bg-black'
+                    : 'text-zinc-550 border-black bg-black/40';
 
                 return (
                   <motion.div
@@ -435,7 +435,7 @@ export function AlertsView() {
                         <span className={`px-2 py-0.5 text-[8px] font-black border uppercase tracking-wider rounded ${priorityClasses}`}>
                           {al.priority}
                         </span>
-                        <span className="text-[9.5px] font-black text-white uppercase">{al.type}</span>
+                        <span className="text-[9.5px] font-black text-[#E5E5E5] uppercase">{al.type}</span>
                         <span className="text-[7.5px] text-zinc-600 uppercase font-bold">•</span>
                         <span className="text-[8px] text-zinc-500 uppercase tracking-wider">{al.source}</span>
                       </div>
@@ -467,8 +467,8 @@ export function AlertsView() {
         {/* Simulate Controls */}
         <div className="apple-glass p-5 rounded-2xl flex flex-col justify-between text-left space-y-4 shadow-md">
           <div className="space-y-1">
-            <span className="text-[8px] text-[#30d158] block uppercase font-bold tracking-widest">COMMAND SIGNALS SIMULATOR</span>
-            <h4 className="text-xs font-black text-white uppercase">DEPLOYS THRESHOLDS</h4>
+            <span className="text-[8px] text-[#d4d4d8] block uppercase font-bold tracking-widest">COMMAND SIGNALS SIMULATOR</span>
+            <h4 className="text-xs font-black text-[#E5E5E5] uppercase">DEPLOYS THRESHOLDS</h4>
             <p className="text-[10.5px] text-zinc-400 font-sans leading-relaxed">
               Manually deploy simulated market events downstream. Verify compliance speeds, SMPP dispatch routing, and prioritizations.
             </p>
@@ -477,14 +477,14 @@ export function AlertsView() {
           <div className="grid grid-cols-2 gap-2.5">
             <button
               onClick={() => addSimulatedAlert('CRITICAL')}
-              className="py-2.5 bg-white hover:bg-zinc-150 text-black font-extrabold uppercase rounded-lg transition-colors cursor-pointer text-[8.5px] tracking-widest flex items-center justify-center gap-1 shadow"
+              className="py-2.5 bg-white hover:bg-black text-black font-extrabold uppercase rounded-lg transition-colors cursor-pointer text-[8.5px] tracking-widest flex items-center justify-center gap-1 shadow"
             >
               <PlusCircle className="w-3" />
               <span>TEST CRITICAL</span>
             </button>
             <button
               onClick={() => addSimulatedAlert('HIGH')}
-              className="py-2.5 bg-black/60 hover:bg-black border border-white/10 text-white font-extrabold uppercase rounded-lg transition-colors cursor-pointer text-[8.5px] tracking-widest flex items-center justify-center gap-1"
+              className="py-2.5 bg-black/60 hover:bg-black border border-white/10 text-[#E5E5E5] font-extrabold uppercase rounded-lg transition-colors cursor-pointer text-[8.5px] tracking-widest flex items-center justify-center gap-1"
             >
               <PlusCircle className="w-3" />
               <span>TEST HIGH</span>
@@ -509,8 +509,8 @@ export function AlertsView() {
         {/* Action console clears */}
         <div className="apple-glass p-5 rounded-2xl flex flex-col justify-between text-left space-y-4 shadow-md">
           <div className="space-y-1">
-            <span className="text-[8px] text-[#30d158] block uppercase font-bold tracking-widest">INCIDENT CONSOLE HOUSEKEEPING</span>
-            <h4 className="text-xs font-black text-white uppercase">FLUSH COMPLIANT LEDGERS</h4>
+            <span className="text-[8px] text-[#d4d4d8] block uppercase font-bold tracking-widest">INCIDENT CONSOLE HOUSEKEEPING</span>
+            <h4 className="text-xs font-black text-[#E5E5E5] uppercase">FLUSH COMPLIANT LEDGERS</h4>
             <p className="text-[10.5px] text-zinc-400 font-sans leading-relaxed">
               Clear current active logs. This performing action maintains local isolation parameters, purging transient setup events completely on active node sessions.
             </p>
@@ -519,7 +519,7 @@ export function AlertsView() {
           <button
             onClick={clearAlerts}
             disabled={telemetryAlerts.length === 0}
-            className="w-full py-2.5 bg-black/60 hover:bg-black/90 border border-white/10 hover:border-red-400/40 text-rose-450 hover:text-red-400 font-extrabold uppercase rounded-lg cursor-pointer transition-all disabled:opacity-35 text-[8.5px] tracking-widest flex items-center justify-center gap-1"
+            className="w-full py-2.5 bg-black/60 hover:bg-black/90 border border-white/10 hover:border-red-400/40 text-[#F87171] hover:text-red-400 font-extrabold uppercase rounded-lg cursor-pointer transition-all disabled:opacity-35 text-[8.5px] tracking-widest flex items-center justify-center gap-1"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>FLUSH TELEMETRY ALERTS QUEUE</span>
@@ -532,7 +532,7 @@ export function AlertsView() {
       <div className="apple-glass p-6 rounded-2xl text-left space-y-3 shadow-lg">
         <div className="flex items-center gap-2 border-b border-white/5 pb-2">
           <Layers className="w-3.5 h-3.5 text-zinc-550" />
-          <h4 className="text-[10.5px] font-black text-white uppercase tracking-wider block">
+          <h4 className="text-[10.5px] font-black text-[#E5E5E5] uppercase tracking-wider block">
             CBOE Deviation Alarm Standards
           </h4>
         </div>
@@ -549,8 +549,8 @@ export function AlertsView() {
       {/* 6. COCKPIT DESK STATUS BAR */}
       <div className="apple-glass min-h-[30px] p-3 rounded-xl flex items-center justify-between text-[8px] text-zinc-400 uppercase tracking-widest pl-4 font-black shadow-md">
         <span>INCIDENTS RECONCILED ACCORDING TO CBOE TELEMETRICS</span>
-        <div className="flex items-center gap-1.5 text-white">
-          <span className="h-1.5 w-1.5 bg-[#30d158] rounded-full animate-ping" />
+        <div className="flex items-center gap-1.5 text-[#E5E5E5]">
+          <span className="h-1.5 w-1.5 bg-[#d4d4d8] rounded-full animate-ping" />
           <span>DESK SECURED</span>
         </div>
       </div>

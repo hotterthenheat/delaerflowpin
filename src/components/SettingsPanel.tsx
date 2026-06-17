@@ -75,27 +75,27 @@ function ReferralCodeBox() {
   };
 
   return (
-    <div className="bg-black/40 border border-zinc-900 rounded-xl p-4 space-y-4">
+    <div className="bg-black/40 border border-black rounded-xl p-4 space-y-4">
       <div>
         <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">Your Referral Code</span>
         <div className="flex items-center gap-2 mt-1.5">
-          <code className="flex-1 bg-black border border-zinc-800 rounded-lg px-3 py-2.5 text-sm font-mono font-black text-emerald-400 tracking-widest">{code || '…'}</code>
-          <button onClick={copy} className="px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-bold uppercase tracking-widest text-zinc-300 hover:text-white">{copied ? 'Copied' : 'Copy'}</button>
+          <code className="flex-1 bg-black border border-black rounded-lg px-3 py-2.5 text-sm font-mono font-black text-[#4ADE80] tracking-widest">{code || '…'}</code>
+          <button onClick={copy} className="px-3 py-2.5 mirror-panel rounded-lg text-[10px] font-bold uppercase tracking-widest text-[#4ADE80] hover:text-[#E5E5E5]">{copied ? 'Copied' : 'Copy'}</button>
         </div>
         <p className="text-[10px] text-zinc-600 mt-1.5">Share this code — referees get 10% off and you earn +1 token per use.</p>
       </div>
-      <div className="pt-3 border-t border-zinc-900/60">
+      <div className="pt-3 border-t border-black/60">
         <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">Apply a Referral Code</span>
         <div className="flex items-center gap-2 mt-1.5">
           <input
             value={applyInput}
             onChange={(e) => setApplyInput(e.target.value.toUpperCase())}
             placeholder="FRND10OFF"
-            className="flex-1 bg-black border border-zinc-800 rounded-lg px-3 py-2.5 text-sm font-mono text-white uppercase placeholder:text-zinc-700 focus:outline-none focus:border-emerald-500/50"
+            className="flex-1 bg-black border border-black rounded-lg px-3 py-2.5 text-sm font-mono text-[#E5E5E5] uppercase placeholder:text-zinc-700 focus:outline-none focus:border-black"
           />
-          <button onClick={apply} disabled={applying} className="px-4 py-2.5 bg-emerald-600/15 border border-emerald-500/30 text-emerald-400 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600/25 disabled:opacity-50">{applying ? '…' : 'Apply'}</button>
+          <button onClick={apply} disabled={applying} className="px-4 py-2.5 bg-black/40 border border-black text-[#4ADE80] rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-black/40 disabled:opacity-50">{applying ? '…' : 'Apply'}</button>
         </div>
-        {applyMsg && <p className={`text-[10px] mt-1.5 ${applyMsg.ok ? 'text-emerald-400' : 'text-rose-400'}`}>{applyMsg.text}</p>}
+        {applyMsg && <p className={`text-[10px] mt-1.5 ${applyMsg.ok ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>{applyMsg.text}</p>}
       </div>
     </div>
   );
@@ -136,15 +136,15 @@ function KeybindRow({ bindId, label }: { bindId: keyof ContractStore['keybinds']
   const displayKey = (keybinds[bindId] || '').replace('cmd', typeof window !== 'undefined' && navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl');
 
   return (
-    <div className={`flex items-center justify-between p-3 bg-zinc-900/40 border ${isDisabled ? 'border-zinc-800/50 opacity-50' : 'border-zinc-800'} rounded-lg transition-all`}>
+    <div className={`flex items-center justify-between p-3 bg-black/40 border ${isDisabled ? 'border-black/50 opacity-50' : 'border-black'} rounded-lg transition-all`}>
       <div className="flex items-center gap-3">
         <button 
           onClick={() => setDisabledKeybinds({ [bindId]: !isDisabled })}
-          className={`w-4 h-4 rounded flex items-center justify-center border ${isDisabled ? 'bg-transparent border-zinc-700' : 'bg-indigo-500 border-indigo-500 text-white'}`}
+          className={`w-4 h-4 rounded flex items-center justify-center border ${isDisabled ? 'bg-transparent border-black' : 'bg-indigo-500 border-indigo-500 text-[#E5E5E5]'}`}
         >
           {!isDisabled && <svg viewBox="0 0 24 24" fill="none" className="w-3 h-3 stroke-current stroke-[3]"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
         </button>
-        <span className={`text-sm font-bold ${isDisabled ? 'text-zinc-500 line-through' : 'text-zinc-300'}`}>{label}</span>
+        <span className={`text-sm font-bold ${isDisabled ? 'text-zinc-500 line-through' : 'text-[#4ADE80]'}`}>{label}</span>
       </div>
       <button
         onClick={() => {
@@ -152,7 +152,7 @@ function KeybindRow({ bindId, label }: { bindId: keyof ContractStore['keybinds']
         }}
         disabled={isDisabled}
         className={`px-3 py-1.5 text-xs font-mono font-bold rounded flex items-center justify-center min-w-[80px] transition-all border
-          ${isDisabled ? 'bg-black text-zinc-600 border-zinc-800 cursor-not-allowed' : isRecording ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'bg-black text-zinc-400 border-zinc-700 hover:border-zinc-500 hover:text-white'}`}
+          ${isDisabled ? 'bg-black text-zinc-600 border-black cursor-not-allowed' : isRecording ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'bg-black text-zinc-400 border-black hover:border-black hover:text-[#E5E5E5]'}`}
       >
         {isRecording ? 'Listening...' : displayKey.toUpperCase()}
       </button>
@@ -622,8 +622,8 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
               onClick={() => setActiveTab(tab.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 isActive 
-                  ? 'bg-zinc-900 text-white border border-zinc-800' 
-                  : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50 border border-transparent'
+                  ? 'bg-black text-[#E5E5E5] border border-black' 
+                  : 'text-zinc-400 hover:text-[#E5E5E5] hover:bg-black/50 border border-transparent'
               }`}
             >
               <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-zinc-500'}`} />
@@ -645,10 +645,10 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
           <div className="space-y-6 animate-fadeIn pb-12">
             
             {/* MFA Container */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
-              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-black pb-3">
                 <Lock className="w-5 h-5 text-indigo-400" />
-                <h2 className="text-lg font-black tracking-tight text-white uppercase">Account Vault & Identity</h2>
+                <h2 className="text-lg font-black tracking-tight text-[#E5E5E5] uppercase">Account Vault & Identity</h2>
               </div>
               <p className="text-xs text-zinc-400">Manage multi-factor keys, credential handshakes, and GDPR data locks.</p>
               
@@ -656,10 +656,10 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
             </div>
 
             {/* Email Transition Container */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
-              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-black pb-3">
                 <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-indigo-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 19.5h18M3 4.5h18M3 9.5h18M3 14.5h18" /></svg>
-                <h2 className="text-sm font-bold tracking-wider text-white uppercase">Primary Email & Two-Step OTP</h2>
+                <h2 className="text-sm font-bold tracking-wider text-[#E5E5E5] uppercase">Primary Email & Two-Step OTP</h2>
               </div>
               
               <div className="space-y-3">
@@ -667,20 +667,20 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                   Changing your registered primary email requires verification. A safety transition log is also compiled, firing a security warning message to your retired address.
                 </div>
 
-                <div className="bg-zinc-900/30 border border-zinc-900 p-3 rounded-lg text-xs">
+                <div className="bg-black/30 border border-black p-3 rounded-lg text-xs">
                   <div className="text-zinc-500 font-bold mb-0.5 uppercase tracking-wide">Current Email</div>
-                  <div className="text-zinc-300 font-mono font-bold">{session?.email || 'N/A'}</div>
+                  <div className="text-[#4ADE80] font-mono font-bold">{session?.email || 'N/A'}</div>
                 </div>
 
-                {emailError && <div className="text-xs font-bold text-rose-500 p-2 bg-rose-950/20 rounded-md border border-rose-900/30">{emailError}</div>}
-                {emailSuccess && <div className="text-xs font-bold text-emerald-400 p-2 bg-emerald-950/20 rounded-md border border-emerald-900/30">{emailSuccess}</div>}
+                {emailError && <div className="text-xs font-bold text-rose-500 p-2 bg-rose-950/20 rounded-md border border-[#F87171]/30">{emailError}</div>}
+                {emailSuccess && <div className="text-xs font-bold text-[#4ADE80] p-2 bg-black/40 rounded-md border border-black">{emailSuccess}</div>}
 
                 {otpSent ? (
                   <form onSubmit={handleEmailUpdateVerify} className="space-y-3 animate-fadeIn">
                     <div className="p-3 bg-indigo-950/20 border border-indigo-900/40 rounded-lg text-xs space-y-2">
                       <div className="font-bold text-indigo-300">🔓 Sandbox Verification Dispatcher:</div>
                       <p className="text-zinc-400">Because you are in the Sandbox preview, you can read the 6-digit verification code below:</p>
-                      <div className="font-mono text-sm font-bold text-emerald-400 bg-black/50 px-2 py-1 rounded w-fit select-all border border-emerald-950">
+                      <div className="font-mono text-sm font-bold text-[#4ADE80] bg-black/50 px-2 py-1 rounded w-fit select-all border border-black">
                         {simulatedOtp}
                       </div>
                     </div>
@@ -693,20 +693,20 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                         maxLength={6}
                         value={emailOtp}
                         onChange={e => setEmailOtp(e.target.value.replace(/\D/g, ''))}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-center text-sm font-mono tracking-widest text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full mirror-panel rounded-lg px-3 py-2 text-center text-sm font-mono tracking-widest text-[#E5E5E5] focus:outline-none focus:border-indigo-500"
                       />
                     </div>
                     <div className="flex justify-end gap-3 pt-1">
                       <button 
                         type="button" 
                         onClick={() => { setOtpSent(false); setEmailOtp(''); }} 
-                        className="px-3 py-1.5 text-xs text-zinc-500 hover:text-white cursor-pointer"
+                        className="px-3 py-1.5 text-xs text-zinc-500 hover:text-[#E5E5E5] cursor-pointer"
                       >
                         Cancel
                       </button>
                       <button 
                         type="submit"
-                        className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors"
+                        className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] rounded-lg text-xs font-bold cursor-pointer transition-colors"
                       >
                         Verify & Commit Update
                       </button>
@@ -721,13 +721,13 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                         placeholder="newemailaddress@trade.com"
                         value={newEmail}
                         onChange={e => setNewEmail(e.target.value)}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full mirror-panel rounded-lg px-3 py-2 text-sm text-[#E5E5E5] focus:outline-none focus:border-indigo-500"
                       />
                     </div>
                     <div className="flex justify-end">
                       <button 
                         type="submit"
-                        className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors"
+                        className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] rounded-lg text-xs font-bold cursor-pointer transition-colors"
                       >
                         Request Transition OTP
                       </button>
@@ -738,15 +738,15 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
             </div>
 
             {/* Password Mutation Container */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
-              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-black pb-3">
                 <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-indigo-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" /></svg>
-                <h2 className="text-sm font-bold tracking-wider text-white uppercase">Reset Account Password</h2>
+                <h2 className="text-sm font-bold tracking-wider text-[#E5E5E5] uppercase">Reset Account Password</h2>
               </div>
               
               <form onSubmit={handleChangePasswordSubmit} className="space-y-4">
-                {pwError && <div className="text-xs font-bold text-rose-500 p-2 bg-rose-950/20 rounded-md border border-rose-900/30">{pwError}</div>}
-                {pwSuccess && <div className="text-xs font-bold text-emerald-400 p-2 bg-emerald-950/20 rounded-md border border-emerald-900/30">{pwSuccess}</div>}
+                {pwError && <div className="text-xs font-bold text-rose-500 p-2 bg-rose-950/20 rounded-md border border-[#F87171]/30">{pwError}</div>}
+                {pwSuccess && <div className="text-xs font-bold text-[#4ADE80] p-2 bg-black/40 rounded-md border border-black">{pwSuccess}</div>}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
@@ -756,7 +756,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       placeholder="••••••••••••"
                       value={currentPassword}
                       onChange={e => setCurrentPassword(e.target.value)}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                      className="w-full mirror-panel rounded-lg px-3 py-2 text-sm text-[#E5E5E5] focus:outline-none focus:border-indigo-500"
                     />
                   </div>
                   <div className="space-y-1">
@@ -766,7 +766,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       placeholder="••••••••••••"
                       value={newPassword}
                       onChange={e => setNewPassword(e.target.value)}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                      className="w-full mirror-panel rounded-lg px-3 py-2 text-sm text-[#E5E5E5] focus:outline-none focus:border-indigo-500"
                     />
                   </div>
                 </div>
@@ -780,7 +780,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                 <div className="flex justify-end">
                   <button 
                     type="submit"
-                    className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors"
+                    className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] rounded-lg text-xs font-bold cursor-pointer transition-colors"
                   >
                     Update Vault Password
                   </button>
@@ -789,16 +789,16 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
             </div>
 
             {/* Active Sessions & SSO Container */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg animate-fadeIn">
-              <div className="flex items-center justify-between border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-4 relative shadow-lg animate-fadeIn">
+              <div className="flex items-center justify-between border-b border-black pb-3">
                 <div className="flex items-center gap-2.5">
                   <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-indigo-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" /></svg>
-                  <h2 className="text-sm font-bold tracking-wider text-white uppercase">Active Sessions & SSO Logs</h2>
+                  <h2 className="text-sm font-bold tracking-wider text-[#E5E5E5] uppercase">Active Sessions & SSO Logs</h2>
                 </div>
                 <button 
                   onClick={handleRevokeAllSessions}
                   type="button"
-                  className="px-3 py-1 bg-rose-600/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 text-rose-400 hover:text-white text-[11px] font-bold rounded-lg cursor-pointer transition-all"
+                  className="px-3 py-1 bg-rose-600/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 text-[#F87171] hover:text-[#E5E5E5] text-[11px] font-bold rounded-lg cursor-pointer transition-all"
                 >
                   Log Out All Devices (SSO Revoke)
                 </button>
@@ -807,7 +807,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                 These correspond to active clients having access to Skyseye. Security state termination deletes session signatures immediately.
               </p>
 
-              <div className="divide-y divide-zinc-900/80 bg-zinc-950/40 border border-zinc-900 rounded-xl overflow-hidden">
+              <div className="divide-y divide-zinc-900/80 bg-black/40 border border-black rounded-xl overflow-hidden">
                 {sessions.length === 0 ? (
                   <div className="p-4 text-xs text-center text-zinc-500 font-mono">No active sessions located.</div>
                 ) : (
@@ -815,13 +815,13 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                     <div key={idx} className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-white font-mono">{sess.ip_address}</span>
+                          <span className="font-bold text-[#E5E5E5] font-mono">{sess.ip_address}</span>
                           {sess.is_current ? (
-                            <span className="px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-bold text-[9px] rounded-full uppercase tracking-wider">
+                            <span className="px-2 py-0.5 bg-[#4ADE80] text-black/15 border border-black text-[#4ADE80] font-bold text-[9px] rounded-full uppercase tracking-wider">
                               Current Connection
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold text-[9px] rounded-full uppercase tracking-wider">
+                            <span className="px-2 py-0.5 bg-black border border-black text-zinc-400 font-bold text-[9px] rounded-full uppercase tracking-wider">
                               Active Node
                             </span>
                           )}
@@ -842,31 +842,31 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
             {/* GDPR Deactivation & Account Purge Container */}
             <div className="bg-rose-950/10 border border-rose-500/20 rounded-xl p-6 space-y-4 relative shadow-lg">
               <div className="flex items-center gap-2.5 border-b border-rose-500/20 pb-3">
-                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-rose-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                <h2 className="text-sm font-bold tracking-wider text-rose-400 uppercase">GDPR Data Purge & Account Exit</h2>
+                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-[#F87171] stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <h2 className="text-sm font-bold tracking-wider text-[#F87171] uppercase">GDPR Data Purge & Account Exit</h2>
               </div>
               <p className="text-xs text-zinc-400 leading-normal">
                 Under EU GDPR privacy rules, requesting account removal sets a Soft Delete token (<span className="font-mono text-indigo-400">deleted_at = NOW()</span>). You will be logged out of active dashboards immediately, and automatic background cleanup workers permanently wipe database states after 30 days.
               </p>
 
-              {deleteError && <div className="text-xs font-bold text-rose-500 p-2 bg-rose-950/20 rounded-md border border-rose-900/30">{deleteError}</div>}
+              {deleteError && <div className="text-xs font-bold text-rose-500 p-2 bg-rose-950/20 rounded-md border border-[#F87171]/30">{deleteError}</div>}
 
               {showDeleteConfirm ? (
-                <div className="p-4 bg-zinc-950 border border-rose-500/30 rounded-lg space-y-3 animate-fadeIn">
-                  <div className="text-xs text-zinc-300 font-bold">⚠️ CRITICAL: Are you absolutely sure?</div>
+                <div className="p-4 bg-black border border-rose-500/30 rounded-lg space-y-3 animate-fadeIn">
+                  <div className="text-xs text-[#4ADE80] font-bold">⚠️ CRITICAL: Are you absolutely sure?</div>
                   <p className="text-[11px] text-zinc-500">
                     This will immediately deactivate your username handles, API authorization key credentials, and option flow access. Action is irreversible after 30 days.
                   </p>
                   <div className="flex gap-3 justify-end">
                     <button 
                       onClick={() => setShowDeleteConfirm(false)}
-                      className="px-3 py-1.5 text-xs text-zinc-400 hover:text-white cursor-pointer"
+                      className="px-3 py-1.5 text-xs text-zinc-400 hover:text-[#E5E5E5] cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button 
                       onClick={handleSoftDeleteAccount}
-                      className="px-4 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors"
+                      className="px-4 py-1.5 bg-rose-600 hover:bg-rose-500 text-[#E5E5E5] rounded-lg text-xs font-bold cursor-pointer transition-colors"
                     >
                       Confirm Permanent Deactivation Lockout
                     </button>
@@ -875,7 +875,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
               ) : (
                 <button 
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="px-4 py-2 bg-rose-600/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 text-rose-400 hover:text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
+                  className="px-4 py-2 bg-rose-600/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 text-[#F87171] hover:text-[#E5E5E5] text-xs font-bold rounded-lg cursor-pointer transition-all"
                 >
                   Request GDPR Deletion Lockout
                 </button>
@@ -889,10 +889,10 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
           <div className="space-y-6 animate-fadeIn pb-12">
             
             {/* Header Description Card */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
-              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-black pb-3">
                 <ShieldAlert className="w-5 h-5 text-indigo-400" />
-                <h2 className="text-sm font-bold tracking-wider text-white uppercase">Privacy Safeguards & Notification Vault</h2>
+                <h2 className="text-sm font-bold tracking-wider text-[#E5E5E5] uppercase">Privacy Safeguards & Notification Vault</h2>
               </div>
               <p className="text-xs text-zinc-400 leading-normal">
                 Determine who can trace your profile footprint, toggle direct Twilio SMS carrier alerts, and trigger GDPR compliance data portability archives.
@@ -900,19 +900,19 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
             </div>
 
             {/* Notification preferences JSONB manager */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-5 relative shadow-lg">
-              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-5 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-black pb-3">
                 <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-indigo-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <h2 className="text-xs font-bold tracking-wider text-white uppercase">Notification Preference Matrix (JSONB)</h2>
+                <h2 className="text-xs font-bold tracking-wider text-[#E5E5E5] uppercase">Notification Preference Matrix (JSONB)</h2>
               </div>
               <p className="text-xs text-zinc-500">
                 Backend workers must query these configurations directly before triggering or sending any live external updates.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900 flex items-center justify-between">
+                <div className="bg-black/40 p-4 rounded-xl border border-black flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-bold text-white">TLS Email Transmissions</div>
+                    <div className="text-xs font-bold text-[#E5E5E5]">TLS Email Transmissions</div>
                     <div className="text-[10px] text-zinc-500">Enable secure email alert dispatch</div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer select-none">
@@ -927,13 +927,13 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       }}
                       className="peer sr-only"
                     />
-                    <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                    <div className="w-9 h-5 bg-black peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
                   </label>
                 </div>
 
-                <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900 flex items-center justify-between">
+                <div className="bg-black/40 p-4 rounded-xl border border-black flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-bold text-white">Twilio SMS Shortcode alerts</div>
+                    <div className="text-xs font-bold text-[#E5E5E5]">Twilio SMS Shortcode alerts</div>
                     <div className="text-[10px] text-zinc-500">Route real-time spot alerts to device</div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer select-none">
@@ -948,13 +948,13 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       }}
                       className="peer sr-only"
                     />
-                    <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                    <div className="w-9 h-5 bg-black peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
                   </label>
                 </div>
 
-                <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900 flex items-center justify-between">
+                <div className="bg-black/40 p-4 rounded-xl border border-black flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-bold text-white">Discord Webhook Feeds</div>
+                    <div className="text-xs font-bold text-[#E5E5E5]">Discord Webhook Feeds</div>
                     <div className="text-[10px] text-zinc-500">Post sweeps directly to server webhooks</div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer select-none">
@@ -969,13 +969,13 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       }}
                       className="peer sr-only"
                     />
-                    <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                    <div className="w-9 h-5 bg-black peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
                   </label>
                 </div>
 
-                <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900 flex items-center justify-between">
+                <div className="bg-black/40 p-4 rounded-xl border border-black flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-bold text-white">Expected Move Alerts</div>
+                    <div className="text-xs font-bold text-[#E5E5E5]">Expected Move Alerts</div>
                     <div className="text-[10px] text-zinc-500">Trigger on high GEX deviation parameters</div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer select-none">
@@ -990,22 +990,22 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       }}
                       className="peer sr-only"
                     />
-                    <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                    <div className="w-9 h-5 bg-black peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
                   </label>
                 </div>
               </div>
             </div>
 
             {/* Profile Visibility Enums & Search Indexing */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
-              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-black pb-3">
                 <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-indigo-400 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                <h2 className="text-xs font-bold tracking-wider text-white uppercase">Profile Trace Matrix & Crawler Indexing</h2>
+                <h2 className="text-xs font-bold tracking-wider text-[#E5E5E5] uppercase">Profile Trace Matrix & Crawler Indexing</h2>
               </div>
               
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <span className="text-xs font-bold text-white block">Profile Visibility Setting</span>
+                  <span className="text-xs font-bold text-[#E5E5E5] block">Profile Visibility Setting</span>
                   <p className="text-[11px] text-zinc-500 leading-normal">Middleware guards search criteria strictly matching this cryptographic enum state before returning database metrics.</p>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-sans">
@@ -1023,8 +1023,8 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                         }}
                         className={`p-3 rounded-lg border text-left cursor-pointer transition-all ${
                           profileVisibility === opt.value
-                            ? 'bg-indigo-600/10 border-indigo-500 text-white shadow-md'
-                            : 'bg-zinc-950/20 border-zinc-900 text-zinc-450 hover:text-white'
+                            ? 'bg-indigo-600/10 border-indigo-500 text-[#E5E5E5] shadow-md'
+                            : 'bg-black/20 border-black text-zinc-450 hover:text-[#E5E5E5]'
                         }`}
                       >
                         <div className="text-xs font-bold">{opt.label}</div>
@@ -1034,9 +1034,9 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-zinc-900/60 flex items-center justify-between">
+                <div className="pt-4 border-t border-black/60 flex items-center justify-between">
                   <div className="max-w-[80%]">
-                    <span className="text-xs font-bold text-white block">Restrict Search Engine Indexing</span>
+                    <span className="text-xs font-bold text-[#E5E5E5] block">Restrict Search Engine Indexing</span>
                     <p className="text-[11px] text-zinc-500 leading-normal">
                       Toggle to inject <code className="font-mono text-indigo-400">&lt;meta name="robots" content="noindex, nofollow"&gt;</code> into the public profile routes. Instructs Google and Bing crawler nodes to bypass parsing user options records.
                     </p>
@@ -1053,17 +1053,17 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       }}
                       className="peer sr-only"
                     />
-                    <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                    <div className="w-9 h-5 bg-black peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
                   </label>
                 </div>
               </div>
             </div>
 
             {/* GDPR Compliance Data Export (S3 Storage) */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-4 relative shadow-lg">
-              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-4 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-black pb-3">
                 <FolderSync className="w-5 h-5 text-indigo-400 font-bold" />
-                <h2 className="text-xs font-bold tracking-wider text-white uppercase">GDPR Article 20 Data Portability (S3 Secure Vault)</h2>
+                <h2 className="text-xs font-bold tracking-wider text-[#E5E5E5] uppercase">GDPR Article 20 Data Portability (S3 Secure Vault)</h2>
               </div>
               <p className="text-xs text-zinc-400 leading-normal">
                 Trigger our compliance background worker to compile all account logs, session logs, options-trading preferences, and payment logs into a single downloadable package. In accordance with GDPR standards, archives are stored in encrypted S3 compartments and expire permanently after 24 hours.
@@ -1075,7 +1075,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                     <span className="text-zinc-400">Aggregating and Packaging Archive...</span>
                     <span className="text-indigo-400 font-bold">{exportProgress}%</span>
                   </div>
-                  <div className="w-full bg-zinc-950 h-2 rounded overflow-hidden border border-zinc-900">
+                  <div className="w-full bg-black h-2 rounded overflow-hidden border border-black">
                     <div className="bg-indigo-600 h-full transition-all duration-300" style={{ width: `${exportProgress}%` }}></div>
                   </div>
                 </div>
@@ -1084,7 +1084,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                   <button 
                     type="button"
                     onClick={triggerGdprExport}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors shadow-lg"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] rounded-lg text-xs font-bold cursor-pointer transition-colors shadow-lg"
                   >
                     Compile & Export Data Portability Package
                   </button>
@@ -1093,8 +1093,8 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
 
               {/* Download Container */}
               {exportDownloadUrl && (
-                <div className="mt-4 p-4 bg-zinc-950/60 border border-indigo-900/40 rounded-xl space-y-3 animate-fadeIn">
-                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                <div className="mt-4 p-4 bg-black/60 border border-indigo-900/40 rounded-xl space-y-3 animate-fadeIn">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#4ADE80]">
                     <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                     <span>Secure GDPR Cryptographic Archive Staged Successfully</span>
                   </div>
@@ -1108,7 +1108,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                     <a
                       href={exportDownloadUrl}
                       download
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-2"
+                      className="px-4 py-2 bg-black/40 hover:bg-black/40 text-[#E5E5E5] rounded-lg text-xs font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-2"
                     >
                       <span>⬇️ Download GDPR Export Package</span>
                     </a>
@@ -1120,7 +1120,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                         navigator.clipboard.writeText(link);
                         showToast("GDPR direct download URL copied.");
                       }}
-                      className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold border border-zinc-800 text-xs rounded-lg cursor-pointer transition-colors"
+                      className="px-4 py-2 bg-black hover:bg-black text-[#4ADE80] font-bold border border-black text-xs rounded-lg cursor-pointer transition-colors"
                     >
                       Copy Direct File URL
                     </button>
@@ -1142,21 +1142,21 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
         {activeTab === 'preferences' && (
           <div className="space-y-6 animate-fadeIn">
             {/* Module 6: Appearance customization option box */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-5 relative shadow-lg">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-5 relative shadow-lg">
               <div className="absolute top-0 right-0 p-3 text-[10px] text-zinc-600 font-bold uppercase tracking-widest font-mono">
                 System Display
               </div>
 
-              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+              <div className="flex items-center gap-2.5 border-b border-black pb-3">
                 <Settings className="w-5 h-5 text-indigo-400" />
-                <h2 className="text-lg font-black tracking-tight text-white">
+                <h2 className="text-lg font-black tracking-tight text-[#E5E5E5]">
                   Display Preferences
                 </h2>
               </div>
 
               {/* Option A: Font Size Scaling (STANDARD vs ENHANCED) */}
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-bold text-white">
+                <div className="flex items-center gap-2 text-sm font-bold text-[#E5E5E5]">
                   <Type className="w-4 h-4 text-zinc-550 shrink-0" />
                   <span>Text Size</span>
                 </div>
@@ -1173,7 +1173,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       applyTextSize(newVal);
                       handleSaveSettings(newVal, compactMode, activeTheme);
                     }}
-                    className="w-full bg-black border border-zinc-900 text-white rounded-lg p-3 text-sm focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer appearance-none"
+                    className="w-full bg-black border border-black text-[#E5E5E5] rounded-lg p-3 text-sm focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer appearance-none"
                   >
                     <option value="STANDARD">Standard</option>
                     <option value="ENHANCED">Large</option>
@@ -1183,9 +1183,9 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
               </div>
 
               {/* Option B: Compact rows spacing density (denser row rendering overlay) */}
-              <div className="pt-4 border-t border-zinc-900/60 space-y-2">
+              <div className="pt-4 border-t border-black/60 space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-bold text-white">
+                  <div className="flex items-center gap-2 text-sm font-bold text-[#E5E5E5]">
                     <Eye className="w-4 h-4 text-zinc-550 shrink-0" />
                     <span>Compact View</span>
                   </div>
@@ -1202,7 +1202,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       }}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-zinc-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-550 after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:bg-zinc-950 peer-checked:bg-indigo-600 peer-checked:after:bg-white" />
+                    <div className="w-9 h-5 bg-black peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black after:border-black after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:bg-black peer-checked:bg-indigo-600 peer-checked:after:bg-white" />
                   </label>
                 </div>
                 <p className="text-xs text-[#8e8e93] leading-relaxed">
@@ -1210,37 +1210,9 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                 </p>
               </div>
 
-              {/* Option C: Ultrawide monitor optimization */}
-              <div className="pt-4 border-t border-zinc-900/60 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-bold text-white">
-                    <Monitor className="w-4 h-4 text-zinc-550 shrink-0" />
-                    <span>Ultrawide Monitor Optimization</span>
-                  </div>
-
-                  <label className="relative inline-flex items-center cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={ultrawideMode}
-                      onChange={(e) => {
-                        const newVal = e.target.checked;
-                        setUltrawideMode(newVal);
-                        applyUltrawide(newVal);
-                        saveUltrawide(newVal);
-                      }}
-                      className="sr-only peer"
-                    />
-                    <div className="w-9 h-5 bg-zinc-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-550 after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:bg-zinc-950 peer-checked:bg-indigo-600 peer-checked:after:bg-white" />
-                  </label>
-                </div>
-                <p className="text-xs text-[#8e8e93] leading-relaxed">
-                  Engineered for 34" / 49" super-ultrawide setups. Expands panels into multi-column layouts to use the full 21:9 / 32:9 width while capping text blocks at a readable 80ch.
-                </p>
-              </div>
-
               {/* Option D: Background Theme custom swatch grid */}
-              <div className="pt-4 border-t border-zinc-900/60 space-y-2">
-                <div className="flex items-center gap-2 text-sm font-bold text-white">
+              <div className="pt-4 border-t border-black/60 space-y-2">
+                <div className="flex items-center gap-2 text-sm font-bold text-[#E5E5E5]">
                   <Palette className="w-4 h-4 text-zinc-550 shrink-0" />
                   <span>Interface Theme</span>
                 </div>
@@ -1263,13 +1235,13 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                         className={`group relative aspect-square rounded-lg border-2 transition-all ${
                           activeTheme === t.id
                             ? 'border-indigo-500 scale-110 shadow-lg z-10'
-                            : 'border-black/40 hover:border-zinc-500 hover:scale-105'
+                            : 'border-black/40 hover:border-black hover:scale-105'
                         }`}
                         style={{ background: `linear-gradient(135deg, ${t.surface} 0%, ${t.surface} 50%, ${t.accent} 50%, ${t.accent} 100%)` }}
                       >
                         {activeTheme === t.id && (
                           <span className="absolute inset-0 flex items-center justify-center">
-                            <Check className="w-4 h-4 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]" />
+                            <Check className="w-4 h-4 text-[#E5E5E5] drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]" />
                           </span>
                         )}
                       </button>
@@ -1277,14 +1249,14 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                   </div>
                 </div>
                 <div className="mt-2 text-[10px] text-[#8e8e93] uppercase tracking-widest font-mono">
-                  Active: <span className="text-white font-bold">{THEMES.find(t => t.id === activeTheme)?.name || 'Default'}</span> · {THEMES.length} themes
+                  Active: <span className="text-[#E5E5E5] font-bold">{THEMES.find(t => t.id === activeTheme)?.name || 'Default'}</span> · {THEMES.length} themes
                 </div>
               </div>
             </div>
 
             {/* Informational notification */}
-            <div className="p-4 bg-zinc-950/40 border border-zinc-900 text-[11px] rounded-xl text-[#a1a1aa] leading-relaxed flex gap-3">
-              <ShieldAlert className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="p-4 bg-black/40 border border-black text-[11px] rounded-xl text-[#a1a1aa] leading-relaxed flex gap-3">
+              <ShieldAlert className="w-4 h-4 text-[#4ADE80] shrink-0 mt-0.5" />
               <span>
                 <b>Strict System Lock:</b> Changing themes shifts parent-level backdrops and site colors seamlessly. All key visual execution marks, heat maps, and status flags maintain their crucial hues for data legibility.
               </span>
@@ -1294,22 +1266,22 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
 
         {activeTab === 'keybinds' && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-5 relative shadow-lg">
-              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-5 relative shadow-lg">
+              <div className="flex items-center gap-2.5 border-b border-black pb-3">
                 <Type className="w-5 h-5 text-indigo-400" />
-                <h2 className="text-lg font-black tracking-tight text-white">Keyboard Shortcuts & Hotkeys</h2>
+                <h2 className="text-lg font-black tracking-tight text-[#E5E5E5]">Keyboard Shortcuts & Hotkeys</h2>
               </div>
-              <div className="flex justify-between items-start border-b border-zinc-900 pb-4 mb-4">
+              <div className="flex justify-between items-start border-b border-black pb-4 mb-4">
                 <p className="text-sm text-zinc-400 max-w-md">
                   Customize quick-access keybinds for global menu toggles and workspace switching. These bindings work universally across macOS (Command) and Windows (Ctrl).
                 </p>
                 
                 <div className="flex flex-col items-end gap-2">
-                  <div className="flex items-center gap-3 bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-zinc-800">
-                    <span className="text-xs font-bold text-zinc-300">Enable All Shortcuts</span>
+                  <div className="flex items-center gap-3 bg-black/50 px-3 py-1.5 rounded-lg border border-black">
+                    <span className="text-xs font-bold text-[#4ADE80]">Enable All Shortcuts</span>
                     <button
                       onClick={() => setGlobalKeybindsEnabled(!globalKeybindsEnabled)}
-                      className={`relative w-10 h-5 rounded-full transition-colors ${globalKeybindsEnabled ? 'bg-indigo-500' : 'bg-zinc-700'}`}
+                      className={`relative w-10 h-5 rounded-full transition-colors ${globalKeybindsEnabled ? 'bg-indigo-500' : 'bg-black'}`}
                     >
                       <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${globalKeybindsEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
@@ -1330,7 +1302,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       useContractStore.getState().setDisabledKeybinds({});
                       setGlobalKeybindsEnabled(true);
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-zinc-400 bg-zinc-900/50 hover:bg-zinc-800 hover:text-white border border-zinc-800 rounded-lg transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-zinc-400 bg-black/50 hover:bg-black hover:text-[#E5E5E5] border border-black rounded-lg transition-all"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     Reset to Defaults
@@ -1354,8 +1326,8 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
               </div>
             </div>
             
-            <div className="p-4 bg-zinc-950/40 border border-zinc-900 text-[11px] rounded-xl text-[#a1a1aa] leading-relaxed flex gap-3">
-              <ShieldAlert className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="p-4 bg-black/40 border border-black text-[11px] rounded-xl text-[#a1a1aa] leading-relaxed flex gap-3">
+              <ShieldAlert className="w-4 h-4 text-[#4ADE80] shrink-0 mt-0.5" />
               <span>
                 <b>Hotkey Note:</b> To rebind, click on a shortcut button and press your new key combination. Use Modifier keys (Shift, Ctrl, Alt, Meta) plus a character.
               </span>
@@ -1366,14 +1338,14 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
         {activeTab === 'referrals' && (
           <div className="space-y-6 animate-fadeIn">
             {/* Module 5: Referrals token stats */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-5 relative shadow-lg">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-5 relative shadow-lg">
               <div className="absolute top-0 right-0 p-3 text-[10px] text-zinc-600 font-bold uppercase tracking-widest font-mono">
                 Module-05 Engine
               </div>
 
-              <div className="flex items-center gap-2.5 border-b border-zinc-900 pb-3">
-                <Coins className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-lg font-black tracking-tight text-white">
+              <div className="flex items-center gap-2.5 border-b border-black pb-3">
+                <Coins className="w-5 h-5 text-[#4ADE80]" />
+                <h2 className="text-lg font-black tracking-tight text-[#E5E5E5]">
                   Referral Rewards Token Pool
                 </h2>
               </div>
@@ -1381,32 +1353,32 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
               <ReferralCodeBox />
 
               {/* Referral Progress Bar (Gamification) */}
-              <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 overflow-hidden">
+              <div className="bg-black/50 border border-black rounded-xl p-4 overflow-hidden">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-bold text-white">Tokens to Next Free Month</span>
-                  <span className="text-xs font-mono text-emerald-400">{session?.referral_tokens_pool || 0} / 10</span>
+                  <span className="text-xs font-bold text-[#E5E5E5]">Tokens to Next Free Month</span>
+                  <span className="text-xs font-mono text-[#4ADE80]">{session?.referral_tokens_pool || 0} / 10</span>
                 </div>
                 <div className="w-full h-2.5 bg-black rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-1000"
+                    className="h-full bg-black/40 rounded-full transition-all duration-1000"
                     style={{ width: `${Math.min(100, ((session?.referral_tokens_pool || 0) / 10) * 100)}%` }}
                   />
                 </div>
               </div>
 
               {/* Referral Token Pool Dashboard metrics */}
-              <div className="grid grid-cols-2 gap-3 bg-black/40 border border-zinc-950 rounded-xl p-4 text-center">
+              <div className="grid grid-cols-2 gap-3 bg-black/40 border border-black rounded-xl p-4 text-center">
                 <div className="space-y-1">
                   <span className="text-xs text-zinc-500 font-bold block">YOUR TOKENS</span>
-                  <span className="text-2xl font-black text-emerald-400 font-mono block drop-shadow-[0_0_8px_rgba(16,185,129,0.2)]">
+                  <span className="text-2xl font-black text-[#4ADE80] font-mono block drop-shadow-[0_0_8px_rgba(34,211,238,0.2)]">
                     {session?.referral_tokens_pool || 0}
                   </span>
                   <span className="text-xs text-zinc-600 block font-mono mt-1">1 Token = 10% Off</span>
                 </div>
                 
-                <div className="space-y-1 border-l border-zinc-900/60 pl-3">
+                <div className="space-y-1 border-l border-black/60 pl-3">
                   <span className="text-xs text-zinc-500 font-bold block">CURRENT DISCOUNT</span>
-                  <span className="text-2xl font-black text-white font-mono block">
+                  <span className="text-2xl font-black text-[#E5E5E5] font-mono block">
                     {Math.min(100, (session?.referral_tokens_pool || 0) * 10)}%
                   </span>
                   <span className="text-xs text-[#8e8e93] block font-mono mt-1">Simulated Multipliers</span>
@@ -1417,7 +1389,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
               <div className="space-y-4">
                 <div className="space-y-2">
                   <span className="text-sm text-[#A1A1AA] font-bold block">Your Referral Code</span>
-                  <div className="bg-zinc-950 border border-zinc-900 text-white rounded-lg px-3 py-2 text-sm font-bold font-mono tracking-widest text-center shadow-inner">
+                  <div className="mirror-panel text-[#E5E5E5] rounded-lg px-3 py-2 text-sm font-bold font-mono tracking-widest text-center shadow-inner">
                     {session?.custom_referral_code || 'SLAYERX'}
                   </div>
                 </div>
@@ -1425,12 +1397,12 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                 <div className="space-y-2">
                   <span className="text-sm text-[#A1A1AA] font-bold block">Your Custom Referral Link</span>
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <div className="flex-1 bg-zinc-950 border border-zinc-900 text-[#a1a1aa] rounded-lg px-3 py-2 text-xs font-bold font-mono md:tracking-wider flex items-center justify-between whitespace-nowrap overflow-hidden text-ellipsis shadow-inner">
+                    <div className="flex-1 mirror-panel text-[#a1a1aa] rounded-lg px-3 py-2 text-xs font-bold font-mono md:tracking-wider flex items-center justify-between whitespace-nowrap overflow-hidden text-ellipsis shadow-inner">
                       <span className="truncate pr-2">{referralLink}</span>
                     </div>
                     <button
                       onClick={copyReferralLink}
-                      className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg flex items-center justify-center cursor-pointer transition-colors sm:shrink-0"
+                      className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] text-xs font-bold rounded-lg flex items-center justify-center cursor-pointer transition-colors sm:shrink-0"
                       title="Copy full referral link to clipboard"
                     >
                       {referralCopied ? 'Copied!' : 'Copy Link'}
@@ -1444,11 +1416,11 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
 
         {activeTab === 'billing' && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 relative shadow-lg space-y-4">
-              <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 relative shadow-lg space-y-4">
+              <div className="flex justify-between items-center border-b border-black pb-3">
                 <div className="flex items-center gap-2.5">
                   <Receipt className="w-5 h-5 text-indigo-400" />
-                  <h2 className="text-lg font-black tracking-tight text-white">Subscription & Tier</h2>
+                  <h2 className="text-lg font-black tracking-tight text-[#E5E5E5]">Subscription & Tier</h2>
                 </div>
                 {session?.customer_id && (
                   <span className="text-[8px] tracking-widest uppercase bg-indigo-950/40 px-2 py-0.5 border border-indigo-900/30 rounded text-indigo-400 font-mono">
@@ -1460,15 +1432,15 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1 text-left">
                   <div className="text-[10px] uppercase tracking-wider font-bold text-zinc-500">Current Plan Protocol</div>
-                  <div className="text-2xl font-black uppercase text-white tracking-widest flex items-center gap-2">
+                  <div className="text-2xl font-black uppercase text-[#E5E5E5] tracking-widest flex items-center gap-2">
                     <span>{session?.access_tier || 'GUEST'} TIER</span>
                     {session?.cancels_at_period_end ? (
-                      <span className="text-[9px] tracking-normal font-sans font-semibold bg-rose-500/10 border border-rose-500/20 text-rose-400 px-2.5 py-0.5 rounded-full">
+                      <span className="text-[9px] tracking-normal font-sans font-semibold bg-rose-500/10 border border-rose-500/20 text-[#F87171] px-2.5 py-0.5 rounded-full">
                         Cancels at Period End
                       </span>
                     ) : (
                       session?.access_tier && !['guest', 'discord'].includes(session?.access_tier) && (
-                        <span className="text-[9px] tracking-normal font-sans font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-full">
+                        <span className="text-[9px] tracking-normal font-sans font-semibold bg-black/40 border border-black text-[#4ADE80] px-2.5 py-0.5 rounded-full">
                           Active & Auto-renewing
                         </span>
                       )
@@ -1481,7 +1453,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       useContractStore.getState().setActiveTab('subscription');
                       window.scrollTo({ top: 0, behavior: 'auto' });
                     }}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase tracking-widest rounded-lg transition-colors cursor-pointer"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-[#E5E5E5] font-bold text-xs uppercase tracking-widest rounded-lg transition-colors cursor-pointer"
                   >
                     View Upgrades
                   </button>
@@ -1492,8 +1464,8 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       disabled={!!session?.cancels_at_period_end}
                       className={`px-4 py-2 font-bold text-xs uppercase tracking-widest rounded-lg transition-all cursor-pointer ${
                         session?.cancels_at_period_end
-                          ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-900'
-                          : 'bg-zinc-900 hover:bg-rose-950/20 text-rose-400 border border-zinc-850 hover:border-rose-900/30'
+                          ? 'bg-black text-zinc-500 cursor-not-allowed border border-black'
+                          : 'bg-black hover:bg-rose-950/20 text-[#F87171] border border-black hover:border-[#F87171]/30'
                       }`}
                     >
                       {session?.cancels_at_period_end ? 'Cancellation Logged' : 'Cancel Subscription'}
@@ -1504,8 +1476,8 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
 
               {/* Secure Customer_id and Payment_method_id details */}
               {session?.customer_id && (
-                <div className="bg-[#050506]/60 border border-zinc-900/60 rounded-xl p-4 space-y-2 text-left font-mono text-[10px] text-zinc-500">
-                  <div className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest pb-1 border-b border-zinc-900/40">Secure Tokenization Storage Ledger</div>
+                <div className="bg-black/60 border border-black/60 rounded-xl p-4 space-y-2 text-left font-mono text-[10px] text-zinc-500">
+                  <div className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest pb-1 border-b border-black/40">Secure Tokenization Storage Ledger</div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono">
                     <div>
                       <span className="text-zinc-600 font-bold block text-[8px] uppercase">Stripe Customer ID</span>
@@ -1513,7 +1485,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                     </div>
                     <div>
                       <span className="text-zinc-600 font-bold block text-[8px] uppercase">Tokenized Payment Method ID</span>
-                      <code className="text-emerald-400 font-mono text-[9.5px]">{session.payment_method_id || 'Not Saved (Iframe Protected)'}</code>
+                      <code className="text-[#4ADE80] font-mono text-[9.5px]">{session.payment_method_id || 'Not Saved (Iframe Protected)'}</code>
                     </div>
                   </div>
                   <p className="text-[9px] text-zinc-650 italic leading-tight pt-1">
@@ -1525,8 +1497,8 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
               {/* Confirmation Dialog / Modal */}
               {showCancelConfirm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-                  <div className="bg-[#09090b] border border-zinc-850 rounded-2xl max-w-md w-full p-6 text-left space-y-4 shadow-2xl relative">
-                    <div className="flex items-center gap-3 text-rose-400 pb-2 border-b border-zinc-900">
+                  <div className="bg-black border border-black rounded-2xl max-w-md w-full p-6 text-left space-y-4 shadow-2xl relative">
+                    <div className="flex items-center gap-3 text-[#F87171] pb-2 border-b border-black">
                       <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 stroke-current stroke-2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                       <h3 className="text-base font-black uppercase tracking-wider">Are you sure?</h3>
                     </div>
@@ -1539,7 +1511,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                       <button
                         type="button"
                         onClick={() => setShowCancelConfirm(false)}
-                        className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold text-xs uppercase tracking-widest rounded-lg cursor-pointer transition-all border border-zinc-800"
+                        className="px-4 py-2 bg-black hover:bg-black text-[#4ADE80] font-bold text-xs uppercase tracking-widest rounded-lg cursor-pointer transition-all border border-black"
                       >
                         Keep Subscription
                       </button>
@@ -1547,7 +1519,7 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                         type="button"
                         onClick={handleCancelSubscription}
                         disabled={isCanceling}
-                        className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-widest rounded-lg cursor-pointer transition-all flex items-center gap-2 shadow-lg shadow-rose-950/40"
+                        className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-[#E5E5E5] font-bold text-xs uppercase tracking-widest rounded-lg cursor-pointer transition-all flex items-center gap-2 shadow-lg shadow-rose-950/40"
                       >
                         {isCanceling ? 'Processing...' : 'Confirm Cancel'}
                       </button>
@@ -1558,13 +1530,13 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
             </div>
 
             {/* Invoice simulation box */}
-            <div className="bg-black/20 border border-zinc-900 rounded-xl p-6 space-y-5 relative shadow-lg">
-              <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
+            <div className="bg-black/20 border border-black rounded-xl p-6 space-y-5 relative shadow-lg">
+              <div className="flex justify-between items-center border-b border-black pb-3">
                 <div className="flex items-center gap-2.5">
                   <Receipt className="w-5 h-5 text-indigo-400" />
-                  <h2 className="text-lg font-black tracking-tight text-white">Billing & Invoices</h2>
+                  <h2 className="text-lg font-black tracking-tight text-[#E5E5E5]">Billing & Invoices</h2>
                 </div>
-                <span className="text-[8px] bg-[#0c1824] px-2 py-0.5 border border-[#1e1e24] rounded text-zinc-400">Sandbox</span>
+                <span className="text-[8px] bg-black px-2 py-0.5 border border-black rounded text-zinc-400">Sandbox</span>
               </div>
               
               <p className="text-xs text-zinc-400">
@@ -1593,21 +1565,21 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                 <motion.div
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-[#050506] border border-zinc-900 rounded-lg p-3 text-left font-mono text-[10px] text-[#a1a1aa] leading-relaxed space-y-1 mt-2 relative overflow-hidden"
+                  className="bg-black border border-black rounded-lg p-3 text-left font-mono text-[10px] text-[#a1a1aa] leading-relaxed space-y-1 mt-2 relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 p-1 bg-indigo-500/10 border-l border-b border-zinc-900 text-indigo-400 font-black tracking-widest text-[7px] uppercase select-none">Invoice Receipt</div>
-                  <div className="text-[9px] text-zinc-650 font-black tracking-widest uppercase border-b border-zinc-900 pb-1 mb-1.5 flex justify-between">
+                  <div className="absolute top-0 right-0 p-1 bg-indigo-500/10 border-l border-b border-black text-indigo-400 font-black tracking-widest text-[7px] uppercase select-none">Invoice Receipt</div>
+                  <div className="text-[9px] text-zinc-650 font-black tracking-widest uppercase border-b border-black pb-1 mb-1.5 flex justify-between">
                     <span>BILLING_RUN_RESULT // SUCCESS</span>
                     <span className="text-zinc-600 font-normal">Active tier: {invoiceLog.access_tier}</span>
                   </div>
-                  <div>Plan Base Monthly Tariff: <span className="text-white font-bold font-mono">${invoiceLog.base_rate}.00</span></div>
-                  <div>Invoice Tokens Redeemed: <span className="text-rose-400 text-right">-{invoiceLog.tokens_deducted} Tokens ({invoiceLog.discount_rate_pct}% Off)</span></div>
-                  <div>Applied Deduction Credit: <span className="text-emerald-400 text-right">-${invoiceLog.discount_amount_usd.toFixed(2)} USD</span></div>
-                  <div className="border-t border-zinc-900/60 pt-2 mt-2 font-bold flex justify-between text-[11px]">
+                  <div>Plan Base Monthly Tariff: <span className="text-[#E5E5E5] font-bold font-mono">${invoiceLog.base_rate}.00</span></div>
+                  <div>Invoice Tokens Redeemed: <span className="text-[#F87171] text-right">-{invoiceLog.tokens_deducted} Tokens ({invoiceLog.discount_rate_pct}% Off)</span></div>
+                  <div>Applied Deduction Credit: <span className="text-[#4ADE80] text-right">-${invoiceLog.discount_amount_usd.toFixed(2)} USD</span></div>
+                  <div className="border-t border-black/60 pt-2 mt-2 font-bold flex justify-between text-[11px]">
                     <span className="text-[#f4f4f5]">Net Amount Charged:</span>
-                    <span className="text-emerald-400">${invoiceLog.total_charged_usd.toFixed(2)} USD</span>
+                    <span className="text-[#4ADE80]">${invoiceLog.total_charged_usd.toFixed(2)} USD</span>
                   </div>
-                  <div className="border-t border-dashed border-zinc-900/80 pt-2 mt-2 text-[9px] text-zinc-600 uppercase flex gap-1.5 items-center">
+                  <div className="border-t border-dashed border-black/80 pt-2 mt-2 text-[9px] text-zinc-600 uppercase flex gap-1.5 items-center">
                     <FolderSync className="w-3.5 h-3.5 text-indigo-400/80 shrink-0" />
                     <span>Rollover Vault: {invoiceLog.tokens_remaining_rolled_over} Tokens rolled over safely for next months.</span>
                   </div>
@@ -1622,9 +1594,9 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
         <motion.div 
           initial={{ opacity: 0, y: 10, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          className={`fixed bottom-5 right-5 z-[100] p-4 bg-[#09090b] border ${toastType === 'success' ? 'border-emerald-500/30' : 'border-rose-500/30'} shadow-2xl flex items-center gap-2.5 font-mono text-[10.5px] text-white rounded-sm`}
+          className={`fixed bottom-5 right-5 z-[100] p-4 bg-black border ${toastType === 'success' ? 'border-black' : 'border-rose-500/30'} shadow-2xl flex items-center gap-2.5 font-mono text-[10.5px] text-[#E5E5E5] rounded-sm`}
         >
-          <span className={`w-1.5 h-1.5 rounded-full ${toastType === 'success' ? 'bg-emerald-400' : 'bg-rose-500'} animate-pulse`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${toastType === 'success' ? 'bg-black/40' : 'bg-rose-500'} animate-pulse`} />
           <span className="uppercase font-semibold tracking-wider text-zinc-400">{toastType === 'success' ? 'SUCCESS' : 'ERROR'}:</span>
           <span>{toastText}</span>
         </motion.div>

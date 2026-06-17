@@ -201,7 +201,7 @@ export function useTierValidation() {
   useEffect(() => {
     // 1. Instantly force sync from local drift before network
     if (typeof window !== 'undefined') {
-      const localSync = Number(localStorage.getItem('slayer_tier') || '1');
+      const localSync = Number(localStorage.getItem('slayer_tier') || '0');
       const authSync = localStorage.getItem('slayer_auth') === 'true';
       setPurchasedTier(localSync);
       setIsAuthenticated(authSync);
@@ -224,6 +224,7 @@ export function useTierValidation() {
         } else {
           setIsAuthenticated(false);
           localStorage.setItem('slayer_auth', 'false');
+          setPurchasedTier(0);
         }
       })
       .catch(err => console.error("Tier sync failed", err));
@@ -279,7 +280,7 @@ export const useContractStore = create<ContractStore>((set, get) => ({
   isAuthenticated: false,
   setIsAuthenticated: (auth) => set({ isAuthenticated: auth }),
 
-  purchasedTier: typeof window !== 'undefined' ? Number(localStorage.getItem('slayer_tier') || '1') : 1,
+  purchasedTier: typeof window !== 'undefined' ? Number(localStorage.getItem('slayer_tier') || '0') : 0,
   setPurchasedTier: (tier) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('slayer_tier', String(tier));

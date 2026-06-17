@@ -53,30 +53,30 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
   };
 
   return (
-    <div id="clerk-authentication-gate" className="min-h-screen bg-[#050506] text-zinc-400 flex flex-col justify-center items-center font-mono selection:bg-emerald-500/20 selection:text-white p-4">
+    <div id="clerk-authentication-gate" className="min-h-screen bg-black text-zinc-400 flex flex-col justify-center items-center font-mono selection:bg-[#4ADE80] text-black/20 selection:text-[#E5E5E5] p-4">
       
       {/* Visual background atmospheric elements */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] rounded-full bg-emerald-500/[0.02] blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] rounded-full bg-black/40/[0.02] blur-[150px] pointer-events-none" />
       <div className="absolute top-12 left-12 flex items-center gap-2 select-none">
-        <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" />
+        <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
         <span className="text-[10px] text-zinc-550 font-black tracking-widest uppercase">SLAYER TRADE SECURE ZONE</span>
       </div>
 
       <motion.div 
         initial={{ opacity: 0, scale: 0.96, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-full max-w-md bg-[#0a0a0c] border border-zinc-900 shadow-[0_0_60px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden p-8 space-y-6 relative"
+        className="w-full max-w-md bg-black border border-black shadow-[0_0_60px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden p-8 space-y-6 relative"
       >
         {/* Holographic scanner accents */}
-        <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-zinc-800 rounded-tl-xs" />
-        <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-zinc-800 rounded-tr-xs" />
-        <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-zinc-800 rounded-bl-xs" />
-        <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-zinc-800 rounded-br-xs" />
+        <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-black rounded-tl-xs" />
+        <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-black rounded-tr-xs" />
+        <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-black rounded-bl-xs" />
+        <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-black rounded-br-xs" />
 
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-all cursor-pointer font-black p-1.5 hover:scale-110 h-8 w-8 rounded-full border border-zinc-900/40 flex items-center justify-center bg-black/40 hover:bg-zinc-950 hover:border-zinc-805"
+            className="absolute top-4 right-4 text-zinc-500 hover:text-[#E5E5E5] transition-all cursor-pointer font-black p-1.5 hover:scale-110 h-8 w-8 rounded-full border border-black/40 flex items-center justify-center bg-black/40 hover:bg-black hover:border-black"
             title="Dismiss verification gate"
           >
             <X className="w-3.5 h-3.5" />
@@ -85,11 +85,11 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
 
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-1">
-            <div className="p-3 bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 rounded-full">
+            <div className="p-3 bg-black/40 text-[#4ADE80] border border-black rounded-full">
               <ShieldCheck className="w-7 h-7" />
             </div>
           </div>
-          <h1 className="text-lg font-sans font-black tracking-tight text-white uppercase select-none">
+          <h1 className="text-lg font-sans font-black tracking-tight text-[#E5E5E5] uppercase select-none">
             SLAYER TRADE GATEWAY
           </h1>
           <p className="text-[#a1a1aa] text-[10px] uppercase font-mono tracking-wide leading-relaxed">
@@ -98,29 +98,29 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
         </div>
 
         {/* Tab switcher */}
-        <div className="grid grid-cols-2 bg-black rounded-lg p-1 border border-zinc-950 text-[10px] uppercase font-black">
+        <div className="grid grid-cols-2 bg-black rounded-lg p-1 border border-black text-[10px] uppercase font-black">
           <button
             onClick={() => { setActiveMode('signin'); setErrorMessage(null); }}
-            className={`py-2 rounded-md transition-all cursor-pointer ${activeMode === 'signin' ? 'bg-zinc-900 text-white' : 'text-zinc-550 hover:text-zinc-350'}`}
+            className={`py-2 rounded-md transition-all cursor-pointer ${activeMode === 'signin' ? 'bg-black text-[#E5E5E5]' : 'text-zinc-550 hover:text-zinc-350'}`}
           >
             Sign In Account
           </button>
           <button
             onClick={() => { setActiveMode('signup'); setErrorMessage(null); }}
-            className={`py-2 rounded-md transition-all cursor-pointer ${activeMode === 'signup' ? 'bg-zinc-900 text-white' : 'text-zinc-550 hover:text-zinc-350'}`}
+            className={`py-2 rounded-md transition-all cursor-pointer ${activeMode === 'signup' ? 'bg-black text-[#E5E5E5]' : 'text-zinc-550 hover:text-zinc-350'}`}
           >
             Register Station
           </button>
         </div>
 
         {errorMessage && (
-          <div className="p-3.5 bg-rose-950/20 border border-rose-900/30 rounded-lg text-[10px] text-rose-400 leading-relaxed font-mono uppercase">
+          <div className="p-3.5 bg-rose-950/20 border border-[#F87171]/30 rounded-lg text-[10px] text-[#F87171] leading-relaxed font-mono uppercase">
             <span className="font-black">Error:</span> {errorMessage}
           </div>
         )}
 
         {referralCode && activeMode === 'signup' && (
-          <div className="p-3 bg-emerald-950/25 border border-emerald-900/30 rounded-lg text-[9.5px] text-emerald-400 leading-tight font-mono uppercase flex items-center gap-2">
+          <div className="p-3 bg-black/40 border border-black rounded-lg text-[9.5px] text-[#4ADE80] leading-tight font-mono uppercase flex items-center gap-2">
             <Check className="w-3.5 h-3.5 shrink-0" />
             <span>Referral code active! 5% discount applied automatically on subscription clearance.</span>
           </div>
@@ -139,7 +139,7 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Zak Ali"
-                  className="w-full bg-black/60 border border-zinc-900 focus:border-zinc-700 text-white font-mono rounded-lg p-3 pl-10 text-xs focus:outline-none transition-colors"
+                  className="w-full bg-black/60 border border-black focus:border-black text-[#E5E5E5] font-mono rounded-lg p-3 pl-10 text-xs focus:outline-none transition-colors"
                 />
                 <User className="w-3.5 h-3.5 text-zinc-650 absolute left-3 top-1/2 -translate-y-1/2" />
               </div>
@@ -157,7 +157,7 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
                   value={avatarUrl}
                   onChange={(e) => setAvatarUrl(e.target.value)}
                   placeholder="https://example.com/avatar.png"
-                  className="w-full bg-black/60 border border-zinc-900 focus:border-zinc-700 text-white font-mono rounded-lg p-3 pl-10 text-xs focus:outline-none transition-colors"
+                  className="w-full bg-black/60 border border-black focus:border-black text-[#E5E5E5] font-mono rounded-lg p-3 pl-10 text-xs focus:outline-none transition-colors"
                 />
                 <User className="w-3.5 h-3.5 text-zinc-650 absolute left-3 top-1/2 -translate-y-1/2" />
               </div>
@@ -175,7 +175,7 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="slayer@trade.com"
-                className="w-full bg-black/60 border border-zinc-900 focus:border-zinc-700 text-white font-mono rounded-lg p-3 pl-10 text-xs focus:outline-none transition-colors"
+                className="w-full bg-black/60 border border-black focus:border-black text-[#E5E5E5] font-mono rounded-lg p-3 pl-10 text-xs focus:outline-none transition-colors"
               />
               <Mail className="w-3.5 h-3.5 text-zinc-650 absolute left-3 top-1/2 -translate-y-1/2" />
             </div>
@@ -192,7 +192,7 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full bg-black/60 border border-zinc-900 focus:border-zinc-700 text-white font-mono rounded-lg p-3 pl-10 text-xs focus:outline-none transition-colors"
+                className="w-full bg-black/60 border border-black focus:border-black text-[#E5E5E5] font-mono rounded-lg p-3 pl-10 text-xs focus:outline-none transition-colors"
               />
               <Lock className="w-3.5 h-3.5 text-zinc-650 absolute left-3 top-1/2 -translate-y-1/2" />
             </div>
@@ -208,7 +208,7 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
                 value={referralCode}
                 onChange={(e) => setReferralCode(e.target.value)}
                 placeholder="SLAYERY123"
-                className="w-full bg-black/60 border border-zinc-900 focus:border-zinc-700 text-white font-mono rounded-lg p-3 text-xs focus:outline-none transition-colors uppercase"
+                className="w-full bg-black/60 border border-black focus:border-black text-[#E5E5E5] font-mono rounded-lg p-3 text-xs focus:outline-none transition-colors uppercase"
               />
             </div>
           )}
@@ -216,7 +216,7 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3.5 mt-2 bg-emerald-400 hover:bg-emerald-300 text-neutral-950 font-black text-[10px] uppercase tracking-widest rounded-lg shadow-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer hover:scale-[1.01]"
+            className="w-full py-3.5 mt-2 bg-[#4ADE80] hover:bg-[#00cc6a] text-black border-none font-black text-[10px] uppercase tracking-widest rounded-lg shadow-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer hover:scale-[1.01]"
           >
             {isLoading ? (
               <>
@@ -232,7 +232,7 @@ export function ClerkGate({ onSuccess, referralCodeFromUrl, onClose }: ClerkGate
           </button>
         </form>
 
-        <div className="border-t border-[#121217] pt-4 text-center">
+        <div className="border-t border-black pt-4 text-center">
           <p className="text-[8px] text-zinc-650 leading-relaxed uppercase">
             UNAUTHORIZED DISCOVERY PROBES ARE PERMANENTLY RETRACTED AND REPORTED TO SYSTEM CONTROL SHELL.
           </p>

@@ -81,12 +81,12 @@ export function InteractiveChart({
       crosshair: {
         mode: 1, // Magnet mode
         vertLine: {
-          color: isLight ? '#4b5563' : '#ffffff',
+          color: isLight ? '#000000' : '#ffffff',
           width: 1, // LineWidth must be integer e.g., 1
           style: 1 // Dashed line style
         },
         horzLine: {
-          color: isLight ? '#4b5563' : '#ffffff',
+          color: isLight ? '#000000' : '#ffffff',
           width: 1,
           style: 1
         }
@@ -112,11 +112,11 @@ export function InteractiveChart({
 
     // 2. Add Candlestick Series once with high contrast neon branding
     const candlestickSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#00ff88',
+      upColor: '#4ADE80',
       downColor: '#ff4545',
-      borderUpColor: '#00ff88',
+      borderUpColor: '#4ADE80',
       borderDownColor: '#ff4545',
-      wickUpColor: '#00ff88',
+      wickUpColor: '#4ADE80',
       wickDownColor: '#ff4545',
     });
 
@@ -129,9 +129,14 @@ export function InteractiveChart({
 
     // 3. Setup fluid Resize Observer
     const resizeObserver = new ResizeObserver((entries) => {
-      if (!entries || entries.length === 0) return;
-      const { width, height } = entries[0].contentRect;
-      chart.resize(width, height || 200);
+      window.requestAnimationFrame(() => {
+        if (!entries || entries.length === 0) return;
+        if (!containerRef.current) return;
+        if (chartRef.current) {
+          const { width, height } = entries[0].contentRect;
+          chartRef.current.resize(width, height || 200);
+        }
+      });
     });
     resizeObserver.observe(containerRef.current);
 
@@ -169,10 +174,10 @@ export function InteractiveChart({
         },
         crosshair: {
           vertLine: {
-            color: isLight ? '#4b5563' : '#ffffff',
+            color: isLight ? '#000000' : '#ffffff',
           },
           horzLine: {
-            color: isLight ? '#4b5563' : '#ffffff',
+            color: isLight ? '#000000' : '#ffffff',
           }
         },
         timeScale: {
@@ -211,7 +216,7 @@ export function InteractiveChart({
           markers.push({
             time: timeSecs,
             position: isBullish ? 'belowBar' : 'aboveBar',
-            color: isBullish ? '#00ff88' : '#ff4545',
+            color: isBullish ? '#d4d4d8' : '#ff4545',
             shape: 'circle',
             size: 2
           });
@@ -232,7 +237,7 @@ export function InteractiveChart({
           markers.push({
             time: timeSecs,
             position: isBullish ? 'belowBar' : 'aboveBar',
-            color: isBullish ? '#30d158' : '#ff453a', // distinct from sweeps
+            color: isBullish ? '#d4d4d8' : '#F87171', // distinct from sweeps
             shape: isBullish ? 'arrowUp' : 'arrowDown',
             text: `DISP ${z.score}`,
             size: 2
@@ -350,7 +355,7 @@ export function InteractiveChart({
   }, [chartData, showLiquiditySweeps, liquidityEvents, targets, showFVGs, fvgs, showDisplacementEvents, displacementZones, tape]);
 
   return (
-    <div className="w-full h-full relative bg-black flex flex-col border border-zinc-900 rounded-sm">
+    <div className="w-full h-full relative bg-black flex flex-col border border-black rounded-sm">
       {/* Chart canvas DOM */}
       <div 
         ref={containerRef} 

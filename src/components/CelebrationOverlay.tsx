@@ -68,7 +68,7 @@ export function CelebrationOverlay({ purchasedTier, isOpen, onComplete }: Celebr
       let color = '';
       if (purchasedTier === 2) {
         // Vibrant neon rainbow elements
-        const colors = ['#ff2d55', '#ff9500', '#ffcc00', '#4cd964', '#5ac8fa', '#007aff', '#5856d6', '#ff2d55', '#30d158', '#0a84ff'];
+        const colors = ['#ff2d55', '#ff9500', '#ffcc00', '#4cd964', '#5ac8fa', '#007aff', '#5856d6', '#ff2d55', '#4ADE80', '#0a84ff'];
         color = colors[Math.floor(Math.random() * colors.length)];
       } else if (purchasedTier >= 4) {
         // Elite Gold & Silver glitter
@@ -259,7 +259,7 @@ export function CelebrationOverlay({ purchasedTier, isOpen, onComplete }: Celebr
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5, ease: appleEasing }}
-        className="fixed inset-0 z-[9998] bg-[#050506]/75 backdrop-blur-sm pointer-events-auto flex items-center justify-center p-4 overflow-hidden"
+        className="fixed inset-0 z-[9998] bg-black/75 backdrop-blur-sm pointer-events-auto flex items-center justify-center p-4 overflow-hidden"
       >
         {/* Particle Canvas */}
         <canvas
@@ -276,25 +276,25 @@ export function CelebrationOverlay({ purchasedTier, isOpen, onComplete }: Celebr
           className="relative pointer-events-auto max-w-sm w-full mx-auto z-10"
         >
           {/* Neon back-glow */}
-          <div className="absolute -inset-0.5 bg-gradient-to-br from-[#30d158]/15 to-[#3a86ff]/15 rounded-2xl blur-xl animate-pulse" />
+          <div className="absolute -inset-0.5 bg-gradient-to-br from-[#4ADE80]/15 to-[#3a86ff]/15 rounded-2xl blur-xl animate-pulse" />
           
-          <div className={`relative rounded-2xl overflow-hidden backdrop-blur-3xl border ${purchasedTier >= 4 ? 'bg-[#121214]/90 border-yellow-500/25 shadow-[0_0_40px_rgba(234,179,8,0.12)]' : 'bg-[#121214]/90 border-zinc-850 shadow-2xl'} p-8 text-center`}>
+          <div className={`relative rounded-2xl overflow-hidden backdrop-blur-3xl border ${purchasedTier >= 4 ? 'bg-black/90 border-yellow-500/25 shadow-[0_0_40px_rgba(234,179,8,0.12)]' : 'bg-black/90 border-black shadow-2xl'} p-8 text-center`}>
             
             {/* Close Button */}
             <button
               onClick={() => onCompleteRef.current()}
-              className="absolute top-4 right-4 text-zinc-500 hover:text-white p-1 rounded-full bg-zinc-900/40 hover:bg-zinc-800/60 transition-all cursor-pointer"
+              className="absolute top-4 right-4 text-zinc-500 hover:text-[#E5E5E5] p-1 rounded-full bg-black/40 hover:bg-black/60 transition-all cursor-pointer"
               title="Close Celebration"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="flex justify-center mb-6 relative">
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${purchasedTier >= 4 ? 'bg-yellow-500/10 shadow-[0_0_30px_rgba(234,179,8,0.25)]' : 'bg-[#30d158]/15 shadow-[0_0_30px_rgba(48,209,88,0.2)]'}`}>
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${purchasedTier >= 4 ? 'bg-yellow-500/10 shadow-[0_0_30px_rgba(234,179,8,0.25)]' : 'bg-black/15 shadow-[0_0_30px_rgba(48,209,88,0.2)]'}`}>
                 {purchasedTier >= 4 ? (
                   <Trophy className="w-8 h-8 text-yellow-400" />
                 ) : (
-                  <Sparkles className="w-8 h-8 text-[#30d158]" />
+                  <Sparkles className="w-8 h-8 text-[#4ADE80]" />
                 )}
               </div>
             </div>
@@ -304,7 +304,7 @@ export function CelebrationOverlay({ purchasedTier, isOpen, onComplete }: Celebr
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.15 }}
             >
-              <h2 className="text-xl font-black text-white tracking-widest mb-2 uppercase">
+              <h2 className="text-xl font-black text-[#E5E5E5] tracking-widest mb-2 uppercase">
                 {purchasedTier >= 5 ? 'Elite Tier Activated' : 
                  purchasedTier === 4 ? 'Professional Clearance' : 
                  purchasedTier === 3 ? 'Gexbot Access Granted' : 'Upgraded'}
@@ -314,8 +314,8 @@ export function CelebrationOverlay({ purchasedTier, isOpen, onComplete }: Celebr
                 System parameters elevated and restriction sets lifted. Real-time options exposure algorithms loaded successfully.
               </p>
 
-              <div className="inline-block bg-black/65 border border-zinc-900 rounded-lg px-4 py-2.5 text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest select-none">
-                <span className="text-emerald-450">&gt;&gt;</span> MODULES REBOOTED SECURELY
+              <div className="inline-block bg-black/65 border border-black rounded-lg px-4 py-2.5 text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest select-none">
+                <span className="text-[#4ADE80]">&gt;&gt;</span> MODULES REBOOTED SECURELY
               </div>
             </motion.div>
           </div>

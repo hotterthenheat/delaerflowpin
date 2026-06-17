@@ -109,7 +109,7 @@ const TICKER_PROFILES: Record<string, TICKER_PROFILE_METRICS> = {
     netCex: 12.8e6,
     fwdVar: 0.0422,
     vpin: '0.82 (HIGH)',
-    vpinColor: 'text-rose-400',
+    vpinColor: 'text-[#F87171]',
     friction: 0.0014,
     volState: 'DECAYING CLOUD',
     marketEnergy: '0.457 λ',
@@ -123,7 +123,7 @@ const TICKER_PROFILES: Record<string, TICKER_PROFILE_METRICS> = {
     netCex: 18.5e6,
     fwdVar: 0.0680,
     vpin: '0.87 (HIGH)',
-    vpinColor: 'text-rose-400',
+    vpinColor: 'text-[#F87171]',
     friction: 0.0021,
     volState: 'EXPANDING BIAS',
     marketEnergy: '0.621 λ',
@@ -165,7 +165,7 @@ const TICKER_PROFILES: Record<string, TICKER_PROFILE_METRICS> = {
     netCex: -0.40e6,
     fwdVar: 0.0820,
     vpin: '0.89 (HIGH)',
-    vpinColor: 'text-rose-400',
+    vpinColor: 'text-[#F87171]',
     friction: 0.0035,
     volState: 'VOLATILE PIVOT',
     marketEnergy: '0.748 λ',
@@ -556,7 +556,7 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
 
 
   return (
-    <div className="w-full text-zinc-300 flex flex-col font-mono select-none antialiased min-h-[640px] relative px-1 py-1" id="skyseye-physics-dashboard-root">
+    <div className="w-full text-[#4ADE80] flex flex-col font-mono select-none antialiased min-h-[640px] relative px-1 py-1" id="skyseye-physics-dashboard-root">
       
       <style dangerouslySetInnerHTML={{__html: `
         .quant-terminal-grid {
@@ -588,7 +588,7 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
           letter-spacing: 0.15em;
         }
         .hud-label {
-          color: #5c5c68;
+          color: #000000;
           font-size: 7.5px;
           font-weight: 800;
           letter-spacing: 0.08em;
@@ -659,7 +659,7 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
 
         .greek-card .unit {
           font-size: 8px;
-          color: #5c5c68;
+          color: #000000;
           font-weight: normal;
         }
 
@@ -674,16 +674,16 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
       <header className="quant-panel mb-4 flex flex-row justify-between items-center py-3.5 px-5 h-auto min-h-[64px]" id="quant-header" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-450 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-black/40 animate-pulse" />
             <span className="text-[10px] font-black tracking-widest text-zinc-100 font-sans uppercase">
               MASTER TELEMETRY
             </span>
           </div>
-          <div className="h-4 w-px bg-zinc-800" />
+          <div className="h-4 w-px bg-black" />
           
-          <div className="flex items-center gap-1.5 bg-zinc-950/80 border border-zinc-850 px-2.5 py-1 rounded">
+          <div className="flex items-center gap-1.5 bg-black/80 border border-black px-2.5 py-1 rounded">
             <span className="text-zinc-500 text-[10px] font-bold">ACTIVE ASSET:</span>
-            <span className="text-emerald-440 font-extrabold text-[11px] font-mono tracking-wider">{ticker}</span>
+            <span className="text-[#4ADE80] font-extrabold text-[11px] font-mono tracking-wider">{ticker}</span>
           </div>
         </div>
 
@@ -691,19 +691,19 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
           {/* State Classifier indicator */}
           <div className="flex flex-col text-left">
             <span className="text-zinc-650 font-extrabold uppercase text-[7px] tracking-wider leading-none mb-1">STATE_VECTOR</span>
-            <span className={`font-black tracking-wide leading-none text-[10px] ${systemState === 'SYSTEM ACTIVE' ? 'text-emerald-400' : 'text-amber-500 animate-pulse'}`}>
+            <span className={`font-black tracking-wide leading-none text-[10px] ${systemState === 'SYSTEM ACTIVE' ? 'text-[#4ADE80]' : 'text-amber-500 animate-pulse'}`}>
               ● {systemState}
             </span>
           </div>
           
-          <div className="h-4 w-px bg-zinc-850" />
+          <div className="h-4 w-px bg-black" />
 
           <div className="flex flex-col text-left">
             <span className="text-zinc-650 font-extrabold uppercase text-[7px] tracking-wider leading-none mb-1">MARKET ENERGY (E_t)</span>
             <span className="text-zinc-200 font-bold leading-none text-[10px]">{profile.marketEnergy}</span>
           </div>
 
-          <div className="h-4 w-px bg-zinc-850" />
+          <div className="h-4 w-px bg-black" />
 
           <div className="flex flex-col text-left">
             <span className="text-zinc-650 font-extrabold uppercase text-[7px] tracking-wider leading-none mb-1">IMPLIED REGIME</span>
@@ -730,30 +730,30 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
             </div>
             
             <div className="grid grid-cols-1 gap-3.5">
-              <div className="bg-zinc-950/45 p-3 border border-zinc-900 rounded-sm">
+              <div className="bg-black/45 p-3 border border-black rounded-sm">
                 <div className="hud-label">NET GEX (GAMMA EXPOSURE)</div>
                 <div className="flex items-baseline gap-2">
-                  <span className={`hud-value ${profile.netGex >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <span className={`hud-value ${profile.netGex >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                     {fmtBn(profile.netGex)}
                   </span>
                   <span className="text-[7.5px] text-zinc-550">USD/sh</span>
                 </div>
               </div>
 
-              <div className="bg-zinc-950/45 p-3 border border-zinc-900 rounded-sm">
+              <div className="bg-black/45 p-3 border border-black rounded-sm">
                 <div className="hud-label">NET VEX (VANNA EXPOSURE)</div>
                 <div className="flex items-baseline gap-2">
-                  <span className={`hud-value ${profile.netVex >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <span className={`hud-value ${profile.netVex >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                     {fmtBn(profile.netVex)}
                   </span>
                   <span className="text-[7.5px] text-zinc-550">USD/vol</span>
                 </div>
               </div>
 
-              <div className="bg-zinc-950/45 p-3 border border-zinc-900 rounded-sm">
+              <div className="bg-black/45 p-3 border border-black rounded-sm">
                 <div className="hud-label">NET CEX (CHARM EXPOSURE)</div>
                 <div className="flex items-baseline gap-2">
-                  <span className={`hud-value ${profile.netCex >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <span className={`hud-value ${profile.netCex >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                     {fmtBn(profile.netCex)}
                   </span>
                   <span className="text-[7.5px] text-zinc-550">/24h</span>
@@ -769,9 +769,9 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
               <Layers className="w-3 h-3 text-zinc-600" />
             </div>
 
-            <div className="flex flex-col gap-[3px] bg-zinc-950/30 p-2.5 border border-zinc-900 rounded-sm flex-1 overflow-y-auto max-h-[220px]">
+            <div className="flex flex-col gap-[3px] bg-black/30 p-2.5 border border-black rounded-sm flex-1 overflow-y-auto max-h-[220px]">
               {/* Header */}
-              <div className="grid grid-cols-5 text-[7px] text-zinc-600 font-extrabold uppercase border-b border-zinc-900 pb-1.5 mb-1 tracking-wider text-center">
+              <div className="grid grid-cols-5 text-[7px] text-zinc-600 font-extrabold uppercase border-b border-black pb-1.5 mb-1 tracking-wider text-center">
                 <span className="text-left">C_GEX</span>
                 <span>C_OI</span>
                 <span className="text-zinc-400">STRIKE</span>
@@ -785,19 +785,19 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
                 return (
                   <div 
                     key={strRow.strike} 
-                    className={`grid grid-cols-5 text-[8.5px] font-mono py-1 px-1 items-center justify-center text-center border border-zinc-900/40 relative rounded-sm transition-all duration-150 ${
+                    className={`grid grid-cols-5 text-[8.5px] font-mono py-1 px-1 items-center justify-center text-center border border-black/40 relative rounded-sm transition-all duration-150 ${
                       isAtSpotIdx 
-                        ? 'bg-zinc-900/70 border border-zinc-600 ring-[1px] ring-zinc-500/30' 
+                        ? 'bg-black/70 border border-black ring-[1px] ring-zinc-500/30' 
                         : isPositive 
-                          ? 'bg-emerald-950/20 border-emerald-900/35 text-emerald-300' 
-                          : 'bg-rose-950/20 border-rose-900/35 text-rose-300'
+                          ? 'bg-black/40 border-black text-[#4ADE80]' 
+                          : 'bg-rose-950/20 border-rose-900/35 text-[#F87171]'
                     }`}
                   >
-                    <span className="text-emerald-400 text-left font-bold px-0.5">{(strRow.callGex / 1e6).toFixed(1)}M</span>
+                    <span className="text-[#4ADE80] text-left font-bold px-0.5">{(strRow.callGex / 1e6).toFixed(1)}M</span>
                     <span className="text-zinc-450 font-medium">{Math.round(strRow.callOi / 100)}h</span>
-                    <span className={`font-black font-mono text-[9px] ${isAtSpotIdx ? 'text-white' : 'text-zinc-205'}`}>{strRow.strike}</span>
+                    <span className={`font-black font-mono text-[9px] ${isAtSpotIdx ? 'text-[#E5E5E5]' : 'text-zinc-205'}`}>{strRow.strike}</span>
                     <span className="text-zinc-450 font-medium">{Math.round(strRow.putOi / 100)}h</span>
-                    <span className="text-rose-400 text-right font-bold px-0.5">{(strRow.putGex / 1e6).toFixed(1)}M</span>
+                    <span className="text-[#F87171] text-right font-bold px-0.5">{(strRow.putGex / 1e6).toFixed(1)}M</span>
                   </div>
                 );
               })}
@@ -810,39 +810,39 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
          ------------------------------------------------------------ */}
         <main 
           className={isExpanded 
-            ? "fixed inset-0 z-[999] bg-[#0c0c0e]/98 backdrop-blur-md p-6 flex flex-col justify-between gap-4 animate-fade-in" 
+            ? "fixed inset-0 z-[999] bg-black/98 backdrop-blur-md p-6 flex flex-col justify-between gap-4 animate-fade-in" 
             : "quant-panel flex-1 justify-between flex flex-col p-4 relative min-h-[500px]"
           } 
           id="pane-center"
         >
           
           {/* Top Panel Control Row for Morph Surface Shifts */}
-          <div className="flex justify-between items-center border-b border-zinc-900/70 pb-3 mb-2" id="canvas-control-overlay">
+          <div className="flex justify-between items-center border-b border-black/70 pb-3 mb-2" id="canvas-control-overlay">
             <div className="flex items-center gap-3">
               {isExpanded && (
-                <span className="text-[9px] font-black tracking-widest text-[#30d158] font-mono uppercase bg-emerald-500/10 border border-emerald-950 px-2 py-1 rounded-sm">
+                <span className="text-[9px] font-black tracking-widest text-[#4ADE80] font-mono uppercase bg-[#4ADE80] text-black/10 border border-black px-2 py-1 rounded-sm">
                   EXPANDED VIEWPORTS // QUANT COORDS
                 </span>
               )}
-              <div className="flex gap-1 bg-zinc-950 p-0.5 border border-zinc-900 rounded-sm">
+              <div className="flex gap-1 bg-black p-0.5 border border-black rounded-sm">
                 <button
                   type="button"
                   onClick={() => setSurfaceMode('neutral')}
-                  className={`px-3 py-1 text-[8.5px] uppercase font-extrabold tracking-wider rounded-xs focus:outline-none transition-colors ${surfaceMode === 'neutral' ? 'bg-zinc-800 text-zinc-200' : 'text-zinc-500 hover:text-zinc-400'}`}
+                  className={`px-3 py-1 text-[8.5px] uppercase font-extrabold tracking-wider rounded-xs focus:outline-none transition-colors ${surfaceMode === 'neutral' ? 'bg-black text-zinc-200' : 'text-zinc-500 hover:text-zinc-400'}`}
                 >
                   ● NEUTRAL TOPOGRAPHY
                 </button>
                 <button
                   type="button"
                   onClick={() => setSurfaceMode('call')}
-                  className={`px-3 py-1 text-[8.5px] uppercase font-extrabold tracking-wider rounded-xs focus:outline-none transition-colors ${surfaceMode === 'call' ? 'bg-emerald-950 border border-emerald-900 text-emerald-400' : 'text-zinc-500 hover:text-zinc-400'}`}
+                  className={`px-3 py-1 text-[8.5px] uppercase font-extrabold tracking-wider rounded-xs focus:outline-none transition-colors ${surfaceMode === 'call' ? 'bg-black/40 border border-black text-[#4ADE80]' : 'text-zinc-500 hover:text-zinc-400'}`}
                 >
                   CALL WALL Topography
                 </button>
                 <button
                   type="button"
                   onClick={() => setSurfaceMode('put')}
-                  className={`px-3 py-1 text-[8.5px] uppercase font-extrabold tracking-wider rounded-xs focus:outline-none transition-colors ${surfaceMode === 'put' ? 'bg-rose-950 border border-rose-900 text-rose-400' : 'text-zinc-500 hover:text-zinc-400'}`}
+                  className={`px-3 py-1 text-[8.5px] uppercase font-extrabold tracking-wider rounded-xs focus:outline-none transition-colors ${surfaceMode === 'put' ? 'bg-rose-950 border border-rose-900 text-[#F87171]' : 'text-zinc-500 hover:text-zinc-400'}`}
                 >
                   PUT WALL Topography
                 </button>
@@ -850,13 +850,13 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="text-[7px] text-zinc-550 border border-zinc-900 bg-zinc-950 px-2.5 py-1.5 rounded-sm uppercase tracking-wider font-extrabold">
+              <div className="text-[7px] text-zinc-550 border border-black bg-black px-2.5 py-1.5 rounded-sm uppercase tracking-wider font-extrabold">
                 DRAG CANVAS TO ROTATE TOPOGRAPHY VIEWPORT
               </div>
               <button
                 type="button"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white rounded-xs p-1.5 px-3 transition-all text-[8.5px] font-bold flex items-center gap-1 cursor-pointer"
+                className="bg-black hover:mirror-panel hover:border-black text-zinc-400 hover:text-[#E5E5E5] rounded-xs p-1.5 px-3 transition-all text-[8.5px] font-bold flex items-center gap-1 cursor-pointer"
                 title={isExpanded ? "Exit Fullscreen" : "Expand to Fullscreen"}
               >
                 <span>{isExpanded ? "⛶ COLLAPSE [ESC]" : "⛶ EXPAND"}</span>
@@ -865,7 +865,7 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
           </div>
 
           {/* Interactive 3D Canvas Box */}
-          <div className="flex-1 relative bg-[#09090b] border border-zinc-900 rounded-sm overflow-hidden" id="canvas-stage-wrapper">
+          <div className="flex-1 relative bg-black border border-black rounded-sm overflow-hidden" id="canvas-stage-wrapper">
             <canvas
               ref={canvasRef}
               onMouseDown={handleMouseDown}
@@ -890,7 +890,7 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
             </div>
 
             <div className="grid grid-cols-1 gap-3.5">
-              <div className="bg-zinc-950/45 p-3 border border-zinc-900 rounded-sm">
+              <div className="bg-black/45 p-3 border border-black rounded-sm">
                 <div className="hud-label">FDA / FORWARD-VARIANCE</div>
                 <div className="flex items-baseline gap-2">
                   <span className="hud-value text-sky-400">
@@ -900,8 +900,8 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
                 </div>
               </div>
 
-              <div className="bg-zinc-950/45 p-3 border border-zinc-900 rounded-sm">
-                <div className="hud-label text-rose-450/90">ORDER FLOW TOXICITY (VPIN)</div>
+              <div className="bg-black/45 p-3 border border-black rounded-sm">
+                <div className="hud-label text-[#F87171]/90">ORDER FLOW TOXICITY (VPIN)</div>
                 <div className="flex items-baseline gap-2">
                   <span className={`hud-value ${profile.vpinColor}`}>
                     {profile.vpin}
@@ -909,7 +909,7 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
                 </div>
               </div>
 
-              <div className="bg-zinc-950/45 p-3 border border-zinc-900 rounded-sm">
+              <div className="bg-black/45 p-3 border border-black rounded-sm">
                 <div className="hud-label">LIQUIDITY FRICTION (Λ)</div>
                 <div className="flex items-baseline gap-2">
                   <span className="hud-value text-zinc-100">
@@ -928,21 +928,21 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
               <Compass className="w-3 h-3 text-zinc-600" />
             </div>
 
-            <div className="bg-zinc-950/45 p-3 border border-zinc-900 rounded-sm flex-1 flex flex-col justify-between">
+            <div className="bg-black/45 p-3 border border-black rounded-sm flex-1 flex flex-col justify-between">
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-[9px] font-mono">
                   <span className="text-zinc-500 font-black tracking-widest uppercase">Decay Velocity (Θ_rad)</span>
-                  <span className="text-zinc-300 font-bold">-0.842v / hr</span>
+                  <span className="text-[#4ADE80] font-bold">-0.842v / hr</span>
                 </div>
                 <div className="flex justify-between items-center text-[9px] font-mono">
                   <span className="text-zinc-500 font-black tracking-widest uppercase">Local Friction (Λ)</span>
-                  <span className="text-emerald-400 font-bold">1.22μ</span>
+                  <span className="text-[#4ADE80] font-bold">1.22μ</span>
                 </div>
                 <div className="flex justify-between items-center text-[9px] font-mono">
                   <span className="text-zinc-500 font-black tracking-widest uppercase">Dealer Hedging Pressure</span>
-                  <span className="text-rose-450 font-bold">94.2%</span>
+                  <span className="text-[#F87171] font-bold">94.2%</span>
                 </div>
-                <div className="h-px bg-zinc-900/60 my-1" />
+                <div className="h-px bg-black/60 my-1" />
               </div>
 
               <div className="pt-3">
@@ -951,10 +951,10 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
                   <span>95% CI UPPER</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-center text-[10.5px] font-mono">
-                  <span className="text-rose-400 bg-rose-950/20 border border-rose-900/40 py-1.5 rounded-sm">
+                  <span className="text-[#F87171] bg-rose-950/20 border border-[#F87171]/40 py-1.5 rounded-sm">
                     {(profile.spot * (1 - 1.96 * profile.expectedMovePct)).toFixed(decimals === 0 ? 0 : 2)}
                   </span>
-                  <span className="text-emerald-400 bg-emerald-950/20 border border-emerald-900/40 py-1.5 rounded-sm">
+                  <span className="text-[#4ADE80] bg-black/40 border border-black py-1.5 rounded-sm">
                     {(profile.spot * (1 + 1.96 * profile.expectedMovePct)).toFixed(decimals === 0 ? 0 : 2)}
                   </span>
                 </div>
@@ -976,7 +976,7 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
             {/* CARD 1: SPOT DELTA INTEGRATION */}
             <div className="greek-card">
               <label>
-                <Activity className="w-3.5 h-3.5 text-emerald-450 icon-small" /> 
+                <Activity className="w-3.5 h-3.5 text-[#4ADE80] icon-small" /> 
                 SPOT DELTA INTEGRATION
               </label>
               <span>
@@ -998,7 +998,7 @@ export function InstitutionalPhysicsDashboard({ profile: externalProfile, ticker
             {/* CARD 3: VANNA COVARIANCE */}
             <div className="greek-card">
               <label>
-                <Percent className="w-3.5 h-3.5 text-rose-450 icon-small" /> 
+                <Percent className="w-3.5 h-3.5 text-[#F87171] icon-small" /> 
                 VANNA COVARIANCE (∂Δ/∂Σ)
               </label>
               <span>

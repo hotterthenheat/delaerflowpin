@@ -12,13 +12,13 @@ export function ReportsView() {
   };
 
   return (
-    <div className="w-full text-zinc-300 flex flex-col font-mono select-none antialiased space-y-6 print:bg-white print:text-black">
+    <div className="w-full text-[#4ADE80] flex flex-col font-mono select-none antialiased space-y-6 print:bg-white print:text-black">
       
       {/* 1. HEADER (REPORT EXPORTER CONTROL) */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center apple-glass p-5 rounded-2xl gap-2 shadow-lg print:hidden">
         <div className="flex gap-2 items-center">
-          <FileText className="w-4 h-4 text-[#30d158]" />
-          <span className="text-[9.5px] text-zinc-300 uppercase tracking-widest font-black">
+          <FileText className="w-4 h-4 text-[#4ADE80]" />
+          <span className="text-[9.5px] text-[#4ADE80] uppercase tracking-widest font-black">
             SLAYER EXECUTIVE COMPLIANCE REPORT CARD // EXPORT READY
           </span>
         </div>
@@ -27,7 +27,7 @@ export function ReportsView() {
         <div className="flex items-center gap-2">
           <button
             onClick={handlePrint}
-            className="px-3.5 py-1.5 bg-white hover:bg-zinc-100 text-black font-extrabold uppercase rounded-lg transition-colors cursor-pointer text-[8.5px] tracking-widest flex items-center gap-1 shadow"
+            className="px-3.5 py-1.5 bg-white hover:bg-black text-black font-extrabold uppercase rounded-lg transition-colors cursor-pointer text-[8.5px] tracking-widest flex items-center gap-1 shadow"
           >
             <Printer className="w-3" />
             <span>PRINT / SAVE PDF</span>
@@ -42,13 +42,13 @@ export function ReportsView() {
       <div className="w-full animate-fadeIn">
         <div className="apple-glass rounded-2xl p-6 md:p-8 relative overflow-hidden shadow-2xl text-left space-y-6 border border-white/5 print:border-none print:bg-white print:p-0">
           
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#30d158] via-indigo-500 to-[#30d158] print:hidden" />
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#4ADE80] via-indigo-500 to-[#4ADE80] print:hidden" />
 
           {/* Institutional Document Header */}
-          <div className="border-b-2 border-zinc-900/40 pb-4 flex flex-col sm:flex-row justify-between items-start gap-4">
+          <div className="border-b-2 border-black/40 pb-4 flex flex-col sm:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
-              <span className="text-[8px] text-[#30d158] tracking-[0.25em] font-black block uppercase">PRIVATE DISCLOSURE COGNITIVE LEDGER</span>
-              <h2 className="text-xl md:text-2xl font-black text-white font-sans tracking-tight uppercase leading-none print:text-black">
+              <span className="text-[8px] text-[#4ADE80] tracking-[0.25em] font-black block uppercase">PRIVATE DISCLOSURE COGNITIVE LEDGER</span>
+              <h2 className="text-xl md:text-2xl font-black text-[#E5E5E5] font-sans tracking-tight uppercase leading-none print:text-black">
                 Q2 MATHEMATICAL VALIDATION REPORT
               </h2>
               <span className="text-[8px] text-zinc-500 font-bold block pt-1">
@@ -68,26 +68,26 @@ export function ReportsView() {
           </p>
 
           {/* FORMAL TABULAR REPORT CARD */}
-          <div className="border border-white/5 rounded-xl bg-black/40 overflow-hidden shadow-inner print:border-zinc-300 print:bg-white">
-            <div className="grid grid-cols-4 bg-black/55 p-3 text-[8.5px] text-zinc-500 border-b border-white/5 uppercase font-bold tracking-wider print:bg-zinc-100 print:text-black">
+          <div className="border border-white/5 rounded-xl bg-black/40 overflow-hidden shadow-inner print:border-black print:bg-white">
+            <div className="grid grid-cols-4 bg-black/55 p-3 text-[8.5px] text-zinc-500 border-b border-white/5 uppercase font-bold tracking-wider print:bg-black print:text-black">
               <span>METRIC CLASSIFICATION</span>
               <span>FORMULA MODEL BASIS</span>
               <span>TARGET CALIBRATION</span>
               <span className="text-right">ACTUAL PERFORMANCE</span>
             </div>
 
-            <div className="divide-y divide-white/5 font-mono text-[10.5px] text-zinc-300 print:divide-zinc-200 print:text-black">
+            <div className="divide-y divide-white/5 font-mono text-[10.5px] text-[#4ADE80] print:divide-zinc-200 print:text-black">
               {/* Row 1 */}
               <div className="grid grid-cols-4 p-3 hover:bg-white/5 transition-colors">
-                <span className="font-extrabold text-white print:text-black">Brier score calibration</span>
+                <span className="font-extrabold text-[#E5E5E5] print:text-black">Brier score calibration</span>
                 <span className="text-[9.5px] text-zinc-550 italic font-sans">(1 / N) * Σ(p - o)^2</span>
                 <span>Fit below &lt; 0.18</span>
-                <span className="text-right font-black text-[#30d158]">0.124 (VERIFIED SUCCESS)</span>
+                <span className="text-right font-black text-[#d4d4d8]">0.124 (VERIFIED SUCCESS)</span>
               </div>
 
               {/* Row 2 */}
               <div className="grid grid-cols-4 p-3 hover:bg-white/5 transition-colors">
-                <span className="font-extrabold text-white print:text-black">Expected Value Margin</span>
+                <span className="font-extrabold text-[#E5E5E5] print:text-black">Expected Value Margin</span>
                 <span className="text-[9.5px] text-zinc-550 italic font-sans">E[X] = Σ x_i * p_i</span>
                 <span>Asymmetrical Positive</span>
                 <span className="text-right font-black text-indigo-400">+1.41% AVERAGE SKEW</span>
@@ -95,7 +95,7 @@ export function ReportsView() {
 
               {/* Row 3 */}
               <div className="grid grid-cols-4 p-3 hover:bg-white/5 transition-colors">
-                <span className="font-extrabold text-white print:text-black">Max drawdown threshold</span>
+                <span className="font-extrabold text-[#E5E5E5] print:text-black">Max drawdown threshold</span>
                 <span className="text-[9.5px] text-zinc-550 italic font-sans">V11 Peak-To-Trough</span>
                 <span>Bounded limit &lt; 15%</span>
                 <span className="text-right font-black text-zinc-400">-8.42% Drawdown max</span>
@@ -103,10 +103,10 @@ export function ReportsView() {
 
               {/* Row 4 */}
               <div className="grid grid-cols-4 p-3 hover:bg-white/5 transition-colors">
-                <span className="font-extrabold text-white print:text-black">Delta momentum sync</span>
+                <span className="font-extrabold text-[#E5E5E5] print:text-black">Delta momentum sync</span>
                 <span className="text-[9.5px] text-zinc-550 italic font-sans">CBOE direct clears</span>
                 <span>No temporal lag</span>
-                <span className="text-right font-black text-white print:text-black font-extrabold">0.82 seconds latency</span>
+                <span className="text-right font-black text-[#E5E5E5] print:text-black font-extrabold">0.82 seconds latency</span>
               </div>
             </div>
           </div>
@@ -120,38 +120,38 @@ export function ReportsView() {
         {/* Scenario 1 */}
         <div className="apple-glass p-5 rounded-2xl text-left flex flex-col justify-between space-y-3 shadow-md border border-white/5">
           <div className="space-y-1.5">
-            <span className="text-[7.5px] text-[#30d158] block uppercase font-bold tracking-widest">STRESS TESTING MATRIX</span>
-            <h4 className="text-xs font-black text-white uppercase leading-none">SCENARIO A: DISPERSION</h4>
+            <span className="text-[7.5px] text-[#d4d4d8] block uppercase font-bold tracking-widest">STRESS TESTING MATRIX</span>
+            <h4 className="text-xs font-black text-[#E5E5E5] uppercase leading-none">SCENARIO A: DISPERSION</h4>
             <p className="text-[10px] text-zinc-450 font-sans leading-relaxed pt-1 uppercase">
               Underlying Index undergoes sudden -5% liquidation cascade over standardNYSE opening blocks.
             </p>
           </div>
           <div className="pt-2 border-t border-white/5 text-[10px] flex justify-between uppercase">
             <span className="text-zinc-550">Expected Outcome:</span>
-            <span className="text-white font-extrabold">VaR safeguarded</span>
+            <span className="text-[#E5E5E5] font-extrabold">VaR safeguarded</span>
           </div>
         </div>
 
         {/* Scenario 2 */}
         <div className="apple-glass p-5 rounded-2xl text-left flex flex-col justify-between space-y-3 shadow-md border border-white/5">
           <div className="space-y-1.5">
-            <span className="text-[7.5px] text-[#30d158] block uppercase font-bold tracking-widest">STRESS TESTING MATRIX</span>
-            <h4 className="text-xs font-black text-white uppercase leading-none">SCENARIO B: VOL SHORT</h4>
+            <span className="text-[7.5px] text-[#d4d4d8] block uppercase font-bold tracking-widest">STRESS TESTING MATRIX</span>
+            <h4 className="text-xs font-black text-[#E5E5E5] uppercase leading-none">SCENARIO B: VOL SHORT</h4>
             <p className="text-[10px] text-zinc-455 font-sans leading-relaxed pt-1 uppercase">
               Implied volatility expansions of 15% spike on forward-month options chain contracts.
             </p>
           </div>
           <div className="pt-2 border-t border-white/5 text-[10px] flex justify-between uppercase">
             <span className="text-zinc-550">Hedge Protection:</span>
-            <span className="text-white font-extrabold">Active rebalance</span>
+            <span className="text-[#E5E5E5] font-extrabold">Active rebalance</span>
           </div>
         </div>
 
         {/* Scenario 3 */}
         <div className="apple-glass p-5 rounded-2xl text-left flex flex-col justify-between space-y-3 shadow-md border border-white/5">
           <div className="space-y-1.5">
-            <span className="text-[7.5px] text-rose-400 block uppercase font-bold tracking-widest">STRESS TESTING MATRIX</span>
-            <h4 className="text-xs font-black text-white uppercase leading-none">SCENARIO C: GEX BREAK</h4>
+            <span className="text-[7.5px] text-[#F87171] block uppercase font-bold tracking-widest">STRESS TESTING MATRIX</span>
+            <h4 className="text-xs font-black text-[#E5E5E5] uppercase leading-none">SCENARIO C: GEX BREAK</h4>
             <p className="text-[10px] text-zinc-455 font-sans leading-relaxed pt-1 uppercase">
               Spot price penetrates primary call/put wall GEX support floors on SPX index.
             </p>
@@ -166,9 +166,9 @@ export function ReportsView() {
 
       {/* 4. SUPPORTING INFORMATION */}
       <div className="apple-glass p-6 rounded-2xl text-left space-y-3 shadow-lg border border-white/5 print:border-none print:p-0 print:text-black">
-        <div className="flex items-center gap-2 border-b border-zinc-905 pb-2 print:border-zinc-300">
+        <div className="flex items-center gap-2 border-b border-black pb-2 print:border-black">
           <Layers className="w-3.5 h-3.5 text-zinc-550 print:hidden" />
-          <h4 className="text-[10.5px] font-black text-white uppercase tracking-wider block print:text-black">
+          <h4 className="text-[10.5px] font-black text-[#E5E5E5] uppercase tracking-wider block print:text-black">
             Regulatory Disclosures & Author License Limits
           </h4>
         </div>
@@ -185,8 +185,8 @@ export function ReportsView() {
       {/* 5. STATUS BAR */}
       <div className="apple-glass min-h-[30px] p-3 rounded-xl flex items-center justify-between text-[8px] text-zinc-400 uppercase tracking-widest pl-4 font-black shadow-md print:hidden">
         <span>SECURITY SIGNATURE COMMITTED C-L10X81</span>
-        <div className="flex items-center gap-1.5 text-white">
-          <span className="h-1.5 w-1.5 bg-[#30d158] rounded-full animate-ping" />
+        <div className="flex items-center gap-1.5 text-[#E5E5E5]">
+          <span className="h-1.5 w-1.5 bg-black rounded-full animate-ping" />
           <span>DOCUMENT VERIFIED</span>
         </div>
       </div>

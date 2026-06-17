@@ -153,16 +153,16 @@ export function AnalyticsSection({
     <div id="analytics-engine" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       
       {/* Module 1: Displacement Analytics */}
-      <div className="bg-zinc-950/40 border border-zinc-900 rounded-sm p-4 flex flex-col justify-between">
+      <div className="bg-black/40 border border-black rounded-sm p-4 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2.5 mb-3">
+          <div className="flex items-center justify-between border-b border-black/60 pb-2.5 mb-3">
             <div className="flex items-center gap-2">
-              <Activity className="w-4 text-emerald-500" />
+              <Activity className="w-4 text-[#4ADE80]" />
               <h4 className="font-display font-semibold text-xs tracking-wide text-zinc-100 uppercase">
                 Displacement Analytics
               </h4>
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase text-emerald-400 bg-emerald-950/40 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-mono font-bold uppercase text-[#4ADE80] bg-black/40 px-1.5 py-0.5 rounded">
               {displacementClass}
             </span>
           </div>
@@ -194,15 +194,15 @@ export function AnalyticsSection({
             </div>
           </div>
         </div>
-        <div className="mt-3.5 bg-zinc-900/40 p-2 rounded border border-zinc-850 text-[10px] font-mono text-zinc-500 leading-normal">
+        <div className="mt-3.5 bg-black/40 p-2 rounded border border-black text-[10px] font-mono text-zinc-500 leading-normal">
           Calculates full candle body mass relative to absolute price variance to identify authentic orders.
         </div>
       </div>
 
       {/* Module 2: RSI Cascade Model */}
-      <div className="bg-zinc-950/40 border border-zinc-900 rounded-sm p-4 flex flex-col justify-between">
+      <div className="bg-black/40 border border-black rounded-sm p-4 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2.5 mb-3">
+          <div className="flex items-center justify-between border-b border-black/60 pb-2.5 mb-3">
             <div className="flex items-center gap-2">
               <Zap className="w-4 text-amber-500 animate-pulse" />
               <h4 className="font-display font-semibold text-xs tracking-wide text-zinc-100 uppercase">
@@ -218,60 +218,60 @@ export function AnalyticsSection({
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-mono text-zinc-500">
                 <span>1M Short Horizon RSI:</span>
-                <span className="text-zinc-300">{rsi1m}</span>
+                <span className="text-[#4ADE80]">{rsi1m}</span>
               </div>
-              <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${rsi1m}%` }} />
+              <div className="w-full bg-black h-1 rounded-full overflow-hidden">
+                <div className="h-full bg-[#4ADE80] text-black rounded-full" style={{ width: `${rsi1m}%` }} />
               </div>
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-mono text-zinc-500">
                 <span>5M Core Trigger RSI:</span>
-                <span className="text-zinc-300">{rsi5m}</span>
+                <span className="text-[#4ADE80]">{rsi5m}</span>
               </div>
-              <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-505 rounded-full" style={{ width: `${rsi5m}%` }} />
+              <div className="w-full bg-black h-1 rounded-full overflow-hidden">
+                <div className="h-full bg-black/40 rounded-full" style={{ width: `${rsi5m}%` }} />
               </div>
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-mono text-zinc-500">
                 <span>15M Macro Check RSI:</span>
-                <span className="text-zinc-300">{rsi15m}</span>
+                <span className="text-[#4ADE80]">{rsi15m}</span>
               </div>
-              <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                <div className="h-full bg-zinc-650 rounded-full" style={{ width: `${rsi15m}%` }} />
+              <div className="w-full bg-black h-1 rounded-full overflow-hidden">
+                <div className="h-full bg-black rounded-full" style={{ width: `${rsi15m}%` }} />
               </div>
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-mono text-zinc-500">
                 <span>1H Anchor Horizon RSI:</span>
-                <span className="text-zinc-300">{rsi1h}</span>
+                <span className="text-[#4ADE80]">{rsi1h}</span>
               </div>
-              <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                <div className="h-full bg-zinc-750 rounded-full" style={{ width: `${rsi1h}%` }} />
+              <div className="w-full bg-black h-1 rounded-full overflow-hidden">
+                <div className="h-full bg-black rounded-full" style={{ width: `${rsi1h}%` }} />
               </div>
             </div>
           </div>
         </div>
-        <div className="bg-zinc-900/40 p-2 rounded border border-zinc-850 text-[10px] font-mono text-zinc-500 leading-normal mt-3">
+        <div className="bg-black/40 p-2 rounded border border-black text-[10px] font-mono text-zinc-500 leading-normal mt-3">
           Synthesizes short and long lookback momentum zones to emit early warnings before structural break.
         </div>
       </div>
 
       {/* Module 3: VWAP Intelligence & volume */}
-      <div className="bg-zinc-950/40 border border-zinc-900 rounded-sm p-4 flex flex-col justify-between">
+      <div className="bg-black/40 border border-black rounded-sm p-4 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2.5 mb-3">
+          <div className="flex items-center justify-between border-b border-black/60 pb-2.5 mb-3">
             <div className="flex items-center gap-2">
-              <BarChart4 className="w-4 text-emerald-450" />
+              <BarChart4 className="w-4 text-[#4ADE80]" />
               <h4 className="font-display font-semibold text-xs tracking-wide text-zinc-100 uppercase">
                 VWAP & Volume Intelligence
               </h4>
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase text-zinc-400 bg-zinc-900 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-mono font-bold uppercase text-zinc-400 bg-black px-1.5 py-0.5 rounded">
               Score: {participationScore}/10
             </span>
           </div>
@@ -293,7 +293,7 @@ export function AnalyticsSection({
               <span>Institutional Bias:</span>
               <span className="text-zinc-200 font-bold">{vwapBias}</span>
             </div>
-            <div className="flex justify-between border-t border-zinc-900/60 pt-2 mt-1">
+            <div className="flex justify-between border-t border-black/60 pt-2 mt-1">
               <span>Relative Volume (RV):</span>
               <span className="text-zinc-200">{relativeVolume}x</span>
             </div>
@@ -303,22 +303,22 @@ export function AnalyticsSection({
             </div>
           </div>
         </div>
-        <div className="mt-3.5 bg-zinc-900/40 p-2 rounded border border-zinc-850 text-[10px] font-mono text-zinc-500 leading-normal">
+        <div className="mt-3.5 bg-black/40 p-2 rounded border border-black text-[10px] font-mono text-zinc-500 leading-normal">
           Locks volume weights on real-time transaction points instead of raw ticks to identify smart money.
         </div>
       </div>
 
       {/* Module 4: Market Structure shifts */}
-      <div className="bg-zinc-950/40 border border-zinc-900 rounded-sm p-4 flex flex-col justify-between">
+      <div className="bg-black/40 border border-black rounded-sm p-4 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2.5 mb-3">
+          <div className="flex items-center justify-between border-b border-black/60 pb-2.5 mb-3">
             <div className="flex items-center gap-2">
               <Layers className="w-4 text-zinc-400" />
               <h4 className="font-display font-semibold text-xs tracking-wide text-zinc-100 uppercase">
                 Market Structure Matrix
               </h4>
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase text-zinc-3 py-0.5 px-1.5 bg-zinc-900 rounded">
+            <span className="text-[10px] font-mono font-bold uppercase text-zinc-3 py-0.5 px-1.5 bg-black rounded">
               {trendName}
             </span>
           </div>
@@ -334,7 +334,7 @@ export function AnalyticsSection({
             </div>
             <div className="flex justify-between">
               <span>Breakout Strength:</span>
-              <span className="text-emerald-450 font-bold">{score.structureQuality >= 6 ? 'Sustained Expansion' : 'Absorbed'}</span>
+              <span className="text-[#4ADE80] font-bold">{score.structureQuality >= 6 ? 'Sustained Expansion' : 'Absorbed'}</span>
             </div>
             <div className="flex justify-between">
               <span>Trend Persistence Index:</span>
@@ -342,15 +342,15 @@ export function AnalyticsSection({
             </div>
           </div>
         </div>
-        <div className="bg-zinc-900/40 p-2 rounded border border-zinc-850 text-[10px] font-mono text-zinc-500 leading-normal mt-3">
+        <div className="bg-black/40 p-2 rounded border border-black text-[10px] font-mono text-zinc-500 leading-normal mt-3">
           Verifies higher/lower peaks automatically bypassing retail trendline draw limits.
         </div>
       </div>
 
       {/* Module 5: Multi-Timeframe Alignment & Volatility */}
-      <div className="bg-zinc-950/40 border border-zinc-900 rounded-sm p-4 flex flex-col justify-between">
+      <div className="bg-black/40 border border-black rounded-sm p-4 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2.5 mb-3">
+          <div className="flex items-center justify-between border-b border-black/60 pb-2.5 mb-3">
             <div className="flex items-center gap-2">
               <Clock className="w-4 text-blue-450" />
               <h4 className="font-display font-semibold text-xs tracking-wide text-zinc-100 uppercase">
@@ -381,15 +381,15 @@ export function AnalyticsSection({
             </div>
           </div>
         </div>
-        <div className="mt-3.5 bg-zinc-900/40 p-2 rounded border border-zinc-850 text-[10px] font-mono text-zinc-500 leading-normal">
+        <div className="mt-3.5 bg-black/40 p-2 rounded border border-black text-[10px] font-mono text-zinc-500 leading-normal">
           Tracks alignment across 1m, 5m, 15m, 1h, 4h, and Daily to isolate multi-scale correlation layers.
         </div>
       </div>
 
       {/* Module 6: Invalidation Engine & Targets */}
-      <div className="bg-zinc-950/40 border border-zinc-900 rounded-sm p-4 flex flex-col justify-between">
+      <div className="bg-black/40 border border-black rounded-sm p-4 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2.5 mb-3">
+          <div className="flex items-center justify-between border-b border-black/60 pb-2.5 mb-3">
             <div className="flex items-center gap-2">
               <SearchCode className="w-4 text-rose-500 animate-pulse" />
               <h4 className="font-display font-semibold text-xs tracking-wide text-zinc-100 uppercase">
@@ -397,11 +397,11 @@ export function AnalyticsSection({
               </h4>
             </div>
             {invalidationTriggered ? (
-              <span className="text-[10px] font-mono font-bold uppercase text-rose-450 bg-rose-950/60 px-1.5 py-0.5 rounded animate-ping">
+              <span className="text-[10px] font-mono font-bold uppercase text-[#F87171] bg-rose-950/60 px-1.5 py-0.5 rounded animate-ping">
                 INVALIDATED
               </span>
             ) : (
-              <span className="text-[10px] font-mono font-bold uppercase text-emerald-450 bg-emerald-950/40 px-1.5 py-0.5 rounded flex items-center gap-1">
+              <span className="text-[10px] font-mono font-bold uppercase text-[#4ADE80] bg-black/40 px-1.5 py-0.5 rounded flex items-center gap-1">
                 <ShieldCheck className="w-3" /> ACTIVE
               </span>
             )}
@@ -409,16 +409,16 @@ export function AnalyticsSection({
 
           <div className="space-y-1.5 text-[10px] font-mono">
             {targetsProjection.slice(0, 3).map((item, idx) => (
-              <div key={idx} className="flex justify-between text-zinc-400 group border-b border-zinc-900 pb-1.5 last:border-0 last:pb-0">
+              <div key={idx} className="flex justify-between text-zinc-400 group border-b border-black pb-1.5 last:border-0 last:pb-0">
                 <span>{item.name}:</span>
                 <span className="text-zinc-150 font-bold">{item.price.toFixed(selectedAsset.decimals)}</span>
               </div>
             ))}
           </div>
         </div>
-        <div className="bg-rose-950/20 p-2 rounded border border-rose-900/30 text-[9.5px] font-mono text-zinc-500 leading-snug">
+        <div className="bg-rose-950/20 p-2 rounded border border-[#F87171]/30 text-[9.5px] font-mono text-zinc-500 leading-snug">
           {invalidationTriggered ? (
-            <span className="text-rose-400">🚨 Invalidation triggered due to price closing beyond structural invalidation levels. Avoid entry!</span>
+            <span className="text-[#F87171]">🚨 Invalidation triggered due to price closing beyond structural invalidation levels. Avoid entry!</span>
           ) : (
             <span>Auto-monitors FVG closures, volume collapse, and VWAP breaks to cancel trade setup dynamically.</span>
           )}

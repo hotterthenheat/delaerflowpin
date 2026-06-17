@@ -100,28 +100,28 @@ const BANNED_USERS = new Set<string>();       // emails
 const FORCE_LOGOUT_USERS = new Set<string>(); // emails forced to re-auth
 
 // Maintenance gate — non-admins receive 503 while maintenance mode is active.
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   if (!MAINTENANCE_MODE) return next();
   const p = req.path || '';
   if (p.startsWith('/api/admin') || p === '/api/health' || p.startsWith('/api/auth')) return next();
-  const s = getSessionFromCookies(req.headers.cookie);
+  const s = await getSessionFromCookies(req.headers.cookie);
   if (s && roleForEmail(s.email) !== 'user') return next();
   if (p.startsWith('/api/')) {
     return res.status(503).json({ error: 'Service temporarily down for maintenance.', maintenance: true });
   }
   return res
     .status(503)
-    .send('<body style="margin:0;background:#000;color:#10b981;font-family:monospace;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center">503 — Slayer Trade is under maintenance. Please check back shortly.</body>');
+    .send('<body style="margin:0;background:#000;color:#d4d4d8;font-family:monospace;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center">503 — Slayer Terminal is under maintenance. Please check back shortly.</body>');
 });
 
 // Impersonation is strictly READ-ONLY (spec fix #4): while an admin is
 // impersonating a user, reject every mutating request with 403. Logout is
 // allowed so the admin can exit impersonation.
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   const method = (req.method || 'GET').toUpperCase();
   if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return next();
   if (req.path === '/api/auth/logout') return next();
-  const s = getSessionFromCookies(req.headers.cookie);
+  const s = await getSessionFromCookies(req.headers.cookie);
   if (s && (s.is_impersonating || s.read_only)) {
     return res.status(403).json({
       error: 'Impersonation mode is strictly read-only — mutating actions are forbidden.',
@@ -133,11 +133,11 @@ app.use((req, res, next) => {
 
 // Suspended / banned enforcement (spec §6): block mutating requests from
 // moderated accounts. Logout stays open so the client can clear its session.
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   const method = (req.method || 'GET').toUpperCase();
   if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return next();
   if (req.path === '/api/auth/logout') return next();
-  const s = getSessionFromCookies(req.headers.cookie);
+  const s = await getSessionFromCookies(req.headers.cookie);
   const email = s?.email ? String(s.email).toLowerCase().trim() : '';
   if (email && (BANNED_USERS.has(email) || SUSPENDED_USERS.has(email))) {
     return res.status(403).json({ error: 'This account is suspended or banned.', moderated: true });
@@ -171,7 +171,7 @@ function sanitizeValue(value: any): any {
   return value;
 }
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   if (req.body) {
     req.body = sanitizeValue(req.body);
   }
@@ -183,7 +183,7 @@ const ipRateLimitDb = new Map<string, { count: number; windowStart: number }>();
 const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
 const MAX_STATE_REQUESTS_PER_MIN = 65; // Max state requests per IP per minute
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   const method = req.method.toUpperCase();
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
     const clientIp = req.ip || (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || 'unknown';
@@ -650,6 +650,7 @@ let clientIndex = 0;
 // Broadcaster matches and computes the Universal JSON Payload
 const broadcastSSE = () => {
   for (const client of sseClients) {
+    if (client.userEmail) { updateRedisPresence(client.userEmail.toLowerCase().trim()); }
     try {
       const payload = constructPayload(client.params);
       client.res.write(`data: ${JSON.stringify(payload)}\n\n`);
@@ -670,6 +671,7 @@ const broadcastDiscoverySSE = () => {
     flashDirection: db.discoveryFlashDirection
   };
   for (const client of sseDiscoveryClients) {
+    if (client.userEmail) { updateRedisPresence(client.userEmail); }
     try {
       client.res.write(`data: ${JSON.stringify(payload)}\n\n`);
     } catch (e) {
@@ -1583,6 +1585,10 @@ const constructPayload = (params: {
 
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import { db as pgDb } from './src/db/index.ts';
+import { users } from './src/db/schema.ts';
+import { eq, sql } from 'drizzle-orm';
+
 
 const COOKIE_SECRET =
   process.env.COOKIE_SECRET ||
@@ -1629,8 +1635,15 @@ interface ActiveSession {
 }
 
 const activeSessionsDb = new Map<string, ActiveSession>();
+const REDIS_PRESENCE = new Map<string, NodeJS.Timeout>();
 
-const getSessionFromCookies = (cookieHeader?: string) => {
+function updateRedisPresence(email: string) {
+  const existing = REDIS_PRESENCE.get(email);
+  if (existing) clearTimeout(existing);
+  REDIS_PRESENCE.set(email, setTimeout(() => REDIS_PRESENCE.delete(email), 60000));
+}
+
+const getSessionFromCookies = async (cookieHeader?: string) => {
   if (!cookieHeader) return null;
   const match = cookieHeader.match(/slayer_session=([^;]+)/);
   if (!match) return null;
@@ -1651,7 +1664,7 @@ const getSessionFromCookies = (cookieHeader?: string) => {
     const parsed = JSON.parse(verifiedVal);
     if (parsed && parsed.email) {
       const emailLower = parsed.email.toLowerCase().trim();
-      const dbUser = usersDb.get(emailLower);
+      const dbUser = await dbGetUser(emailLower);
       
       // Hard lockout if soft-deleted
       if (dbUser && dbUser.deleted_at) {
@@ -1780,40 +1793,72 @@ function fillDefaultPrivacySettings(user: UserAccount) {
   }
 }
 
-const usersDb = new Map<string, UserAccount>();
 
-// Seed default accounts to support immediate sign-ins for demo purposes
-usersDb.set('slayer@trade.com', {
-  id: 'usr-referrer',
-  email: 'slayer@trade.com',
-  name: 'Slayer Referrer',
-  avatar: 'https://cdn.discordapp.com/embed/avatars/3.png',
-  access_tier: 'lifetime',
-  referral_tokens_pool: 12, // Seed with 12 tokens
-  custom_referral_code: 'SLAYERSLAVER',
-  selected_font_scale: 'STANDARD',
-  compact_view_enabled: false,
-  selected_theme: 'DEALER FLOW SLATE',
-  no_refund_policy_logged: true,
-  active_ip: null,
-  username: 'slayer',
-  cover_photo: '',
-  passwordHash: bcrypt.hashSync('SlayerPassword123!', 12),
-  notification_preferences: {
-    email_enabled: true,
-    sms_enabled: true,
-    discord_enabled: true,
-    options_flow_alerts: true
-  },
-  profile_visibility: 'public',
-  block_search_indexing: false
-});
+
+const dbGetUser = async (email: string) => {
+  try {
+    const res = await pgDb.select().from(users).where(eq(users.email, email.toLowerCase().trim()));
+    if (res.length > 0) {
+      const u = JSON.parse(res[0].fullProfile || '{}');
+      u.version = res[0].version; // inject DB version here
+      return u;
+    }
+  } catch (e) {
+    console.error('dbGetUser error:', e);
+  }
+  return undefined;
+};
+
+const dbSetUser = async (email: string, userObj: any, expectedVersion?: number) => {
+  const e = email.toLowerCase().trim();
+  const tokens = userObj.referral_tokens_pool || 0;
+  const fp = JSON.stringify(userObj);
+  try {
+    if (typeof expectedVersion === 'number') {
+      const res = await pgDb.execute(sql`
+        UPDATE users 
+        SET full_profile = ${fp}, tokens = ${tokens}, version = version + 1
+        WHERE email = ${e} AND version = ${expectedVersion}
+      `);
+      if (res.rowCount === 0) throw new Error('OCC Conflict: Version mismatch');
+    } else {
+      await pgDb.insert(users).values({
+        uid: userObj.id || e,
+        email: e,
+        tokens,
+        fullProfile: fp,
+        version: 1
+      }).onConflictDoUpdate({
+        target: users.uid,
+        set: { fullProfile: fp, tokens, version: sql`users.version + 1` }
+      });
+    }
+  } catch(e) {
+    console.error('dbSetUser error:', e);
+    throw e;
+  }
+};
+
+const dbDeleteUser = async (email: string) => {
+  await pgDb.delete(users).where(eq(users.email, email.toLowerCase().trim()));
+};
+
+const dbGetAllUsers = async () => {
+  const res = await pgDb.select().from(users);
+  return res.map(r => JSON.parse(r.fullProfile || '{}'));
+};
+
+const dbHasUser = async (email: string) => {
+  const res = await pgDb.select({id:users.id}).from(users).where(eq(users.email, email.toLowerCase().trim()));
+  return res.length > 0;
+};
+
 
 // Helper to update cookie session
-function setSessionCookie(res: any, userSession: any, req: any) {
+async function setSessionCookie(res: any, userSession: any, req: any) {
   if (userSession && userSession.email) {
     const emailLower = userSession.email.toLowerCase().trim();
-    const dbUser = usersDb.get(emailLower);
+    const dbUser = await dbGetUser(emailLower);
     const userId = dbUser ? dbUser.id : `usr-${Math.random().toString(36).substring(2, 10)}`;
     
     if (!userSession.session_id) {
@@ -1850,7 +1895,7 @@ function setSessionCookie(res: any, userSession: any, req: any) {
 }
 
 // Sandbox Session Activator setting httpOnly cookies
-app.get('/api/auth/sandbox', (req, res) => {
+app.get('/api/auth/sandbox', async (req, res) => {
   res.redirect('/api/auth/callback?provider=sandbox&name=Sandbox%20Quant%20User&email=sandbox@slayer.io');
 });
 
@@ -1862,7 +1907,7 @@ function sanitizeUser(user: any) {
   return safe;
 }
 
-app.post('/api/auth/clerk-signup', express.json(), (req, res) => {
+app.post('/api/auth/clerk-signup', express.json(), async (req, res) => {
   const { email, name, password, referralCode, avatar } = req.body;
   if (!email || !name) {
     return res.status(400).json({ error: 'Email and Name are required variables.' });
@@ -1877,7 +1922,7 @@ app.post('/api/auth/clerk-signup', express.json(), (req, res) => {
   }
 
   const userEmail = email.toLowerCase().trim();
-  let existingUser = usersDb.get(userEmail);
+  let existingUser = await dbGetUser(userEmail);
 
   if (existingUser) {
     return res.status(400).json({ error: 'Account already registered with this email.' });
@@ -1901,9 +1946,9 @@ app.post('/api/auth/clerk-signup', express.json(), (req, res) => {
   const basePrefix = prefix.toUpperCase() || 'TRAD';
 
   // 4/5/6. Collision check/resolution and schema-level UNIQUE constraint simulation
-  const resolveCollision = (base: string, suffix: string = ''): string => {
+  const resolveCollision = async (base: string, suffix: string = ''): Promise<string> => {
     const attempt = suffix ? `${base}${suffix}10OFF` : `${base}10OFF`;
-    const taken = Array.from(usersDb.values()).some(u => u.custom_referral_code === attempt);
+    const taken = (await dbGetAllUsers()).some(u => u.custom_referral_code === attempt);
     if (taken) {
       const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       let randomTwo = '';
@@ -1915,7 +1960,7 @@ app.post('/api/auth/clerk-signup', express.json(), (req, res) => {
     return attempt;
   };
 
-  const customReferralCode = resolveCollision(basePrefix);
+  const customReferralCode = await resolveCollision(basePrefix);
 
   const newUser: UserAccount = {
     id: `usr-${Math.random().toString(36).substring(2, 10)}`,
@@ -1944,13 +1989,13 @@ app.post('/api/auth/clerk-signup', express.json(), (req, res) => {
   };
 
   // Enforce structural database UNIQUE constraint on referral code
-  const codeViolation = Array.from(usersDb.values()).some(u => u.custom_referral_code === customReferralCode);
+  const codeViolation = (await dbGetAllUsers()).some(u => u.custom_referral_code === customReferralCode);
   if (codeViolation) {
     return res.status(409).json({ error: 'Database Constraint Error: Referral code collision registered.' });
   }
 
   // Save to database map
-  usersDb.set(userEmail, newUser);
+  await dbSetUser(userEmail, newUser);
 
   // Credit referrer automatically upon successful registration for passive tracking (A)
   let referralCreditApplied = false;
@@ -1958,7 +2003,7 @@ app.post('/api/auth/clerk-signup', express.json(), (req, res) => {
   if (referralCode) {
     const codeClean = referralCode.trim().toLowerCase();
     let referrerMatch: UserAccount | null = null;
-    for (const u of usersDb.values()) {
+    for (const u of (await dbGetAllUsers())) {
       if (
         (u.username && u.username.toLowerCase() === codeClean) ||
         (u.custom_referral_code && u.custom_referral_code.toLowerCase() === codeClean)
@@ -1996,14 +2041,14 @@ app.post('/api/auth/clerk-signup', express.json(), (req, res) => {
   res.json({ success: true, user: sanitizeUser(newUser), referral_credited: referralCreditApplied, referrer: creditedReferrerEmail });
 });
 
-app.post('/api/auth/clerk-login', express.json(), (req, res) => {
+app.post('/api/auth/clerk-login', express.json(), async (req, res) => {
   const { email, password } = req.body;
   if (!email) {
     return res.status(400).json({ error: 'Email address is required.' });
   }
 
   const userEmail = email.toLowerCase().trim();
-  let user = usersDb.get(userEmail);
+  let user = await dbGetUser(userEmail);
 
   if (user && user.deleted_at) {
     return res.status(400).json({ error: 'This account has been deactivated or scheduled for deletion.' });
@@ -2047,7 +2092,7 @@ app.post('/api/auth/clerk-login', express.json(), (req, res) => {
       profile_visibility: 'public',
       block_search_indexing: false
     };
-    usersDb.set(userEmail, user);
+    await dbSetUser(userEmail, user, user.version);
   } else if (password && !user.passwordHash) {
     // Auto-setup password if the account has no password yet but one was typed
     const passwordErr = validatePasswordStrength(password);
@@ -2077,12 +2122,12 @@ app.post('/api/auth/clerk-login', express.json(), (req, res) => {
   res.json({ success: true, user: sanitizeUser(user) });
 });
 
-app.get('/api/auth/callback', (req, res) => {
+app.get('/api/auth/callback', async (req, res) => {
   const { provider, name, email } = req.query;
   const userEmail = String(email || 'sandbox@slayer.io').toLowerCase().trim();
   
   // Look up or establish database record
-  let user = usersDb.get(userEmail);
+  let user = await dbGetUser(userEmail);
   if (!user) {
     user = {
       id: `usr-${Math.random().toString(36).substring(2, 10)}`,
@@ -2100,7 +2145,7 @@ app.get('/api/auth/callback', (req, res) => {
       username: generateDefaultUsername(userEmail),
       cover_photo: ''
     };
-    usersDb.set(userEmail, user);
+    await dbSetUser(userEmail, user, user.version);
   }
 
   const userSession = {
@@ -2118,8 +2163,8 @@ app.get('/api/auth/callback', (req, res) => {
   res.redirect('/');
 });
 
-app.get('/api/auth/session', (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.get('/api/auth/session', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (session && session.email) {
     const userEmail = session.email.toLowerCase().trim();
 
@@ -2134,7 +2179,7 @@ app.get('/api/auth/session', (req, res) => {
       return res.json({ authenticated: false, forced_logout: true });
     }
 
-    let user = usersDb.get(userEmail);
+    let user = await dbGetUser(userEmail);
     
     // Auto-reconstruct user from valid cookie if they were wiped from in-memory DB during server restart
     if (!user) {
@@ -2155,7 +2200,7 @@ app.get('/api/auth/session', (req, res) => {
         username: generateDefaultUsername(userEmail),
         cover_photo: ''
       };
-      usersDb.set(userEmail, user);
+      await dbSetUser(userEmail, user, user.version);
     }
     
     fillDefaultPrivacySettings(user);
@@ -2190,10 +2235,24 @@ app.get('/api/auth/session', (req, res) => {
   }
 });
 
-app.post('/api/auth/logout', (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+
+
+app.post('/api/auth/refresh', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
+  if (!session) {
+    return res.status(401).json({ error: 'No valid refresh token (session cookie) found' });
+  }
+  
+  // Create an ephemeral access_token
+  const access_token = session.user_id + ":" + Date.now();
+  // Provide it payload for 15 minute expiry
+  res.json({ access_token, expires_in: 900 });
+});
+
+app.post('/api/auth/logout', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (session && session.email) {
-    const user = usersDb.get(session.email.toLowerCase().trim());
+    const user = await dbGetUser(session.email.toLowerCase().trim());
     if (user) {
       user.active_ip = null;
     }
@@ -2264,12 +2323,12 @@ function verifyTOTP(secretBase32: string, token: string): boolean {
 }
 
 // GDPR Soft Delete Background Worker cleanup job (runs every 5 minutes)
-setInterval(() => {
+setInterval(async () => {
   const thirtyDaysAgo = Date.now() - 30 * 24 * 3600 * 1000;
   let count = 0;
-  for (const [email, user] of usersDb.entries()) {
+  for (const [email, user] of (await dbGetAllUsers()).map((u: any) => [u.email, u])) {
     if (user.deleted_at && new Date(user.deleted_at).getTime() < thirtyDaysAgo) {
-      usersDb.delete(email);
+      await dbDeleteUser(email);
       count++;
     }
   }
@@ -2279,14 +2338,14 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 // endpoint 1: verify current password
-app.post('/api/auth/verify-password', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/auth/verify-password', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Authentication required.' });
   }
 
   const { password } = req.body;
-  const user = usersDb.get(session.email.toLowerCase().trim());
+  const user = await dbGetUser(session.email.toLowerCase().trim());
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2309,14 +2368,14 @@ app.post('/api/auth/verify-password', express.json(), (req, res) => {
 });
 
 // endpoint 2: change password
-app.post('/api/auth/change-password', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/auth/change-password', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Authentication required.' });
   }
 
   const { currentPassword, newPassword } = req.body;
-  const user = usersDb.get(session.email.toLowerCase().trim());
+  const user = await dbGetUser(session.email.toLowerCase().trim());
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2338,13 +2397,13 @@ app.post('/api/auth/change-password', express.json(), (req, res) => {
 });
 
 // endpoint 3: generate 2fa secret
-app.post('/api/auth/generate-2fa', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/auth/generate-2fa', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Authentication required.' });
   }
 
-  const user = usersDb.get(session.email.toLowerCase().trim());
+  const user = await dbGetUser(session.email.toLowerCase().trim());
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2366,14 +2425,14 @@ app.post('/api/auth/generate-2fa', express.json(), (req, res) => {
 });
 
 // endpoint 4: verify totp handshake
-app.post('/api/auth/verify-totp', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/auth/verify-totp', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Authentication required.' });
   }
 
   const { token } = req.body;
-  const user = usersDb.get(session.email.toLowerCase().trim());
+  const user = await dbGetUser(session.email.toLowerCase().trim());
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2406,8 +2465,8 @@ app.post('/api/auth/verify-totp', express.json(), (req, res) => {
 });
 
 // endpoint 5: active sessions list
-app.get('/api/auth/sessions', (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.get('/api/auth/sessions', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Authentication required.' });
   }
@@ -2435,8 +2494,8 @@ app.get('/api/auth/sessions', (req, res) => {
 });
 
 // endpoint 6: revoke all sessions except current
-app.post('/api/auth/revoke-sessions', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/auth/revoke-sessions', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Authentication required.' });
   }
@@ -2460,8 +2519,8 @@ app.post('/api/auth/revoke-sessions', express.json(), (req, res) => {
 });
 
 // endpoint 7: request email change with OTP
-app.post('/api/auth/request-email-update', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/auth/request-email-update', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Authentication required.' });
   }
@@ -2472,11 +2531,11 @@ app.post('/api/auth/request-email-update', express.json(), (req, res) => {
   }
 
   const cleanEmail = newEmail.toLowerCase().trim();
-  if (usersDb.has(cleanEmail)) {
+  if (await dbHasUser(cleanEmail)) {
     return res.status(400).json({ error: 'Email address already in use by another account.' });
   }
 
-  const user = usersDb.get(session.email.toLowerCase().trim());
+  const user = await dbGetUser(session.email.toLowerCase().trim());
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2502,8 +2561,8 @@ app.post('/api/auth/request-email-update', express.json(), (req, res) => {
 });
 
 // endpoint 8: verify and confirm email update
-app.post('/api/auth/verify-email-update', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/auth/verify-email-update', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Authentication required.' });
   }
@@ -2511,7 +2570,7 @@ app.post('/api/auth/verify-email-update', express.json(), (req, res) => {
   const { otp } = req.body;
   const oldEmail = session.email.toLowerCase().trim();
   
-  const user = usersDb.get(oldEmail);
+  const user = await dbGetUser(oldEmail);
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2530,17 +2589,17 @@ app.post('/api/auth/verify-email-update', express.json(), (req, res) => {
     return res.status(400).json({ error: 'No email replacement target found.' });
   }
 
-  if (usersDb.has(newEmail)) {
+  if (await dbHasUser(newEmail)) {
     return res.status(400).json({ error: 'The email destination is already taken.' });
   }
 
   // Update records
-  usersDb.delete(oldEmail);
+  await dbDeleteUser(oldEmail);
   user.email = newEmail;
   user.temp_new_email = undefined;
   user.email_otp = undefined;
   user.email_otp_expiry = undefined;
-  usersDb.set(newEmail, user);
+  await dbSetUser(newEmail, user);
 
   // Sync session structures
   for (const [sessId, s] of activeSessionsDb.entries()) {
@@ -2562,7 +2621,7 @@ app.post('/api/auth/verify-email-update', express.json(), (req, res) => {
     email: newEmail,
     username: user.username || generateDefaultUsername(newEmail)
   };
-  setSessionCookie(res, updatedSession, req);
+  await setSessionCookie(res, updatedSession, req);
 
   res.json({ 
     success: true, 
@@ -2572,14 +2631,14 @@ app.post('/api/auth/verify-email-update', express.json(), (req, res) => {
 });
 
 // endpoint 9: account soft deletion
-app.delete('/api/users/delete-account', (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.delete('/api/users/delete-account', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Authentication required.' });
   }
 
   const emailLower = session.email.toLowerCase().trim();
-  const user = usersDb.get(emailLower);
+  const user = await dbGetUser(emailLower);
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2612,14 +2671,14 @@ app.delete('/api/users/delete-account', (req, res) => {
 // GDPR Data Export & S3 Compliance Storage Systems (Module 3)
 const s3ComplianceStorage = new Map<string, { email: string; payload: string; expiresAt: number; fileName: string }>();
 
-app.get('/api/users/profile/:username', (req, res) => {
+app.get('/api/users/profile/:username', async (req, res) => {
   const usernameParam = String(req.params.username || '').toLowerCase().trim();
   if (!usernameParam) {
     return res.status(400).json({ error: 'Username is required.' });
   }
 
   let targetUser: UserAccount | null = null;
-  for (const u of usersDb.values()) {
+  for (const u of (await dbGetAllUsers())) {
     if (u.username && u.username.toLowerCase().trim() === usernameParam) {
       if (u.deleted_at) continue;
       targetUser = u;
@@ -2633,7 +2692,7 @@ app.get('/api/users/profile/:username', (req, res) => {
 
   fillDefaultPrivacySettings(targetUser);
 
-  const session = getSessionFromCookies(req.headers.cookie);
+  const session = await getSessionFromCookies(req.headers.cookie);
   const selfEmail = session && session.email ? session.email.toLowerCase().trim() : null;
 
   const vis = targetUser.profile_visibility || 'public';
@@ -2662,14 +2721,14 @@ app.get('/api/users/profile/:username', (req, res) => {
   });
 });
 
-app.post('/api/users/export-data', (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/users/export-data', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'GDPR Export blocked. Unauthorized.' });
   }
 
   const userEmail = session.email.toLowerCase().trim();
-  const user = usersDb.get(userEmail);
+  const user = await dbGetUser(userEmail);
   if (!user) {
     return res.status(404).json({ error: 'User record not found.' });
   }
@@ -2757,7 +2816,7 @@ STATUS: DELIVERED VIA ENCRYPTED TLS SMTP HANDSHAKE
   });
 });
 
-app.get('/api/users/download-export/:token', (req, res) => {
+app.get('/api/users/download-export/:token', async (req, res) => {
   const token = String(req.params.token || '').trim();
   const archive = s3ComplianceStorage.get(token);
 
@@ -2779,7 +2838,7 @@ app.get('/api/users/download-export/:token', (req, res) => {
 const webhookIdempotencyKeys = new Set<string>();
 
 // Subscriptions driven by server-to-server webhooks with idempotency lock checks
-app.post('/api/billing/webhook', express.json(), (req, res) => {
+app.post('/api/billing/webhook', express.json(), async (req, res) => {
   const idempotencyKey = String(req.headers['idempotency-key'] || req.body.idempotency_key || '').trim();
   
   if (!idempotencyKey) {
@@ -2806,7 +2865,7 @@ app.post('/api/billing/webhook', express.json(), (req, res) => {
   }
 
   const userEmail = email.toLowerCase().trim();
-  let user = usersDb.get(userEmail);
+  let user = await dbGetUser(userEmail);
 
   if (!user) {
     user = {
@@ -2823,7 +2882,7 @@ app.post('/api/billing/webhook', express.json(), (req, res) => {
       active_ip: null,
       avatar: `https://cdn.discordapp.com/embed/avatars/${Math.floor(Math.random() * 5)}.png`
     };
-    usersDb.set(userEmail, user);
+    await dbSetUser(userEmail, user, user.version);
   }
 
   // Elevate subscription tier state
@@ -2851,14 +2910,14 @@ app.post('/api/billing/webhook', express.json(), (req, res) => {
 });
 
 // Cancellation Flow mapped to /api/billing/cancel
-app.post('/api/billing/cancel', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/billing/cancel', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Cancellation blocked. Unauthorized.' });
   }
 
   const userEmail = session.email.toLowerCase().trim();
-  const user = usersDb.get(userEmail);
+  const user = await dbGetUser(userEmail);
 
   if (!user) {
     return res.status(404).json({ error: 'User record not located in memory.' });
@@ -2884,8 +2943,8 @@ app.post('/api/billing/cancel', express.json(), (req, res) => {
 });
 
 // Apply Referral Promo Code Endpoint (Module 5, Rule 3)
-app.post('/api/billing/apply-coupon', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/billing/apply-coupon', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Authentication required to apply coupon.' });
   }
@@ -2897,7 +2956,7 @@ app.post('/api/billing/apply-coupon', express.json(), (req, res) => {
 
   const codeClean = referralCode.trim().toLowerCase();
   const userEmail = session.email.toLowerCase().trim();
-  const currentUser = usersDb.get(userEmail);
+  const currentUser = await dbGetUser(userEmail);
 
   // Prevent self-referral
   if (currentUser) {
@@ -2910,7 +2969,7 @@ app.post('/api/billing/apply-coupon', express.json(), (req, res) => {
   }
 
   let referrerMatch: UserAccount | null = null;
-  for (const u of usersDb.values()) {
+  for (const u of (await dbGetAllUsers())) {
     if (
       (u.username && u.username.toLowerCase() === codeClean) ||
       (u.custom_referral_code && u.custom_referral_code.toLowerCase() === codeClean)
@@ -2938,8 +2997,8 @@ app.post('/api/billing/apply-coupon', express.json(), (req, res) => {
 });
 
 // Secure Card Billing Processor with Refund Checkbox & Audit Log (Module 3 & 5)
-app.post('/api/billing/process', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/billing/process', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Billing access denied. Session expired.' });
   }
@@ -2954,7 +3013,7 @@ app.post('/api/billing/process', express.json(), (req, res) => {
   }
 
   const userEmail = session.email.toLowerCase().trim();
-  let user = usersDb.get(userEmail);
+  let user = await dbGetUser(userEmail);
 
   if (!user) {
     console.log(`[BILLING EVENT] RECONSTRUCTING USER FROM VALID COOKIE: ${userEmail}`);
@@ -2972,7 +3031,7 @@ app.post('/api/billing/process', express.json(), (req, res) => {
       active_ip: null,
       avatar: session.avatar || ''
     };
-    usersDb.set(userEmail, user);
+    await dbSetUser(userEmail, user, user.version);
   }
 
   // Set Stripe Elements / Braintree Drop-in tokenised parameters.
@@ -2997,12 +3056,12 @@ app.post('/api/billing/process', express.json(), (req, res) => {
   let referralCreditLogs = 'No referral code entered.';
   let referrerCredited: string | null = null;
   
-  const updatedSession = getSessionFromCookies(req.headers.cookie) || {};
+  const updatedSession = (await getSessionFromCookies(req.headers.cookie)) || {};
   
   if (referralCode) {
     // Locate the referrer having this custom_referral_code
     let referrerMatch: UserAccount | null = null;
-    for (const [email, acc] of usersDb.entries()) {
+    for (const [email, acc] of (await dbGetAllUsers()).map(u => [u.email, u])) {
       if (acc.custom_referral_code.toUpperCase() === referralCode.trim().toUpperCase() && acc.email !== user.email) {
         referrerMatch = acc;
         break;
@@ -3082,7 +3141,7 @@ app.post('/api/billing/process', express.json(), (req, res) => {
 });
 
 // Debounced Check-Username handler
-app.get('/api/users/check-username', (req, res) => {
+app.get('/api/users/check-username', async (req, res) => {
   const q = String(req.query.q || '').toLowerCase().trim();
   if (!q) {
     return res.json({ available: false, reason: 'Username is required.' });
@@ -3101,10 +3160,10 @@ app.get('/api/users/check-username', (req, res) => {
     return res.json({ available: false, reason: 'This username is reserved by the platform.' });
   }
 
-  const session = getSessionFromCookies(req.headers.cookie);
+  const session = await getSessionFromCookies(req.headers.cookie);
   const myEmail = (session && session.email) ? session.email.toLowerCase().trim() : '';
   
-  const isTaken = Array.from(usersDb.values()).some(
+  const isTaken = (await dbGetAllUsers()).some(
     u => u.email.toLowerCase().trim() !== myEmail && u.username?.toLowerCase().trim() === q
   );
 
@@ -3116,7 +3175,7 @@ app.get('/api/users/check-username', (req, res) => {
 });
 
 // Image serving endpoint (representing S3 CDN bucket integration)
-app.get('/api/images/:id', (req, res) => {
+app.get('/api/images/:id', async (req, res) => {
   const id = req.params.id;
   const imageItem = cdnStorage.get(id);
   if (!imageItem) {
@@ -3139,8 +3198,8 @@ app.get('/api/images/:id', (req, res) => {
 });
 
 // Image Upload Router with strict validators (Module 6)
-app.post('/api/upload', express.json({ limit: '10mb' }), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/upload', express.json({ limit: '10mb' }), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Upload refused. Unautomated session.' });
   }
@@ -3186,6 +3245,9 @@ app.post('/api/upload', express.json({ limit: '10mb' }), (req, res) => {
 
 // Real-Time Options Market Analyst Commentary Endpoint (Gemini Co-Pilot)
 app.post('/api/gemini/commentary', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
+  if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized' });
+
   const { ticker, spotPrice, callWall, putWall, magnetStrike, flipLevel, bias, ivRank } = req.body;
   
   try {
@@ -3204,7 +3266,7 @@ app.post('/api/gemini/commentary', express.json(), async (req, res) => {
       });
     }
 
-    const prompt = `You are the lead quantitative options market maker and chief institutional analyst for the options intelligence platform "Slayer Trade".
+    const prompt = `You are the lead quantitative options market maker and chief institutional analyst for the options intelligence platform "Slayer Terminal".
 Provide an elite, highly concise, institutional-grade market hedging and positioning analysis based on the following real-time options positioning attributes:
 - Ticker: ${ticker}
 - Spot Price: ${spotPrice}
@@ -3274,17 +3336,17 @@ Do NOT output any markdown headers, conversational filler, or self-praise. Just 
 // Stores the user's pane layout JSON. New users hydrate Template A on the
 // client (see WorkspaceView) and PATCH it here so it's never empty.
 // ============================================================
-app.get('/api/users/workspace', (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.get('/api/users/workspace', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized.' });
-  const user = usersDb.get(session.email.toLowerCase().trim());
+  const user = await dbGetUser(session.email.toLowerCase().trim());
   res.json({ layout: user?.workspace_layout || null });
 });
 
-app.patch('/api/users/workspace', express.json({ limit: '5mb' }), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.patch('/api/users/workspace', express.json({ limit: '5mb' }), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized.' });
-  const user = usersDb.get(session.email.toLowerCase().trim());
+  const user = await dbGetUser(session.email.toLowerCase().trim());
   if (!user) return res.status(404).json({ error: 'User not found.' });
   if (req.body && Array.isArray(req.body.layout)) {
     user.workspace_layout = req.body.layout;
@@ -3293,15 +3355,15 @@ app.patch('/api/users/workspace', express.json({ limit: '5mb' }), (req, res) => 
   res.status(400).json({ error: 'A layout array is required.' });
 });
 
-app.patch('/api/users/preferences', express.json({ limit: '50mb' }), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.patch('/api/users/preferences', express.json({ limit: '50mb' }), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Settings access denied. Unauthorized.' });
   }
 
   const { selected_font_scale, compact_view_enabled, ultrawide_enabled, selected_theme, name, avatar, username, cover_photo, notification_preferences, profile_visibility, block_search_indexing } = req.body;
   const userEmail = session.email.toLowerCase().trim();
-  let user = usersDb.get(userEmail);
+  let user = await dbGetUser(userEmail);
 
   if (!user) {
     console.log(`[SETTINGS EVENT] RECONSTRUCTING USER FROM VALID COOKIE: ${userEmail}`);
@@ -3321,7 +3383,7 @@ app.patch('/api/users/preferences', express.json({ limit: '50mb' }), (req, res) 
       username: generateDefaultUsername(userEmail),
       cover_photo: ''
     };
-    usersDb.set(userEmail, user);
+    await dbSetUser(userEmail, user, user.version);
   }
 
   fillDefaultPrivacySettings(user);
@@ -3379,7 +3441,7 @@ app.patch('/api/users/preferences', express.json({ limit: '50mb' }), (req, res) 
       return res.status(400).json({ error: 'This username is reserved.' });
     }
     // Check collisions
-    const isTaken = Array.from(usersDb.values()).some(
+    const isTaken = (await dbGetAllUsers()).some(
       u => u.email.toLowerCase().trim() !== userEmail && u.username?.toLowerCase().trim() === cleanUsername
     );
     if (isTaken) {
@@ -3424,14 +3486,14 @@ app.patch('/api/users/preferences', express.json({ limit: '50mb' }), (req, res) 
 });
 
 // Simulated Chronicle Monthly Billing Invoice Run (Module 5)
-app.post('/api/billing/sim-cron-invoice', express.json(), (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.post('/api/billing/sim-cron-invoice', express.json(), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) {
     return res.status(401).json({ error: 'Unauthorized session.' });
   }
 
   const userEmail = session.email.toLowerCase().trim();
-  const user = usersDb.get(userEmail);
+  const user = await dbGetUser(userEmail);
 
   if (!user) {
     return res.status(450).json({ error: 'User lookup failed.' });
@@ -3470,7 +3532,10 @@ app.post('/api/billing/sim-cron-invoice', express.json(), (req, res) => {
 
 
 // Server-Sent Events Endpoint (Module 2 Single-Session IP check block)
-app.get('/api/stream', (req, res) => {
+app.get('/api/stream', async (req, res) => {
+  const authSession = await getSessionFromCookies(req.headers.cookie);
+  if (!authSession || !authSession.email) { res.writeHead(401); return res.end('Unauthorized'); }
+  updateRedisPresence(authSession.email.toLowerCase().trim());
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -3488,12 +3553,12 @@ app.get('/api/stream', (req, res) => {
   const clientIp = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1');
   
   // Retrieve session to resolve user records
-  const session = getSessionFromCookies(req.headers.cookie);
+  const session = await getSessionFromCookies(req.headers.cookie);
   const userEmail = (session && session.email) ? session.email.toLowerCase().trim() : undefined;
 
   // Single-Session Concurrency Check Block
   if (userEmail) {
-    const user = usersDb.get(userEmail);
+    const user = await dbGetUser(userEmail);
     if (user) {
       // Find earlier active stream for this email and terminate instantly!
       const previousClient = sseClients.find(c => c.userEmail === userEmail);
@@ -3502,7 +3567,7 @@ app.get('/api/stream', (req, res) => {
         try {
           previousClient.res.write(`data: ${JSON.stringify({ 
             type: 'session_terminated', 
-            message: 'Core Workspace Session Blocked: Multiple terminal workspace logins detected for this account. Slayer Trade limits real-time streams to one IP node per workstation.' 
+            message: 'Core Workspace Session Blocked: Multiple terminal workspace logins detected for this account. Slayer Terminal limits real-time streams to one IP node per workstation.' 
           })}\n\n`);
           previousClient.res.end();
         } catch (err) {
@@ -3543,12 +3608,16 @@ app.get('/api/stream', (req, res) => {
 interface SSEDiscoveryClient {
   id: number;
   res: any;
+  userEmail?: string;
 }
 let sseDiscoveryClients: SSEDiscoveryClient[] = [];
 let discoveryClientIndex = 0;
 
 // Discovery Server-Sent Events Endpoint
-app.get('/api/stream/discovery', (req, res) => {
+app.get('/api/stream/discovery', async (req, res) => {
+  const authSession = await getSessionFromCookies(req.headers.cookie);
+  if (!authSession || !authSession.email) { res.writeHead(401); return res.end('Unauthorized'); }
+  updateRedisPresence(authSession.email.toLowerCase().trim());
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -3559,7 +3628,8 @@ app.get('/api/stream/discovery', (req, res) => {
   const clientId = ++discoveryClientIndex;
   const clientObj: SSEDiscoveryClient = {
     id: clientId,
-    res
+    res,
+    userEmail: authSession.email.toLowerCase().trim()
   };
 
   sseDiscoveryClients.push(clientObj);
@@ -3583,7 +3653,10 @@ app.get('/api/stream/discovery', (req, res) => {
 });
 
 // Create and enter simulated trade endpoint
-app.post('/api/trades/add', (req, res) => {
+app.post('/api/trades/add', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
+  if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized' });
+
   const { 
     underlying, 
     contract, 
@@ -3654,7 +3727,10 @@ app.post('/api/trades/add', (req, res) => {
 });
 
 // Clear trades array endpoint
-app.post('/api/trades/clear', (req, res) => {
+app.post('/api/trades/clear', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
+  if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized' });
+
   db.v8Trades = [];
   broadcastSSE();
   res.json({ success: true });
@@ -3662,6 +3738,9 @@ app.post('/api/trades/clear', (req, res) => {
 
 // GET real intraday lookbacks or synthetic fallback
 app.get('/api/history', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
+  if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized' });
+
   try {
     const ticker = String(req.query.ticker || 'SPX');
     const tf = String(req.query.timeframe || '5m') as TimeframeVal;
@@ -3684,6 +3763,9 @@ app.get('/api/history', async (req, res) => {
 
 // GET Real-time option GEX-profile and dealer buying pressure gauge
 app.get('/api/dealer-flow', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
+  if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized' });
+
   try {
     const ticker = String(req.query.ticker || 'SPX');
     const asset = ASSET_LIST.find(a => a.ticker === ticker) || ASSET_LIST[0];
@@ -3738,7 +3820,7 @@ app.get('/api/dealer-flow', async (req, res) => {
 });
 
 // GET Systems health verification
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
   const isTradierConfig = !!process.env.TRADIER_API_KEY;
   const isPolygonConfig = !!process.env.POLYGON_API_KEY;
   const lastTradierErr = getLastTradierError();
@@ -3769,8 +3851,7 @@ function generateReferralCode(username: string): string {
   const letters = String(username || '').replace(/[^a-zA-Z]/g, '');
   let base = letters.length <= 4 ? letters.toUpperCase() : (letters.slice(0, 2) + letters.slice(-2)).toUpperCase();
   if (!base) base = 'SLAYER';
-  const exists = (code: string) =>
-    Array.from(usersDb.values()).some((u) => (u.custom_referral_code || '').toUpperCase() === code.toUpperCase());
+  const exists = async (code: string) => (await dbGetAllUsers()).some((u) => (u.custom_referral_code || '').toUpperCase() === code.toUpperCase());
   let candidate = `${base}10OFF`;
   if (!exists(candidate)) return candidate;
   // Collision resolution: append a random 2-char alphanumeric until unique.
@@ -3785,11 +3866,11 @@ function generateReferralCode(username: string): string {
 
 // Returns (and lazily migrates to the strict [PREFIX]10OFF format) the
 // current user's shareable referral code.
-app.get('/api/billing/my-referral-code', (req, res) => {
-  const session = getSessionFromCookies(req.headers.cookie);
+app.get('/api/billing/my-referral-code', async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
   if (!session || !session.email) return res.status(401).json({ error: 'Authentication required.' });
   const userEmail = session.email.toLowerCase().trim();
-  const user = usersDb.get(userEmail);
+  const user = await dbGetUser(userEmail);
   if (!user) return res.status(404).json({ error: 'User not found.' });
   if (!/10OFF$/.test(user.custom_referral_code || '')) {
     user.custom_referral_code = generateReferralCode(user.username || userEmail.split('@')[0]);
@@ -3800,16 +3881,16 @@ app.get('/api/billing/my-referral-code', (req, res) => {
 // ============================================================
 // ADMIN COMMAND CENTER — routes (spec §6)
 // ============================================================
-function getAdminContext(req: any): { email: string; role: AdminRole } | null {
-  const s = getSessionFromCookies(req.headers.cookie);
+async function getAdminContext(req: any): Promise<{ email: string; role: AdminRole } | null> {
+  const s = await getSessionFromCookies(req.headers.cookie);
   if (!s || !s.email) return null;
   const role = roleForEmail(s.email);
   if (role === 'user') return null;
   return { email: s.email.toLowerCase().trim(), role };
 }
 function requireAdmin(roles: AdminRole[] = ['super_admin', 'support', 'marketing']) {
-  return (req: any, res: any, next: any) => {
-    const ctx = getAdminContext(req);
+  return async (req: any, res: any, next: any) => {
+    const ctx = await getAdminContext(req);
     if (!ctx) return res.status(403).json({ error: 'Admin access denied.' });
     if (!roles.includes(ctx.role)) return res.status(403).json({ error: 'Insufficient admin role for this action.' });
     req.admin = ctx;
@@ -3835,10 +3916,10 @@ function logAudit(req: any, action: string, targetId: string) {
   if (AUDIT_LOG.length > 1000) AUDIT_LOG.length = 1000;
 }
 
-app.get('/api/admin/overview', requireAdmin(), (req: any, res) => {
+app.get('/api/admin/overview', requireAdmin(), async (req: any, res) => {
   res.json({
     live_connections: sseClients.length,
-    total_users: usersDb.size,
+    total_users: (await dbGetAllUsers()).length,
     suspended: SUSPENDED_USERS.size,
     banned: BANNED_USERS.size,
     maintenance_mode: MAINTENANCE_MODE,
@@ -3851,32 +3932,53 @@ app.get('/api/admin/overview', requireAdmin(), (req: any, res) => {
 
 // Live traffic counter (poll). True WebSockets are a deployment upgrade;
 // this reflects the live SSE connection pool.
-app.get('/api/admin/live', requireAdmin(), (req, res) => {
+app.get('/api/admin/live', requireAdmin(), async (req, res) => {
   res.json({ live_connections: sseClients.length, ts: Date.now() });
 });
 
 // Paginated user CRM
-app.get('/api/admin/users', requireAdmin(), (req, res) => {
-  const page = Math.max(1, parseInt(String(req.query.page || '1'), 10) || 1);
+app.get('/api/admin/users', requireAdmin(), async (req, res) => {
+  const cursorId = req.query.cursor ? String(req.query.cursor) : null;
   const perPage = Math.min(50, Math.max(5, parseInt(String(req.query.perPage || '10'), 10) || 10));
   const q = String(req.query.q || '').toLowerCase().trim();
-  let all = Array.from(usersDb.values());
+  let all = (await dbGetAllUsers());
   if (q) {
-    all = all.filter((u) =>
-      (u.email || '').toLowerCase().includes(q) ||
-      (u.username || '').toLowerCase().includes(q) ||
-      (u.name || '').toLowerCase().includes(q));
+    all = all.filter(u => `${u.email} ${u.username} ${u.name}`.toLowerCase().includes(q));
   }
+  let startIdx = 0;
+  if (cursorId) {
+    const foundIdx = all.findIndex(u => u.id === cursorId);
+    if (foundIdx > -1) startIdx = foundIdx + 1;
+  }
+  const slice = all.slice(startIdx, startIdx + perPage);
+  const nextCursor = slice.length === perPage && (startIdx + perPage < all.length) ? slice[slice.length - 1].id : null;
   const total = all.length;
-  const start = (page - 1) * perPage;
-  const rows = all.slice(start, start + perPage).map((u) => ({
+  
+  const rows = slice.map((u) => ({
     id: u.id, email: u.email, name: u.name, username: u.username,
     access_tier: u.access_tier, referral_tokens_pool: u.referral_tokens_pool,
     custom_referral_code: u.custom_referral_code, role: roleForEmail(u.email),
     suspended: SUSPENDED_USERS.has((u.email || '').toLowerCase()),
     banned: BANNED_USERS.has((u.email || '').toLowerCase()),
+    online: REDIS_PRESENCE.has((u.email || '').toLowerCase())
   }));
-  res.json({ rows, total, page, perPage, totalPages: Math.max(1, Math.ceil(total / perPage)) });
+  res.json({ rows, nextCursor, total, perPage });
+});
+
+app.patch('/api/admin/users/:email/tier', requireAdmin(['super_admin', 'support']), async (req: any, res: any) => {
+  const email = String(req.params.email).toLowerCase().trim();
+  const user = await dbGetUser(email);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  user.access_tier = req.body.access_tier;
+  
+  // instant invalidate
+  for (const client of sseClients) {
+    if (client.userEmail === email && !client.res.finished) {
+      client.res.write(`data: ${JSON.stringify({ type: 'TIER_UPGRADE', access_tier: req.body.access_tier })}\n\n`);
+    }
+  }
+  logAudit(req, 'USER_TIER_UPDATE', email);
+  res.json({ success: true, access_tier: user.access_tier });
 });
 
 function moderationHandler(action: 'suspend' | 'unsuspend' | 'ban' | 'unban' | 'force-logout') {
@@ -3910,7 +4012,7 @@ app.post('/api/admin/flags', requireAdmin(['super_admin', 'marketing']), (req: a
   res.json({ flags: FEATURE_FLAGS });
 });
 
-app.post('/api/admin/maintenance', requireAdmin(['super_admin']), (req: any, res) => {
+app.post('/api/admin/maintenance', requireAdmin(['super_admin']), async (req: any, res) => {
   MAINTENANCE_MODE = !!(req.body && req.body.enabled);
   logAudit(req, `MAINTENANCE_${MAINTENANCE_MODE ? 'ON' : 'OFF'}`, 'system');
   res.json({ maintenance_mode: MAINTENANCE_MODE });
@@ -3939,9 +4041,9 @@ app.post('/api/admin/coupons', requireAdmin(['super_admin', 'marketing']), (req:
 });
 
 // Impersonation (super admin only): issues a read-only session for the target.
-app.post('/api/admin/impersonate/:email', requireAdmin(['super_admin']), (req: any, res) => {
+app.post('/api/admin/impersonate/:email', requireAdmin(['super_admin']), async (req: any, res) => {
   const targetEmail = String(req.params.email || '').toLowerCase().trim();
-  const target = usersDb.get(targetEmail);
+  const target = await dbGetUser(targetEmail);
   if (!target) return res.status(404).json({ error: 'Target user not found.' });
   setSessionCookie(res, {
     authenticated: true,
@@ -3972,7 +4074,7 @@ async function startServer() {
     // Serve static frontend files in production build
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get('*', async (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
@@ -3983,9 +4085,31 @@ async function startServer() {
     if (!res.headersSent) res.status(500).json({ error: 'Internal server error.' });
   });
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`[SkyVision Backend] Running on http://localhost:${PORT}`);
   });
+  
+  server.on('error', (e: any) => {
+    if (e.code === 'EADDRINUSE') {
+      console.error('Address 3000 in use, retrying...');
+      setTimeout(() => {
+        server.close();
+        server.listen(PORT, '0.0.0.0');
+      }, 1000);
+    } else {
+      console.error('Listen error:', e);
+    }
+  });
 }
+
+process.on('uncaughtException', (err) => {
+  console.error('[uncaughtException]', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[unhandledRejection]', reason);
+  process.exit(1);
+});
 
 startServer();

@@ -70,14 +70,14 @@ export function WhyWeLikeCard({ score, isBullish = true, asset }: WhyWeLikeTrade
   ];
 
   return (
-    <div className="bg-[#121214] border border-[#2A2A2D] rounded-sm font-mono overflow-hidden shadow-lg p-5 flex flex-col justify-between h-full">
+    <div className="bg-black border border-black rounded-sm font-mono overflow-hidden shadow-lg p-5 flex flex-col justify-between h-full">
       <div>
-        <div className="flex items-center justify-between border-b border-[#2A2A2D] pb-3 mb-4">
+        <div className="flex items-center justify-between border-b border-black pb-3 mb-4">
           <div className="flex items-center gap-1.5">
-            <Info className="w-4 h-4 text-emerald-400" />
+            <Info className="w-4 h-4 text-[#4ADE80]" />
             <span className="text-xs tracking-[0.2em] font-bold text-[#E0E0E0]">WHY SKYVISION LIKES THIS TRADE</span>
           </div>
-          <span className="text-[9px] text-[#888888] font-bold uppercase select-none border border-zinc-800 px-2 bg-black/40 py-0.5">ALGORITHMIC LOGIC</span>
+          <span className="text-[9px] text-[#888888] font-bold uppercase select-none border border-black px-2 bg-black/40 py-0.5">ALGORITHMIC LOGIC</span>
         </div>
 
         <p className="text-[11px] text-[#888888] leading-normal mb-4 font-sans">
@@ -86,16 +86,16 @@ export function WhyWeLikeCard({ score, isBullish = true, asset }: WhyWeLikeTrade
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {factors.map((f, idx) => (
-            <div key={idx} className="bg-black/30 border border-[#1A1A1D] p-3 rounded-sm flex items-start gap-2.5">
+            <div key={idx} className="bg-black/30 border border-black p-3 rounded-sm flex items-start gap-2.5">
               <div className={`w-4 h-4 mt-0.5 rounded-sm flex items-center justify-center border transition-all ${
                 f.status 
-                  ? 'border-emerald-500 bg-emerald-950/30 text-emerald-450' 
-                  : 'border-zinc-800 bg-black text-zinc-650'
+                  ? 'border-black bg-black/40 text-[#4ADE80]' 
+                  : 'border-black bg-black text-zinc-650'
               }`}>
                 {f.status ? <Check className="w-3 h-3 stroke-[2.5]" /> : <span className="text-[8px]">◌</span>}
               </div>
               <div>
-                <span className={`text-xs font-bold block ${f.status ? 'text-white' : 'text-zinc-500 line-through'}`}>
+                <span className={`text-xs font-bold block ${f.status ? 'text-[#E5E5E5]' : 'text-zinc-500 line-through'}`}>
                   {f.label}
                 </span>
                 <span className="text-[10px] text-zinc-500 block leading-tight mt-0.5 font-sans">
@@ -107,7 +107,7 @@ export function WhyWeLikeCard({ score, isBullish = true, asset }: WhyWeLikeTrade
         </div>
       </div>
 
-      <div className="mt-5 pt-3.5 border-t border-[#2A2A2D] text-[9.5px] text-zinc-650 italic flex items-center gap-1.5 leading-none">
+      <div className="mt-5 pt-3.5 border-t border-black text-[9.5px] text-zinc-650 italic flex items-center gap-1.5 leading-none">
         <ShieldAlert className="w-3.5 text-zinc-600" />
         <span>No subjective bias. Purely data-driven mathematical thesis verification.</span>
       </div>
