@@ -124,6 +124,11 @@ const WhaleSweeps = React.memo(() => {
   );
 });
 
+// Monotonic counter so every generated flow row gets a stable, unique id. Rows are
+// unshift-ed to the front of the list, so an array-index key would shift on every insert
+// and cause React to mis-associate rows.
+let liveFlowRowSeq = 0;
+
 const LiveOptionsFlow = React.memo(() => {
   const generateMockFlow = () => {
     return Array.from({length: 14}).map((_, i) => {
@@ -137,7 +142,7 @@ const LiveOptionsFlow = React.memo(() => {
       const d = new Date();
       d.setMinutes(d.getMinutes() - i * 2 - Math.floor(Math.random() * 5));
       const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      return { time, size, ticker, strike, type, isBullish: isCall };
+      return { id: `flow-${liveFlowRowSeq++}`, time, size, ticker, strike, type, isBullish: isCall };
     });
   };
 
@@ -155,7 +160,7 @@ const LiveOptionsFlow = React.memo(() => {
         const strike = Math.floor(Math.random() * 1000 + 4000) + (isCall ? 'C' : 'P');
         const size = '$' + (Math.random() * 2 + 0.1).toFixed(1) + 'M';
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        next.unshift({ time, size, ticker, strike, type, isBullish: isCall });
+        next.unshift({ id: `flow-${liveFlowRowSeq++}`, time, size, ticker, strike, type, isBullish: isCall });
         return next.slice(0, 50);
       });
     }, 2500);
@@ -179,8 +184,8 @@ const LiveOptionsFlow = React.memo(() => {
             </tr>
           </thead>
           <tbody>
-            {flow.map((row, i) => (
-              <tr key={i} className="border-b border-[#1F1F1F] hover:bg-[#161616] transition-colors group">
+            {flow.map((row) => (
+              <tr key={row.id} className="border-b border-[#1F1F1F] hover:bg-[#161616] transition-colors group">
                 <td className="py-1.5" style={{ borderLeft: `2px solid ${row.isBullish ? 'var(--status-holding)' : 'var(--status-failing)'}`, paddingLeft: '6px' }}>
                   <span className="text-[#A3A3A3]">{row.time}</span>
                 </td>

@@ -320,10 +320,12 @@ export function PinpointAIView() {
   }
 
   // --- ARBOR PHYSICS CASCADE LABORATORY COMPILER ---
+  // Returns the scheduled timeout id so callers (e.g. the spot-price effect) can clear a
+  // pending sim before starting a new one, preventing overlapping cascades from stacking.
   const runHedgingCascade = () => {
     setIsRunningSim(true);
-    
-    setTimeout(() => {
+
+    const cascadeTimeout = setTimeout(() => {
       try {
         const spot = spotPrice || selectedAsset.defaultPrice;
         const currentMaturity = 14 / 365;
@@ -438,11 +440,16 @@ export function PinpointAIView() {
         setIsRunningSim(false);
       }
     }, 750);
+
+    return cascadeTimeout;
   };
 
-  // Run automatically on first render or when asset swaps to seed mock visualizer
+  // Run automatically on first render or when asset swaps to seed mock visualizer.
+  // Capture the pending timeout and clear it on re-run/unmount so spot-price ticks
+  // (which fire this effect frequently) don't stack overlapping simulations.
   React.useEffect(() => {
-    runHedgingCascade();
+    const cascadeTimeout = runHedgingCascade();
+    return () => clearTimeout(cascadeTimeout);
   }, [selectedAsset, spotPrice, activeTheta, activeKappa]);
 
   return (

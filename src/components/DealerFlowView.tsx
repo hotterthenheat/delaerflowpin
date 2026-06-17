@@ -606,8 +606,16 @@ export function DealerFlowView() {
   const profile = serverState?.gex_profile;
   const gauge = serverState?.dealer_flow;
   const disp = serverState?.displacement;
-  const candles = serverState?.candles || [];
   const dm = serverState?.deep_intelligence?.dealer_metrics;
+
+  // Memoize array props for InteractiveChart so they keep a stable reference when the
+  // underlying data is unchanged. The inline `|| []` + optional chaining otherwise create
+  // a fresh array every render, forcing the chart effect to tear down & rebuild all series.
+  const chartCandles = useMemo(() => serverState?.candles || [], [serverState?.candles]);
+  const chartDisplacementZones = useMemo(() => disp?.zones || [], [disp?.zones]);
+  const chartFvgs = useMemo(() => disp?.fvgs || [], [disp?.fvgs]);
+  const chartLiquidityEvents = useMemo(() => disp?.sweeps || [], [disp?.sweeps]);
+  const chartTape = useMemo(() => serverState?.tape || [], [serverState?.tape]);
 
   if (!serverState || !profile || !gauge || !disp) {
     return (
@@ -893,11 +901,11 @@ export function DealerFlowView() {
             </div>
             <div className="flex-1 w-full h-[320px]">
               <InteractiveChart
-                candles={candles}
-                displacementZones={disp?.zones || []}
-                fvgs={disp?.fvgs || []}
-                liquidityEvents={disp?.sweeps || []}
-                tape={serverState?.tape || []}
+                candles={chartCandles}
+                displacementZones={chartDisplacementZones}
+                fvgs={chartFvgs}
+                liquidityEvents={chartLiquidityEvents}
+                tape={chartTape}
                 timeframe={selectedTimeframe}
                 selectedTicker={selectedAsset.ticker}
                 priceDecimals={selectedAsset.decimals}

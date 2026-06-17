@@ -6,6 +6,95 @@ import { ASSET_LIST } from '../data';
 import { Zap, Percent, HelpCircle, FileText, CheckCircle2, Bot, Search, Maximize2, Minimize2 } from 'lucide-react';
 import { DiscoveryView } from './DiscoveryView';
 
+// OptionCard Component for selection - strictly no Delta/Gamma clutter (Bug #4, Bug #7)
+// Hoisted to module scope so its identity is stable across renders (prevents remounting
+// every card and resetting their internal tickDirection state on each parent re-render).
+interface OptionCardProps {
+  strikeLabel: string;
+  health: number;
+  move: number;
+  price: number;
+  action: string;
+  isSelected: boolean;
+  isCall: boolean;
+  onClick: () => void;
+  key?: string;
+}
+function OptionCard({ strikeLabel, health, move, price, action, isSelected, isCall, onClick }: OptionCardProps) {
+  const actionColor = action === 'ENTER' ? 'text-[#4ADE80] border-[#4ADE80]/30 bg-[#4ADE80]/5' : action === 'SELL' ? 'text-[#F87171] border-rose-400/30 bg-rose-400/5' : 'text-zinc-400 border-black bg-black/40';
+  const momentum = health > 85 ? 'STRENGTHENING' : health < 60 ? 'WEAKENING' : 'NEUTRAL';
+
+  const [tickDirection, setTickDirection] = React.useState<'up' | 'down' | null>(null);
+  const prevPriceRef = React.useRef<number>(price);
+
+  React.useEffect(() => {
+    if (price !== prevPriceRef.current) {
+      const direction = price > prevPriceRef.current ? 'up' : 'down';
+      setTickDirection(direction);
+      prevPriceRef.current = price;
+      const timer = setTimeout(() => {
+        setTickDirection(null);
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [price]);
+
+  let cardBgClass = '';
+
+  if (isSelected) {
+    if (isCall) {
+      cardBgClass = 'apple-glass !bg-black/40 !border-black text-[#d4d4d8] shadow-lg shadow-zinc-300/40 ring-[1px] ring-zinc-300/40';
+    } else {
+      cardBgClass = 'apple-glass !bg-rose-950/45 !border-rose-500 text-[#ffced1] shadow-lg shadow-rose-950/50 ring-[1px] ring-rose-400/50';
+    }
+  } else {
+    cardBgClass = 'bg-black border-black hover:border-black hover:bg-black/90 text-zinc-400';
+  }
+
+  const tickClass = tickDirection === 'up' ? 'tick-up' : tickDirection === 'down' ? 'tick-down' : '';
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.015 }}
+      whileTap={{ scale: 0.985 }}
+      onClick={onClick}
+      className={`p-3.5 border rounded-sm cursor-pointer transition-all flex flex-col gap-2 text-left relative overflow-hidden ${cardBgClass}`}
+    >
+      {/* Subtle breathing live glow indicator */}
+      <div className="absolute top-1 right-1 flex items-center">
+        <span className="relative flex h-1.5 w-1.5 shrink-0">
+          <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isCall ? 'bg-black/40' : 'bg-rose-450'}`}></span>
+          <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${isCall ? 'bg-black' : 'bg-[#F87171]'}`}></span>
+        </span>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-1 text-left">
+          <span className="text-sm font-black font-sans text-[#E5E5E5]">{strikeLabel}</span>
+          <span className="text-[7.5px] uppercase tracking-wider text-zinc-500">HEALTH: {health} PTS</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-end gap-0.5 text-right">
+            <span className={`text-xs font-black font-mono text-[#E5E5E5] ${tickClass}`}>
+              ${price.toFixed(2)}
+            </span>
+            <span className={`font-bold font-mono text-[9px] ${isCall ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
+              +{move}%
+            </span>
+          </div>
+          <span className={`px-2 py-0.5 rounded-xs text-[8.5px] font-black tracking-widest border uppercase shrink-0 ${actionColor}`}>
+            {action}
+          </span>
+        </div>
+      </div>
+      <div className="flex mt-1 pt-2 border-t border-black/45 justify-between items-center">
+         <span className="text-[8px] text-zinc-500 font-mono">FLOW MOMENTUM:</span>
+         <span className={`text-[8.5px] font-black uppercase ${momentum === 'STRENGTHENING' ? 'text-[#4ADE80]' : momentum === 'WEAKENING' ? 'text-[#F87171]' : 'text-zinc-400'}`}>{momentum}</span>
+      </div>
+    </motion.div>
+  );
+}
+
 export function SkyVisionView() {
   const [isChartExpanded, setIsChartExpanded] = useState(false);
   const selectedAsset = useContractStore(s => s.selectedAsset);
@@ -94,92 +183,14 @@ export function SkyVisionView() {
     });
   }, [spotPrice, selectedAsset.volatility]);
 
-  // OptionCard Component for selection - strictly no Delta/Gamma clutter (Bug #4, Bug #7)
-  interface OptionCardProps {
-    strikeLabel: string;
-    health: number;
-    move: number;
-    price: number;
-    action: string;
-    isSelected: boolean;
-    isCall: boolean;
-    onClick: () => void;
-    key?: string;
-  }
-  function OptionCard({ strikeLabel, health, move, price, action, isSelected, isCall, onClick }: OptionCardProps) {
-    const actionColor = action === 'ENTER' ? 'text-[#4ADE80] border-[#4ADE80]/30 bg-[#4ADE80]/5' : action === 'SELL' ? 'text-[#F87171] border-rose-400/30 bg-rose-400/5' : 'text-zinc-400 border-black bg-black/40';
-    const momentum = health > 85 ? 'STRENGTHENING' : health < 60 ? 'WEAKENING' : 'NEUTRAL';
-
-    const [tickDirection, setTickDirection] = React.useState<'up' | 'down' | null>(null);
-    const prevPriceRef = React.useRef<number>(price);
-
-    React.useEffect(() => {
-      if (price !== prevPriceRef.current) {
-        const direction = price > prevPriceRef.current ? 'up' : 'down';
-        setTickDirection(direction);
-        prevPriceRef.current = price;
-        const timer = setTimeout(() => {
-          setTickDirection(null);
-        }, 800);
-        return () => clearTimeout(timer);
-      }
-    }, [price]);
-
-    let cardBgClass = '';
-
-    if (isSelected) {
-      if (isCall) {
-        cardBgClass = 'apple-glass !bg-black/40 !border-black text-[#d4d4d8] shadow-lg shadow-zinc-300/40 ring-[1px] ring-zinc-300/40';
-      } else {
-        cardBgClass = 'apple-glass !bg-rose-950/45 !border-rose-500 text-[#ffced1] shadow-lg shadow-rose-950/50 ring-[1px] ring-rose-400/50';
-      }
-    } else {
-      cardBgClass = 'bg-black border-black hover:border-black hover:bg-black/90 text-zinc-400';
-    }
-
-    const tickClass = tickDirection === 'up' ? 'tick-up' : tickDirection === 'down' ? 'tick-down' : '';
-
-    return (
-      <motion.div
-        whileHover={{ scale: 1.015 }}
-        whileTap={{ scale: 0.985 }}
-        onClick={onClick}
-        className={`p-3.5 border rounded-sm cursor-pointer transition-all flex flex-col gap-2 text-left relative overflow-hidden ${cardBgClass}`}
-      >
-        {/* Subtle breathing live glow indicator */}
-        <div className="absolute top-1 right-1 flex items-center">
-          <span className="relative flex h-1.5 w-1.5 shrink-0">
-            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isCall ? 'bg-black/40' : 'bg-rose-450'}`}></span>
-            <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${isCall ? 'bg-black' : 'bg-[#F87171]'}`}></span>
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-1 text-left">
-            <span className="text-sm font-black font-sans text-[#E5E5E5]">{strikeLabel}</span>
-            <span className="text-[7.5px] uppercase tracking-wider text-zinc-500">HEALTH: {health} PTS</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col items-end gap-0.5 text-right">
-              <span className={`text-xs font-black font-mono text-[#E5E5E5] ${tickClass}`}>
-                ${price.toFixed(2)}
-              </span>
-              <span className={`font-bold font-mono text-[9px] ${isCall ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
-                +{move}%
-              </span>
-            </div>
-            <span className={`px-2 py-0.5 rounded-xs text-[8.5px] font-black tracking-widest border uppercase shrink-0 ${actionColor}`}>
-              {action}
-            </span>
-          </div>
-        </div>
-        <div className="flex mt-1 pt-2 border-t border-black/45 justify-between items-center">
-           <span className="text-[8px] text-zinc-500 font-mono">FLOW MOMENTUM:</span>
-           <span className={`text-[8.5px] font-black uppercase ${momentum === 'STRENGTHENING' ? 'text-[#4ADE80]' : momentum === 'WEAKENING' ? 'text-[#F87171]' : 'text-zinc-400'}`}>{momentum}</span>
-        </div>
-      </motion.div>
-    );
-  }
+  // Memoize array props for InteractiveChart so they keep a stable reference when the
+  // underlying data is unchanged. The inline `|| []` + optional chaining otherwise create
+  // a fresh array every render, forcing the chart effect to tear down & rebuild all series.
+  const chartCandles = useMemo(() => activeContract?.chartData || [], [activeContract?.chartData]);
+  const chartDisplacementZones = useMemo(() => serverState?.displacement_engine?.zones || [], [serverState?.displacement_engine?.zones]);
+  const chartFvgs = useMemo(() => serverState?.displacement_engine?.fvgs || [], [serverState?.displacement_engine?.fvgs]);
+  const chartLiquidityEvents = useMemo(() => serverState?.displacement_engine?.sweeps || [], [serverState?.displacement_engine?.sweeps]);
+  const chartTape = useMemo(() => serverState?.tape || [], [serverState?.tape]);
 
   // Active decision and parameters derived
   const selectedFocusedOption = strikesList.find(s => s.strike === activeStrike);
@@ -777,7 +788,7 @@ export function SkyVisionView() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-900/50 text-xs">
-                        {serverState.deep_intelligence.impact_contracts.map((c: any) => (
+                        {(serverState.deep_intelligence.impact_contracts || []).map((c: any) => (
                           <tr key={c.contract} className="hover:bg-black/20 transition-colors">
                             <td className={`py-2 font-black ${c.rank === 1 ? 'text-[#ff4545]' : c.rank === 2 ? 'text-[#4f8cff]' : 'text-zinc-500'}`}>#{c.rank}</td>
                             <td className="py-2 font-black text-[#E5E5E5]">{c.contract}</td>
@@ -804,37 +815,37 @@ export function SkyVisionView() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono">
                     <div className="mirror-panel rounded-md p-3">
                       <span className="text-[8px] text-zinc-500 uppercase block mb-1">Total Open Interest</span>
-                      <span className="font-extrabold text-[#E5E5E5]">{serverState.deep_intelligence.strike_metrics.totalOi.toLocaleString()}</span>
+                      <span className="font-extrabold text-[#E5E5E5]">{(serverState.deep_intelligence.strike_metrics?.totalOi || 0).toLocaleString()}</span>
                     </div>
                     <div className="mirror-panel rounded-md p-3">
                       <span className="text-[8px] text-zinc-500 uppercase block mb-1">Net Exposure</span>
-                      <span className={`font-extrabold ${serverState.deep_intelligence.strike_metrics.netExposure.includes('+') ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
-                         {serverState.deep_intelligence.strike_metrics.netExposure}
+                      <span className={`font-extrabold ${serverState.deep_intelligence.strike_metrics?.netExposure?.includes('+') ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
+                         {serverState.deep_intelligence.strike_metrics?.netExposure}
                       </span>
                     </div>
                     <div className="mirror-panel rounded-md p-3">
                       <span className="text-[8px] text-zinc-500 uppercase block mb-1">Call / Put Ratio</span>
-                      <span className="font-extrabold text-[#E5E5E5]">{serverState.deep_intelligence.strike_metrics.callPutRatio}</span>
+                      <span className="font-extrabold text-[#E5E5E5]">{serverState.deep_intelligence.strike_metrics?.callPutRatio}</span>
                     </div>
                     <div className="mirror-panel rounded-md p-3">
                       <span className="text-[8px] text-zinc-500 uppercase block mb-1">Hedge Sensitivity</span>
-                      <span className="font-extrabold text-[#F87171]">{serverState.deep_intelligence.strike_metrics.hedgeSensitivity}</span>
+                      <span className="font-extrabold text-[#F87171]">{serverState.deep_intelligence.strike_metrics?.hedgeSensitivity}</span>
                     </div>
                     <div className="mirror-panel rounded-md p-3">
                       <span className="text-[8px] text-zinc-500 uppercase block mb-1">Dealer Exposure</span>
-                      <span className="font-extrabold text-indigo-400">{serverState.deep_intelligence.strike_metrics.dealerExposure}</span>
+                      <span className="font-extrabold text-indigo-400">{serverState.deep_intelligence.strike_metrics?.dealerExposure}</span>
                     </div>
                     <div className="mirror-panel rounded-md p-3">
                       <span className="text-[8px] text-zinc-500 uppercase block mb-1">Gamma Contribution</span>
-                      <span className="font-extrabold text-[#d4d4d8]">{serverState.deep_intelligence.strike_metrics.gammaContribution}</span>
+                      <span className="font-extrabold text-[#d4d4d8]">{serverState.deep_intelligence.strike_metrics?.gammaContribution}</span>
                     </div>
                     <div className="mirror-panel rounded-md p-3 col-span-2 flex items-center justify-between">
                       <div>
                         <span className="text-[8px] text-zinc-500 uppercase block mb-1">Delta Contribution</span>
-                        <span className="font-extrabold text-[#E5E5E5]">{serverState.deep_intelligence.strike_metrics.deltaContribution}</span>
+                        <span className="font-extrabold text-[#E5E5E5]">{serverState.deep_intelligence.strike_metrics?.deltaContribution}</span>
                       </div>
                       <div className="w-1/2 h-1.5 bg-black rounded-full overflow-hidden">
-                         <div className="h-full bg-[#4f8cff]" style={{ width: serverState.deep_intelligence.strike_metrics.deltaContribution }} />
+                         <div className="h-full bg-[#4f8cff]" style={{ width: serverState.deep_intelligence.strike_metrics?.deltaContribution }} />
                       </div>
                     </div>
                   </div>
@@ -852,7 +863,7 @@ export function SkyVisionView() {
                     </span>
                   </div>
                   <div className="space-y-2.5">
-                     {serverState.deep_intelligence.commentary && serverState.deep_intelligence.commentary.map((point: string, idx: number) => (
+                     {serverState.deep_intelligence.commentary?.map((point: string, idx: number) => (
                        <div key={idx} className="p-2 border border-black/50 rounded-lg bg-black/40 text-[9.5px] font-sans text-zinc-400 leading-relaxed flex gap-2">
                           <span className="text-[#4f8cff] mt-0.5 select-none text-[8px]">■</span>
                           <span>{point}</span>
@@ -876,28 +887,28 @@ export function SkyVisionView() {
                     <div className="flex justify-between items-center p-2 bg-[#d4d4d8]/5 border border-[#d4d4d8]/20 rounded-md">
                       <div>
                         <span className="text-[8px] text-[#d4d4d8] uppercase block font-black">Largest Bullish Position</span>
-                        <span className="text-[#E5E5E5] font-bold">{serverState.deep_intelligence.whale_detection.bullish.contract} • 0DTE</span>
+                        <span className="text-[#E5E5E5] font-bold">{serverState.deep_intelligence.whale_detection?.bullish?.contract} • 0DTE</span>
                       </div>
-                      <span className="font-black text-[#E5E5E5]">{serverState.deep_intelligence.whale_detection.bullish.size}</span>
+                      <span className="font-black text-[#E5E5E5]">{serverState.deep_intelligence.whale_detection?.bullish?.size}</span>
                     </div>
                     <div className="flex justify-between items-center p-2 bg-[#ff4545]/5 border border-[#ff4545]/20 rounded-md">
                       <div>
                         <span className="text-[8px] text-[#ff4545] uppercase block font-black">Largest Bearish Position</span>
-                        <span className="text-[#E5E5E5] font-bold">{serverState.deep_intelligence.whale_detection.bearish.contract} • 0DTE</span>
+                        <span className="text-[#E5E5E5] font-bold">{serverState.deep_intelligence.whale_detection?.bearish?.contract} • 0DTE</span>
                       </div>
-                      <span className="font-black text-[#E5E5E5]">{serverState.deep_intelligence.whale_detection.bearish.size}</span>
+                      <span className="font-black text-[#E5E5E5]">{serverState.deep_intelligence.whale_detection?.bearish?.size}</span>
                     </div>
                     <div className="flex justify-between items-center p-2 mirror-panel rounded-md gap-3">
                       <div>
                         <span className="text-[8px] text-zinc-400 uppercase block font-black">Largest Call Position</span>
-                        <span className="text-[#E5E5E5] font-bold">{serverState.deep_intelligence.whale_detection.largestCall}</span>
+                        <span className="text-[#E5E5E5] font-bold">{serverState.deep_intelligence.whale_detection?.largestCall}</span>
                       </div>
                       <span className="font-black text-[#E5E5E5] cursor-help border-b border-dashed border-black block text-right">HEDGE</span>
                     </div>
                     <div className="flex justify-between items-center p-2 mirror-panel rounded-md gap-3">
                       <div>
                         <span className="text-[8px] text-zinc-400 uppercase block font-black">Largest Put Position</span>
-                        <span className="text-[#E5E5E5] font-bold">{serverState.deep_intelligence.whale_detection.largestPut}</span>
+                        <span className="text-[#E5E5E5] font-bold">{serverState.deep_intelligence.whale_detection?.largestPut}</span>
                       </div>
                       <span className="font-black text-[#E5E5E5] cursor-help border-b border-dashed border-black block text-right">HEDGE</span>
                     </div>
@@ -914,7 +925,7 @@ export function SkyVisionView() {
                     <span className="text-[7.5px] text-zinc-500 font-black uppercase">LIVE</span>
                   </div>
                   <div className="flex flex-col gap-2 overflow-y-auto text-[10px] font-mono hover:overflow-y-scroll pr-1 flex-1">
-                     {serverState.deep_intelligence.flow_feed.slice(0, 10).map((f: any) => (
+                     {(serverState.deep_intelligence.flow_feed || []).slice(0, 10).map((f: any) => (
                        <div key={f.id} className={`flex flex-col gap-1.5 p-2 mirror-panel/80 rounded transition-colors hover:bg-black ${f.type === 'UNUSUAL' ? 'border-l-2 border-l-indigo-500' : ''}`}>
                           <div className="flex justify-between">
                              <span className={`${f.type === 'SWEEP' ? 'text-[#d4d4d8]' : f.type === 'BLOCK' ? 'text-[#F87171]' : 'text-indigo-400'} font-bold`}>{f.type}</span>
@@ -923,7 +934,7 @@ export function SkyVisionView() {
                           <span className="text-[8px] text-zinc-500 uppercase">{f.desc}</span>
                        </div>
                      ))}
-                     {serverState.deep_intelligence.flow_feed.length === 0 && (
+                     {(serverState.deep_intelligence.flow_feed?.length ?? 0) === 0 && (
                        <div className="text-zinc-500 text-center py-4 italic text-xs">Waiting for market flows...</div>
                      )}
                   </div>
@@ -956,11 +967,11 @@ export function SkyVisionView() {
             className="w-full relative"
           >
             <InteractiveChart
-              candles={activeContract?.chartData || []}
-              displacementZones={serverState?.displacement_engine?.zones || []}
-              fvgs={serverState?.displacement_engine?.fvgs || []}
-              liquidityEvents={serverState?.displacement_engine?.sweeps || []}
-              tape={serverState?.tape || []}
+              candles={chartCandles}
+              displacementZones={chartDisplacementZones}
+              fvgs={chartFvgs}
+              liquidityEvents={chartLiquidityEvents}
+              tape={chartTape}
               timeframe={selectedTimeframe}
               selectedTicker={selectedAsset.ticker}
               showFVGs={true}
