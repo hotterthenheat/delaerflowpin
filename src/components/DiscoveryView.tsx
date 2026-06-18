@@ -712,15 +712,20 @@ const INITIAL_CONTRACTS = [
 ];
 
 // Seed initial historical feed logs
+// Monotonic id source so prepended feed logs keep stable React keys (timestamps
+// are only second-granularity and indices shift on every prepend).
+let _feedLogSeq = 0;
+const nextFeedLogId = () => `feedlog-${++_feedLogSeq}`;
+
 const INITIAL_FEED_LOGS = [
-  { timestamp: '01:34:25', ticker: 'SPX', strike: 7620, type: 'C', side: 'Sweep', size: '280 cons', premium: '$151,200', tag: 'BULLISH', action: 'SWEPT @ ASK' },
-  { timestamp: '01:34:10', ticker: 'QQQ', strike: 448, type: 'C', side: 'Block', size: '1,200 cons', premium: '$504,000', tag: 'BULLISH', action: 'AT ASK' },
-  { timestamp: '01:33:48', ticker: 'NDX', strike: 18350, type: 'C', side: 'Block', size: '150 cons', premium: '$232,500', tag: 'BULLISH', action: 'ABOVE ASK' },
-  { timestamp: '01:33:02', ticker: 'SPY', strike: 508, type: 'P', side: 'Sweep', size: '2,500 cons', premium: '$337,500', tag: 'BEARISH', action: 'SWEPT @ ASK' },
-  { timestamp: '01:31:55', ticker: 'SPX', strike: 7700, type: 'C', side: 'Block', size: '3,000 cons', premium: '$735,000', tag: 'BULLISH', action: 'OFF-EXCHANGE' },
-  { timestamp: '01:30:22', ticker: 'NDX', strike: 17800, type: 'P', side: 'Sweep', size: '400 cons', premium: '$496,000', tag: 'HEDGE', action: 'SWEPT @ ASK' },
-  { timestamp: '01:29:15', ticker: 'SPY', strike: 515, type: 'C', side: 'Sweep', size: '1,800 cons', premium: '$576,000', tag: 'BULLISH', action: 'SWEPT @ ASK' },
-  { timestamp: '01:28:40', ticker: 'QQQ', strike: 455, type: 'C', side: 'Sweep', size: '2,400 cons', premium: '$348,000', tag: 'BULLISH', action: 'ABOVE ASK' }
+  { id: nextFeedLogId(), timestamp: '01:34:25', ticker: 'SPX', strike: 7620, type: 'C', side: 'Sweep', size: '280 cons', premium: '$151,200', tag: 'BULLISH', action: 'SWEPT @ ASK' },
+  { id: nextFeedLogId(), timestamp: '01:34:10', ticker: 'QQQ', strike: 448, type: 'C', side: 'Block', size: '1,200 cons', premium: '$504,000', tag: 'BULLISH', action: 'AT ASK' },
+  { id: nextFeedLogId(), timestamp: '01:33:48', ticker: 'NDX', strike: 18350, type: 'C', side: 'Block', size: '150 cons', premium: '$232,500', tag: 'BULLISH', action: 'ABOVE ASK' },
+  { id: nextFeedLogId(), timestamp: '01:33:02', ticker: 'SPY', strike: 508, type: 'P', side: 'Sweep', size: '2,500 cons', premium: '$337,500', tag: 'BEARISH', action: 'SWEPT @ ASK' },
+  { id: nextFeedLogId(), timestamp: '01:31:55', ticker: 'SPX', strike: 7700, type: 'C', side: 'Block', size: '3,000 cons', premium: '$735,000', tag: 'BULLISH', action: 'OFF-EXCHANGE' },
+  { id: nextFeedLogId(), timestamp: '01:30:22', ticker: 'NDX', strike: 17800, type: 'P', side: 'Sweep', size: '400 cons', premium: '$496,000', tag: 'HEDGE', action: 'SWEPT @ ASK' },
+  { id: nextFeedLogId(), timestamp: '01:29:15', ticker: 'SPY', strike: 515, type: 'C', side: 'Sweep', size: '1,800 cons', premium: '$576,000', tag: 'BULLISH', action: 'SWEPT @ ASK' },
+  { id: nextFeedLogId(), timestamp: '01:28:40', ticker: 'QQQ', strike: 455, type: 'C', side: 'Sweep', size: '2,400 cons', premium: '$348,000', tag: 'BULLISH', action: 'ABOVE ASK' }
 ];
 
 export function DiscoveryView({
@@ -953,6 +958,7 @@ export function DiscoveryView({
       const timestampLabel = new Date().toTimeString().split(' ')[0];
 
       const newLog = {
+        id: nextFeedLogId(),
         timestamp: timestampLabel,
         ticker: randomTicker,
         strike: randomStrike,
@@ -1699,7 +1705,7 @@ export function DiscoveryView({
             <div className={`flex gap-4 shrink-0 text-left border-t md:border-t-0 md:border-l pt-3 md:pt-0 md:pl-5 ${isLight ? 'border-black' : 'border-black/60'}`}>
               <div>
                 <span className="text-[7px] text-zinc-500 uppercase font-black tracking-widest block">ENTER SIGNAL RATIO</span>
-                <span className={`text-sm font-black ${c_textWhite}`}>{((metricsOverview.enterCount / metricsOverview.totalCount) * 100).toFixed(1)}%</span>
+                <span className={`text-sm font-black ${c_textWhite}`}>{(metricsOverview.totalCount > 0 ? (metricsOverview.enterCount / metricsOverview.totalCount) * 100 : 0).toFixed(1)}%</span>
               </div>
               <div>
                 <span className="text-[7px] text-zinc-500 uppercase font-black tracking-widest block">EXTREME NOTIONAL</span>
@@ -1800,7 +1806,7 @@ export function DiscoveryView({
                   
                   return (
                     <motion.div
-                      key={`${log.timestamp}-${index}`}
+                      key={(log as any).id ?? `${log.timestamp}-${log.ticker}-${log.strike}-${index}`}
                       initial={{ opacity: 0, x: 20, height: 0 }}
                       animate={{ opacity: 1, x: 0, height: 'auto' }}
                       exit={{ opacity: 0 }}

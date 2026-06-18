@@ -29,6 +29,7 @@ export function SmsDispatcherPanel({
   const [dispatchLogs, setDispatchLogs] = useState<string[]>([]);
   const [sentAlerts, setSentAlerts] = useState<Array<{ phone: string; message: string; timestamp: string }>>([]);
   const logsEndRef = useRef<HTMLDivElement>(null);
+  const dispatchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const activeContractTicker = `${selectedAsset.ticker} ${optionStrike}${isCall ? 'C' : 'P'}`;
   const metrics = calculateV10Metrics(selectedAsset, isCall, systemScore, optionPremiumFloat);
@@ -73,6 +74,7 @@ export function SmsDispatcherPanel({
         stage++;
       } else {
         clearInterval(interval);
+        dispatchIntervalRef.current = null;
         setIsDispatching(false);
 
         // Record the actual sent alert details to display on our mock mobile device screen!
@@ -87,7 +89,15 @@ export function SmsDispatcherPanel({
         ]);
       }
     }, 850);
+    dispatchIntervalRef.current = interval;
   };
+
+  // Clear the dispatch interval on unmount so it can't fire setState afterwards.
+  useEffect(() => {
+    return () => {
+      if (dispatchIntervalRef.current) clearInterval(dispatchIntervalRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (logsEndRef.current) {

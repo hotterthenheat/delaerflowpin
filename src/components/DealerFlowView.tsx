@@ -619,7 +619,7 @@ export function DealerFlowView() {
   const chartLiquidityEvents = useMemo(() => disp?.sweeps || [], [disp?.sweeps]);
   const chartTape = useMemo(() => serverState?.tape || [], [serverState?.tape]);
 
-  if (!serverState || !profile || !gauge || !disp) {
+  if (!serverState || !profile || !profile.strikes || !gauge || !disp) {
     return (
       <div className="w-full flex flex-col items-center justify-center min-h-[460px] bg-black/30 border border-black rounded-lg p-8 text-center space-y-4" id="dealerflow-data-pending">
         <div className="w-12 h-12 rounded-full bg-black/40 border border-black flex items-center justify-center">

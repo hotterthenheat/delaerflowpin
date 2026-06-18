@@ -150,15 +150,12 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan: planKey, billingCycle })
       });
-      if (res.ok) {
-        const { url } = await res.json();
-        if (url) {
-          window.location.href = url;
-          return;
-        }
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data?.url) {
+        window.location.href = data.url;
+        return;
       }
       // Non-ok or missing url: surface a lightweight error to the user.
-      const data = await res.json().catch(() => ({}));
       alert(data?.error || 'Unable to start checkout. Please try again.');
     } catch (e) {
       alert('Unable to reach the payment service. Please try again.');

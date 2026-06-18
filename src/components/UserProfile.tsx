@@ -314,6 +314,12 @@ export function UserProfile({ session, onUpdateSession }: UserProfileProps) {
           URL.revokeObjectURL(cropParams.originalSrc);
           setCropParams(null);
         }
+      } else {
+        // Canvas 2D context unavailable: reset upload state so the button doesn't lock.
+        setIsUploading(false);
+        URL.revokeObjectURL(cropParams.originalSrc);
+        setCropParams(null);
+        setErrorMsg('Failed to process image crop array.');
       }
     };
   };
