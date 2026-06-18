@@ -1596,8 +1596,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                       if (onUpgradeComplete) {
                         onUpgradeComplete(tierNum);
                       }
-                      
-                      onEnterApp(targetTab);
+
+                      if (onEnterApp) onEnterApp(targetTab);
                       setSelectedPlanForCheckout(null);
                       setCheckoutStep('details');
                       

@@ -399,7 +399,7 @@ export default function SlayerIntro({
           </div>
 
           {/* NEW HERO ENHANCEMENTS (Dealer Bias, Vol State, etc) */}
-          {serverState?.deep_intelligence && (
+          {serverState?.deep_intelligence?.dealer_metrics && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-black border border-black/40 p-2.5 rounded-lg relative z-10 text-[9px] mb-4">
                <div className="border border-black/50 p-2 rounded-md bg-black/50">
                   <span className="text-zinc-500 uppercase font-black block tracking-widest text-[7px] mb-0.5">Dealer Bias</span>
