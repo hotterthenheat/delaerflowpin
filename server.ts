@@ -1904,13 +1904,32 @@ const dbDeleteUser = async (email: string) => {
 };
 
 const dbGetAllUsers = async () => {
-  const res = await pgDb.select().from(users);
-  return res.map(r => JSON.parse(r.fullProfile || '{}'));
+  try {
+    const res = await pgDb.select().from(users);
+    const out: any[] = [];
+    for (const r of res) {
+      try {
+        out.push(JSON.parse(r.fullProfile || '{}'));
+      } catch (parseErr) {
+        // Skip a single corrupt row rather than crashing every caller (and the process).
+        console.error('dbGetAllUsers: skipping unparseable row', r.id, parseErr);
+      }
+    }
+    return out;
+  } catch (e) {
+    console.error('dbGetAllUsers error:', e);
+    return [];
+  }
 };
 
 const dbHasUser = async (email: string) => {
-  const res = await pgDb.select({id:users.id}).from(users).where(eq(users.email, email.toLowerCase().trim()));
-  return res.length > 0;
+  try {
+    const res = await pgDb.select({id:users.id}).from(users).where(eq(users.email, email.toLowerCase().trim()));
+    return res.length > 0;
+  } catch (e) {
+    console.error('dbHasUser error:', e);
+    return false;
+  }
 };
 
 
@@ -3786,9 +3805,14 @@ app.get('/api/stream', async (req, res) => {
 
   sseClients.push(clientObj);
 
-  // Send initial payload immediately
-  const initialPayload = constructPayload(clientObj.params);
-  res.write(`data: ${JSON.stringify(initialPayload)}\n\n`);
+  // Send initial payload immediately. Guard so a payload-construction throw can't
+  // reject this async handler (which under Express 4 becomes an unhandledRejection).
+  try {
+    const initialPayload = constructPayload(clientObj.params);
+    res.write(`data: ${JSON.stringify(initialPayload)}\n\n`);
+  } catch (e) {
+    console.error('Error sending initial SSE payload to client', clientId, e);
+  }
 
   // Handle client disconnection
   req.on('close', () => {
@@ -4038,11 +4062,16 @@ app.get('/api/health', async (req, res) => {
 // REFERRAL / PROMO CODE GENERATOR (spec §B)
 // zakali75 -> "ZALI" -> ZALI10OFF (collision -> ZALI9X10OFF ...)
 // ============================================================
-function generateReferralCode(username: string): string {
+async function generateReferralCode(username: string): Promise<string> {
   const letters = String(username || '').replace(/[^a-zA-Z]/g, '');
   let base = letters.length <= 4 ? letters.toUpperCase() : (letters.slice(0, 2) + letters.slice(-2)).toUpperCase();
   if (!base) base = 'SLAYER';
-  const exists = async (code: string) => (await dbGetAllUsers()).some((u) => (u.custom_referral_code || '').toUpperCase() === code.toUpperCase());
+  // Snapshot existing codes once; the predicate was previously async and never
+  // awaited, so collision detection silently never fired.
+  const existingCodes = new Set(
+    (await dbGetAllUsers()).map((u) => (u.custom_referral_code || '').toUpperCase())
+  );
+  const exists = (code: string) => existingCodes.has(code.toUpperCase());
   let candidate = `${base}10OFF`;
   if (!exists(candidate)) return candidate;
   // Collision resolution: append a random 2-char alphanumeric until unique.
@@ -4064,7 +4093,9 @@ app.get('/api/billing/my-referral-code', async (req, res) => {
   const user = await dbGetUser(userEmail);
   if (!user) return res.status(404).json({ error: 'User not found.' });
   if (!/10OFF$/.test(user.custom_referral_code || '')) {
-    user.custom_referral_code = generateReferralCode(user.username || userEmail.split('@')[0]);
+    user.custom_referral_code = await generateReferralCode(user.username || userEmail.split('@')[0]);
+    // Persist the lazily-migrated code so it is stable across requests.
+    await persistUser(userEmail, user);
   }
   res.json({ referral_code: user.custom_referral_code, tokens: user.referral_tokens_pool || 0 });
 });

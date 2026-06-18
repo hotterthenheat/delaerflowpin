@@ -243,7 +243,7 @@ export async function collectLiveFlows(ticker: string, currentSpot: number): Pro
           asset: ticker,
           type: typeStr,
           contract: `${vol.toLocaleString()} ${ticker} ${strike}${type}`,
-          desc: `${type === 'C' ? 'Bought at Ask' : 'Sold at Bid'} • Vol ${vol.toLocaleString()} • IV ${(item.implied_volatility * 100).toFixed(1)}%`,
+          desc: `${type === 'C' ? 'Bought at Ask' : 'Sold at Bid'} • Vol ${vol.toLocaleString()} • IV ${((Number(item.implied_volatility) || 0) * 100).toFixed(1)}%`,
           side: type
         });
       }

@@ -585,7 +585,10 @@ export async function fetchTradierCandles(ticker: string, tf: string, count = 12
     if (proxyCandles && proxyCandles.length > 0) {
       const indexSpot = await fetchTradierSpotPrice(ticker) || ASSET_LIST.find(a => a.ticker === ticker)?.defaultPrice || 1;
       const lastProxyClose = proxyCandles[proxyCandles.length - 1].close;
-      const liveRatio = indexSpot / lastProxyClose;
+      // Guard against a zero/invalid proxy close to avoid Infinity/NaN candle scaling.
+      const indexDefault = ASSET_LIST.find(a => a.ticker === ticker)?.defaultPrice || 1;
+      const proxyDefault = ASSET_LIST.find(a => a.ticker === proxyTicker)?.defaultPrice || 1;
+      const liveRatio = lastProxyClose > 0 ? indexSpot / lastProxyClose : indexDefault / proxyDefault;
 
       const scaledCandles = proxyCandles.map(bar => ({
         ...bar,
