@@ -1574,10 +1574,10 @@ export function SettingsPanel({ session, onUpdateSession }: SettingsPanelProps) 
                   </div>
                   <div>Plan Base Monthly Tariff: <span className="text-[#E5E5E5] font-bold font-mono">${invoiceLog.base_rate}.00</span></div>
                   <div>Invoice Tokens Redeemed: <span className="text-[#F87171] text-right">-{invoiceLog.tokens_deducted} Tokens ({invoiceLog.discount_rate_pct}% Off)</span></div>
-                  <div>Applied Deduction Credit: <span className="text-[#4ADE80] text-right">-${invoiceLog.discount_amount_usd.toFixed(2)} USD</span></div>
+                  <div>Applied Deduction Credit: <span className="text-[#4ADE80] text-right">-${(invoiceLog.discount_amount_usd ?? 0).toFixed(2)} USD</span></div>
                   <div className="border-t border-black/60 pt-2 mt-2 font-bold flex justify-between text-[11px]">
                     <span className="text-[#f4f4f5]">Net Amount Charged:</span>
-                    <span className="text-[#4ADE80]">${invoiceLog.total_charged_usd.toFixed(2)} USD</span>
+                    <span className="text-[#4ADE80]">${(invoiceLog.total_charged_usd ?? 0).toFixed(2)} USD</span>
                   </div>
                   <div className="border-t border-dashed border-black/80 pt-2 mt-2 text-[9px] text-zinc-600 uppercase flex gap-1.5 items-center">
                     <FolderSync className="w-3.5 h-3.5 text-indigo-400/80 shrink-0" />

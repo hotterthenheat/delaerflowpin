@@ -9,12 +9,12 @@ interface IntradayTargetsViewProps {
 }
 
 export function IntradayTargetsView({ profile, ticker, decimals }: IntradayTargetsViewProps) {
-  const spot = profile.spot || 0;
+  const spot = profile?.spot || 0;
   
   // Find interesting strikes: near money, high GEX, directional clues
   const targets = useMemo(() => {
-    if (!profile.strikes || !spot) return [];
-    
+    if (!profile?.strikes || !spot) return [];
+
     // Determine bounds
     const strikes = profile.strikes;
     const distanceThreshold = spot * 0.05; // 5% away from spot max
@@ -44,7 +44,7 @@ export function IntradayTargetsView({ profile, ticker, decimals }: IntradayTarge
     });
     
     return scored.sort((a, b) => b.totalScore - a.totalScore).slice(0, 12);
-  }, [profile.strikes, spot]);
+  }, [profile?.strikes, spot]);
 
   const fmtBn = (v: number) => `$${Math.abs(v / 1e9).toFixed(2)}B`;
   const fmtMn = (v: number) => `$${Math.abs(v / 1e6).toFixed(0)}M`;

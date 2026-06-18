@@ -540,7 +540,10 @@ export async function fetchTradierCandles(ticker: string, tf: string, count = 12
         const l = Number(item.low) || Number(item.l) || 0;
         const c = Number(item.close) || Number(item.c) || 0;
         const v = Number(item.volume) || Number(item.v) || 0;
-        const ts = item.timestamp ? Number(item.timestamp) * 1000 : (item.date ? new Date(item.date).getTime() : Date.now());
+        // Guard against NaN timestamps: an unparseable date would later throw in
+        // annotateCandles' Date#toISOString and silently discard the whole batch.
+        let ts = item.timestamp ? Number(item.timestamp) * 1000 : (item.date ? new Date(item.date).getTime() : Date.now());
+        if (!Number.isFinite(ts)) ts = Date.now();
         return {
           timestamp: ts,
           open: o,
@@ -585,7 +588,10 @@ export async function fetchTradierCandles(ticker: string, tf: string, count = 12
     if (proxyCandles && proxyCandles.length > 0) {
       const indexSpot = await fetchTradierSpotPrice(ticker) || ASSET_LIST.find(a => a.ticker === ticker)?.defaultPrice || 1;
       const lastProxyClose = proxyCandles[proxyCandles.length - 1].close;
-      const liveRatio = indexSpot / lastProxyClose;
+      // Guard against a zero/invalid proxy close to avoid Infinity/NaN candle scaling.
+      const indexDefault = ASSET_LIST.find(a => a.ticker === ticker)?.defaultPrice || 1;
+      const proxyDefault = ASSET_LIST.find(a => a.ticker === proxyTicker)?.defaultPrice || 1;
+      const liveRatio = lastProxyClose > 0 ? indexSpot / lastProxyClose : indexDefault / proxyDefault;
 
       const scaledCandles = proxyCandles.map(bar => ({
         ...bar,

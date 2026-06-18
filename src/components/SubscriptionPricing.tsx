@@ -135,6 +135,33 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
     }
   }, [checkoutPlan, session?.authenticated, setCheckoutPlan]);
 
+  // Real Stripe Checkout redirect for the pricing cards' primary CTA.
+  // Logged-out users are prompted to authenticate (intent is retained so we can
+  // resume once they sign in); logged-in users are sent straight to Stripe.
+  async function handleStripeCheckout(planKey: string) {
+    if (!session?.authenticated) {
+      setCheckoutPlan(planKey);
+      if (onRequestAuth) onRequestAuth();
+      return;
+    }
+    try {
+      const res = await fetch('/api/billing/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: planKey, billingCycle })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data?.url) {
+        window.location.href = data.url;
+        return;
+      }
+      // Non-ok or missing url: surface a lightweight error to the user.
+      alert(data?.error || 'Unable to start checkout. Please try again.');
+    } catch (e) {
+      alert('Unable to reach the payment service. Please try again.');
+    }
+  }
+
   // Automated payment processing console log loop
   useEffect(() => {
     if (checkoutStep === 'processing' && selectedPlanForCheckout) {
@@ -356,8 +383,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             </div>
 
             <div className="pt-6">
-              <button 
-                onClick={() => handleCheckoutPlan('discord')}
+              <button
+                onClick={() => handleStripeCheckout('discord')}
                 className="w-full py-4 bg-black/90 hover:bg-white hover:text-black border border-black text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
               >
                 Select Plan
@@ -416,8 +443,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             </div>
 
             <div className="pt-6">
-              <button 
-                onClick={() => handleCheckoutPlan('skyvision')}
+              <button
+                onClick={() => handleStripeCheckout('skyvision')}
                 className="w-full py-4 bg-black/90 hover:bg-white hover:text-black border border-black text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
               >
                 Select Plan
@@ -480,8 +507,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             </div>
 
             <div className="pt-6">
-              <button 
-                onClick={() => handleCheckoutPlan('pinpoint')}
+              <button
+                onClick={() => handleStripeCheckout('pinpoint')}
                 className="w-full py-4 bg-gradient-to-r from-zinc-300 to-zinc-300 hover:from-zinc-300 hover:to-zinc-300 text-[#000000] font-black uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-[0_10px_30px_rgba(48,209,88,0.25)] hover:scale-[1.01]"
               >
                 SELECT GEXBOT
@@ -540,8 +567,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             </div>
 
             <div className="pt-6">
-              <button 
-                onClick={() => handleCheckoutPlan('quant')}
+              <button
+                onClick={() => handleStripeCheckout('quant')}
                 className="w-full py-4 bg-black/90 hover:bg-white hover:text-black border border-black text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
               >
                 Select Plan
@@ -602,8 +629,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
             </div>
 
             <div className="pt-6">
-              <button 
-                onClick={() => handleCheckoutPlan('lifetime')}
+              <button
+                onClick={() => handleStripeCheckout('lifetime')}
                 className="w-full py-4 bg-black/90 hover:bg-white hover:text-black border border-black text-zinc-350 font-bold uppercase tracking-widest text-[11px] rounded-lg transition-all duration-150 cursor-pointer shadow-lg"
               >
                 CONTACT US
@@ -1566,8 +1593,8 @@ export function SubscriptionPricing({ onUpgradeComplete, onEnterApp, session, on
                       if (onUpgradeComplete) {
                         onUpgradeComplete(tierNum);
                       }
-                      
-                      onEnterApp(targetTab);
+
+                      if (onEnterApp) onEnterApp(targetTab);
                       setSelectedPlanForCheckout(null);
                       setCheckoutStep('details');
                       

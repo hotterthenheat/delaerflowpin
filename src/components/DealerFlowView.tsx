@@ -113,6 +113,25 @@ function ExposureProfileChart({ profile, decimals, type }: { profile: any; decim
     return sorted.slice(lo, lo + 21);
   }, [profile, type]);
 
+  // NOTE: declared before the early return below so hook order stays stable
+  // across renders (rows can transition between empty and populated).
+  const spotLine = useMemo(() => {
+    if (!profile?.spot || rows.length === 0) return null;
+    const strikes = rows.map((r: any) => r.strike);
+    const maxStrike = Math.max(...strikes);
+    const minStrike = Math.min(...strikes);
+    const strikeRange = maxStrike - minStrike;
+
+    const clampedSpot = Math.max(minStrike, Math.min(maxStrike, profile.spot));
+    const pct = strikeRange > 0 ? (maxStrike - clampedSpot) / strikeRange : 0.5;
+
+    // Each row is h-6 (24px) + space-y-[3px] (3px) = 27px.
+    // The header is roughly 23px high.
+    // The center of the i-th row is at: 23px + 12px + i * 27px.
+    const spotY = 23 + 12 + pct * (rows.length - 1) * 27;
+    return { spotY };
+  }, [rows, profile?.spot]);
+
   if (!rows || rows.length === 0) {
     return (
       <div className="text-center py-8 text-zinc-500 font-mono text-[11px]">
@@ -130,23 +149,6 @@ function ExposureProfileChart({ profile, decimals, type }: { profile: any; decim
 
   const typeUpper = type.toUpperCase();
   const putColorStr = type === 'gex' ? 'rose' : type === 'dex' ? 'amber' : 'fuchsia';
-  
-  const spotLine = useMemo(() => {
-    if (!profile?.spot || rows.length === 0) return null;
-    const strikes = rows.map((r: any) => r.strike);
-    const maxStrike = Math.max(...strikes);
-    const minStrike = Math.min(...strikes);
-    const strikeRange = maxStrike - minStrike;
-    
-    const clampedSpot = Math.max(minStrike, Math.min(maxStrike, profile.spot));
-    const pct = strikeRange > 0 ? (maxStrike - clampedSpot) / strikeRange : 0.5;
-    
-    // Each row is h-6 (24px) + space-y-[3px] (3px) = 27px.
-    // The header is roughly 23px high.
-    // The center of the i-th row is at: 23px + 12px + i * 27px.
-    const spotY = 23 + 12 + pct * (rows.length - 1) * 27;
-    return { spotY };
-  }, [rows, profile?.spot]);
 
   return (
     <div className="space-y-[3px] relative">
@@ -617,7 +619,7 @@ export function DealerFlowView() {
   const chartLiquidityEvents = useMemo(() => disp?.sweeps || [], [disp?.sweeps]);
   const chartTape = useMemo(() => serverState?.tape || [], [serverState?.tape]);
 
-  if (!serverState || !profile || !gauge || !disp) {
+  if (!serverState || !profile || !profile.strikes || !gauge || !disp) {
     return (
       <div className="w-full flex flex-col items-center justify-center min-h-[460px] bg-black/30 border border-black rounded-lg p-8 text-center space-y-4" id="dealerflow-data-pending">
         <div className="w-12 h-12 rounded-full bg-black/40 border border-black flex items-center justify-center">

@@ -14,13 +14,19 @@ export function touchProbability(S: number, B: number, sigma: number, tauYears: 
   let drift = mu;
   if (b < 0) { b = -b; drift = -mu; } // mirror for downside barriers
   const sq = sigma * Math.sqrt(tauYears);
-  const p = 1 - stdNormalCDF((b - drift * tauYears) / sq)
-          + Math.exp((2 * drift * b) / (sigma * sigma)) * stdNormalCDF((-b - drift * tauYears) / sq);
+  // Reflection term: exp() can overflow to +Infinity while its CDF factor underflows
+  // to 0, giving Infinity*0 = NaN. Compute the product, then treat any non-finite
+  // result as 0 (the CDF factor → 0 case). In-range values are unchanged.
+  const reflectFactor = stdNormalCDF((-b - drift * tauYears) / sq);
+  const reflectProduct = Math.exp((2 * drift * b) / (sigma * sigma)) * reflectFactor;
+  const reflectTerm = isFinite(reflectProduct) ? reflectProduct : 0;
+  const p = 1 - stdNormalCDF((b - drift * tauYears) / sq) + reflectTerm;
   return Math.min(1, Math.max(0, p));
 }
 
 /** Median first-passage time (years). Mean diverges driftless — use the median. */
 export function medianTimeToTouch(S: number, B: number, sigma: number, mu = 0, horizonYears = 1): number | null {
+  if (!(S > 0) || !(B > 0) || !(sigma > 0)) return null; // guard log/÷ of non-positive
   const b = Math.abs(Math.log(B / S));
   if (b < 1e-12) return 0;
   if (Math.abs(mu) < 1e-9) {
@@ -39,6 +45,7 @@ export function medianTimeToTouch(S: number, B: number, sigma: number, mu = 0, h
 
 /** ETA range = times at which P(touch)=0.25 / 0.75 (IQR), same bisection. */
 export function etaRange(S: number, B: number, sigma: number, mu = 0, horizonYears = 1) {
+  if (!(S > 0) || !(B > 0) || !(sigma > 0)) return { fast: null, median: null, slow: null }; // guard ÷ of non-positive
   const solve = (target: number): number | null => {
     let lo = 1e-8, hi = horizonYears;
     if (touchProbability(S, B, sigma, hi, mu) < target) return null;

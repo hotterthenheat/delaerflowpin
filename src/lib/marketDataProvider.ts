@@ -162,11 +162,36 @@ export async function fetchLiveOptionChain(asset: AssetInfo, spotPrice: number):
     // Limit contract processing array size to prevent thread blocking
     const activeResults = resJson.results.slice(0, 400);
 
+    // When proxying an index off its ETF (SPX→SPY, NDX→QQQ) the ETF strikes must be
+    // rescaled to the index by the LIVE spot ratio (indexSpot / proxySpot), mirroring
+    // tradierProvider's scaleEtfChainToIndex. A hardcoded multiplier (the old ×10 for
+    // SPX, and none for NDX) drifts from the true ratio and is flat-out wrong for NDX.
+    let strikeRatio = 1;
+    if (queryUnderlying !== underlying && (underlying === 'SPX' || underlying === 'NDX')) {
+      const proxyAsset = ASSET_LIST.find(a => a.ticker === queryUnderlying);
+      const proxyDefault = proxyAsset?.defaultPrice || 0;
+      let proxySpot = 0;
+      try {
+        const proxyRes = await fetchLiveSpotPrice(queryUnderlying, proxyDefault || 1);
+        proxySpot = proxyRes.price;
+      } catch {
+        proxySpot = proxyDefault;
+      }
+      // Guard divide-by-zero: prefer live index/proxy spot, else default/default, else 1.
+      if (spotPrice > 0 && proxySpot > 0) {
+        strikeRatio = spotPrice / proxySpot;
+      } else if ((asset.defaultPrice || 0) > 0 && proxyDefault > 0) {
+        strikeRatio = asset.defaultPrice / proxyDefault;
+      } else {
+        strikeRatio = 1;
+      }
+    }
+
     const contracts: LiveOptionContract[] = activeResults.map((item: any) => {
       const details = item.details || {};
       const greeks = item.greeks || {};
       const day = item.day || {};
-      
+
       const parsedStrike = details.strike_price || 0;
       const type = details.contract_type === 'call' ? 'C' : 'P';
       const parsedOi = item.open_interest || 0;
@@ -174,8 +199,8 @@ export async function fetchLiveOptionChain(asset: AssetInfo, spotPrice: number):
       const parsedIv = item.implied_volatility || 0.15;
 
       return {
-        contract: item.ticker.replace('O:', ''),
-        strike: underlying === 'SPX' && queryUnderlying === 'SPY' ? parsedStrike * 10 : parsedStrike, // Scaling factor if matching index
+        contract: typeof item.ticker === 'string' ? item.ticker.replace('O:', '') : '',
+        strike: strikeRatio !== 1 ? Number((parsedStrike * strikeRatio).toFixed(2)) : parsedStrike, // Scale ETF→index strikes by live spot ratio
         type,
         oi: parsedOi,
         volume: parsedVol,
@@ -243,7 +268,7 @@ export async function collectLiveFlows(ticker: string, currentSpot: number): Pro
           asset: ticker,
           type: typeStr,
           contract: `${vol.toLocaleString()} ${ticker} ${strike}${type}`,
-          desc: `${type === 'C' ? 'Bought at Ask' : 'Sold at Bid'} • Vol ${vol.toLocaleString()} • IV ${(item.implied_volatility * 100).toFixed(1)}%`,
+          desc: `${type === 'C' ? 'Bought at Ask' : 'Sold at Bid'} • Vol ${vol.toLocaleString()} • IV ${((Number(item.implied_volatility) || 0) * 100).toFixed(1)}%`,
           side: type
         });
       }

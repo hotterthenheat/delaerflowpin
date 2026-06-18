@@ -132,7 +132,7 @@ export function AnalyticsSection({
   // 8. PREMIUM / DISCOUNT
   const highRangePrice = currentCandle.close * 1.015;
   const lowRangePrice = currentCandle.close * 0.98;
-  const dealingRangeDiff = highRangePrice - lowRangePrice;
+  const dealingRangeDiff = Math.max(highRangePrice - lowRangePrice, 1e-9);
   const pricePositionPct = Math.round(((currentCandle.close - lowRangePrice) / dealingRangeDiff) * 100);
 
   let optimumTradingZone = 'Neutral Zone';

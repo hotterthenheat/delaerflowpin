@@ -54,7 +54,7 @@ export function InstitutionalHUD() {
   }, [metrics.systemic_fragility]);
 
   // Derived styling for other parameters to fit extreme styling guidelines
-  const isNegativeReflexivity = metrics.reflexivity_vector.startsWith('-');
+  const isNegativeReflexivity = (metrics.reflexivity_vector || '').startsWith('-');
 
   return (
     <motion.div 
