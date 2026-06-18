@@ -211,7 +211,11 @@ export function calculateWilsonInterval(p: number, n: number, confidenceLevel = 
 export function getPercentile(arr: number[], percentile: number): number {
   if (arr.length === 0) return 0;
   const sorted = [...arr].sort((a, b) => a - b);
-  const index = (percentile / 100) * (sorted.length - 1);
+  // Clamp percentile to [0,100] then the index to valid [0, len-1] so an
+  // out-of-range percentile can never index past the array (→ undefined → NaN).
+  // In-range percentiles (the only ones used) are unaffected.
+  const clampedPct = Math.min(100, Math.max(0, percentile));
+  const index = Math.min(sorted.length - 1, Math.max(0, (clampedPct / 100) * (sorted.length - 1)));
   const lowerIdx = Math.floor(index);
   const upperIdx = Math.ceil(index);
   if (lowerIdx === upperIdx) return sorted[lowerIdx];
@@ -387,7 +391,7 @@ export function calculateCloseDynamics(inputs: CloseDynamicsInputs, assetOptions
     for (let q = 0; q < numFeatures; q++) {
       let sum = 0;
       for (let i = 0; i < numRecords; i++) {
-        sum += (historicalMatrix[i][p] - means[p]) * (historicalMatrix[q === p ? i : i][q] - means[q]); 
+        sum += (historicalMatrix[i][p] - means[p]) * (historicalMatrix[i][q] - means[q]);
       }
       covariance[p][q] = sum / (numRecords - 1);
     }

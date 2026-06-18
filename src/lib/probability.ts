@@ -14,8 +14,13 @@ export function touchProbability(S: number, B: number, sigma: number, tauYears: 
   let drift = mu;
   if (b < 0) { b = -b; drift = -mu; } // mirror for downside barriers
   const sq = sigma * Math.sqrt(tauYears);
-  const p = 1 - stdNormalCDF((b - drift * tauYears) / sq)
-          + Math.exp((2 * drift * b) / (sigma * sigma)) * stdNormalCDF((-b - drift * tauYears) / sq);
+  // Reflection term: exp() can overflow to +Infinity while its CDF factor underflows
+  // to 0, giving Infinity*0 = NaN. Compute the product, then treat any non-finite
+  // result as 0 (the CDF factor → 0 case). In-range values are unchanged.
+  const reflectFactor = stdNormalCDF((-b - drift * tauYears) / sq);
+  const reflectProduct = Math.exp((2 * drift * b) / (sigma * sigma)) * reflectFactor;
+  const reflectTerm = isFinite(reflectProduct) ? reflectProduct : 0;
+  const p = 1 - stdNormalCDF((b - drift * tauYears) / sq) + reflectTerm;
   return Math.min(1, Math.max(0, p));
 }
 
