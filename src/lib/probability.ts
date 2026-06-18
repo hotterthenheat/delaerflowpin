@@ -21,6 +21,7 @@ export function touchProbability(S: number, B: number, sigma: number, tauYears: 
 
 /** Median first-passage time (years). Mean diverges driftless — use the median. */
 export function medianTimeToTouch(S: number, B: number, sigma: number, mu = 0, horizonYears = 1): number | null {
+  if (!(S > 0) || !(B > 0) || !(sigma > 0)) return null; // guard log/÷ of non-positive
   const b = Math.abs(Math.log(B / S));
   if (b < 1e-12) return 0;
   if (Math.abs(mu) < 1e-9) {
@@ -39,6 +40,7 @@ export function medianTimeToTouch(S: number, B: number, sigma: number, mu = 0, h
 
 /** ETA range = times at which P(touch)=0.25 / 0.75 (IQR), same bisection. */
 export function etaRange(S: number, B: number, sigma: number, mu = 0, horizonYears = 1) {
+  if (!(S > 0) || !(B > 0) || !(sigma > 0)) return { fast: null, median: null, slow: null }; // guard ÷ of non-positive
   const solve = (target: number): number | null => {
     let lo = 1e-8, hi = horizonYears;
     if (touchProbability(S, B, sigma, hi, mu) < target) return null;

@@ -377,6 +377,7 @@ export function computeVWAP01(
   d_peak = 0.5,
   sigma_v = 0.6
 ): number {
+  if (!(atr > 0)) return 0; // no volatility scale ⇒ no VWAP-alignment signal (guard ÷0 → NaN)
   const d = dir * (close - vwap) / atr;
   if (d <= 0) return 0;
   const term = Math.log(d / d_peak);
@@ -411,7 +412,7 @@ export function calculateSystemScoreFromCandles(
 
   // 2. Compute Wilder Slopes & Velocities
   const rsiSlope = dir * (currentRSI - rsi_5);
-  const momVel = dir * (last.close - close_10) / currentATR;
+  const momVel = dir * (last.close - close_10) / (currentATR || 1);
 
   // 3. RVOL (excludes current, unfinished tick candle n-1 from baseline)
   let rvolSum = 0;
@@ -432,7 +433,7 @@ export function calculateSystemScoreFromCandles(
   // 6. VWAP01
   const currentVWAP = last.vwap || last.close;
   const vwap01_kernel = computeVWAP01(last.close, currentVWAP, currentATR, dir);
-  const vwap_slope = dir * (currentVWAP - (n >= 6 ? (candles[n - 6].vwap || candles[n - 6].close) : currentVWAP)) / currentATR;
+  const vwap_slope = dir * (currentVWAP - (n >= 6 ? (candles[n - 6].vwap || candles[n - 6].close) : currentVWAP)) / (currentATR || 1);
 
   const crossedBefore = n >= 4 ? (dir > 0 ? (candles[n - 2].close <= (candles[n-2].vwap || candles[n-2].close)) : (candles[n - 2].close >= (candles[n-2].vwap || candles[n-2].close))) : false;
   const crossedBackNow = dir > 0 ? (last.close > currentVWAP) : (last.close < currentVWAP);

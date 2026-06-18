@@ -432,6 +432,10 @@ export function calculateCloseDynamics(inputs: CloseDynamicsInputs, assetOptions
   // K=50 Nearest Neighbors
   const K_neighbors = 50;
   const neighbors = evaluatedRecords.slice(0, K_neighbors).map(entry => entry.rec);
+  // Use the ACTUAL number of retrieved neighbors as the statistical denominator.
+  // With the shipped 500-row database this is always 50, so behavior is unchanged;
+  // the guard only matters if the regime pre-filter ever leaves fewer than 50 rows.
+  const actualK = neighbors.length || 1;
 
   // 6. EXPECTED MOVE WITH BOOTSTRAP 95% CONFIDENCE INTERVAL
   const moves = neighbors.map(n => n.moveIntoClose);
@@ -442,13 +446,13 @@ export function calculateCloseDynamics(inputs: CloseDynamicsInputs, assetOptions
   const sellCount = neighbors.filter(n => n.moveIntoClose < 0).length;
   const flatCount = neighbors.filter(n => n.moveIntoClose === 0).length;
 
-  const buyProb = buyCount / K_neighbors;
-  const sellProb = sellCount / K_neighbors;
-  const flatProb = flatCount / K_neighbors;
+  const buyProb = buyCount / actualK;
+  const sellProb = sellCount / actualK;
+  const flatProb = flatCount / actualK;
 
-  const buyWilson = calculateWilsonInterval(buyProb, K_neighbors);
-  const sellWilson = calculateWilsonInterval(sellProb, K_neighbors);
-  const flatWilson = calculateWilsonInterval(flatProb, K_neighbors);
+  const buyWilson = calculateWilsonInterval(buyProb, actualK);
+  const sellWilson = calculateWilsonInterval(sellProb, actualK);
+  const flatWilson = calculateWilsonInterval(flatProb, actualK);
 
   const imbalance: ImbalanceResult = {
     buyProb: buyProb,
@@ -492,15 +496,15 @@ export function calculateCloseDynamics(inputs: CloseDynamicsInputs, assetOptions
 
   // 10. HISTORICAL CLOSE SIMILARITY OUTPUTS
   const wins = neighbors.filter(n => (inputs.trendBounded >= 0 ? n.moveIntoClose > 0 : n.moveIntoClose < 0));
-  const winRate = wins.length / K_neighbors;
-  const averageCloseMovePct = (moves.reduce((acc, m) => acc + m, 0) / K_neighbors) * 100;
-  
+  const winRate = wins.length / actualK;
+  const averageCloseMovePct = (moves.reduce((acc, m) => acc + m, 0) / actualK) * 100;
+
   const drawdowns = neighbors.map(n => n.mae);
-  const averageDrawdownPct = drawdowns.reduce((acc, d) => acc + d, 0) / K_neighbors;
+  const averageDrawdownPct = drawdowns.reduce((acc, d) => acc + d, 0) / actualK;
 
   // Trend extensions (same sign as trend) vs reversals (opposite sign)
   const extensionCount = neighbors.filter(n => Math.sign(n.moveIntoClose) === Math.sign(inputs.trendBounded)).length;
-  const trendExReversalRatio = extensionCount / (K_neighbors - extensionCount || 1);
+  const trendExReversalRatio = extensionCount / (actualK - extensionCount || 1);
 
   // 11. CLOSE MAGNET PRICE (GRAVITY MODEL)
   // If an options chain is provided, we compute strike gravity, otherwise we generate a clean deterministic standard option GEX list centered on spot
