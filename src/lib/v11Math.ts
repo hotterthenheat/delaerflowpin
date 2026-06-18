@@ -9,6 +9,7 @@ import {
   modulateDecision,
   DEFAULT_DEALER_COUPLING,
 } from './dealerSignals';
+import { stdNormalCDF, stdNormalPDF } from './normalDist';
 
 // ==========================================
 // TIER 0: SEEDED PRNG FOR DETERMINISTIC REPLICABILITY
@@ -83,23 +84,9 @@ export function computeNetOptionPnL(
 // ==========================================
 // TIER 2: MARKET-STATE SUB-SCORES (Part 2)
 // ==========================================
-export function stdNormalCDF(x: number): number {
-  const a1 = 0.254829592;
-  const a2 = -0.284496736;
-  const a3 = 1.421413741;
-  const a4 = -1.453152027;
-  const a5 = 1.061405429;
-  const p = 0.3275911;
-
-  const sign = x < 0 ? -1 : 1;
-  const t = 1.0 / (1.0 + p * Math.abs(x));
-  const y = 1.0 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-  return 0.5 * (1.0 + sign * y);
-}
-
-export function stdNormalPDF(x: number): number {
-  return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
-}
+// High-accuracy standard-normal CDF/PDF (Hart/West, ~1e-15) now live in
+// ./normalDist; re-exported here so existing `from './v11Math'` imports keep working.
+export { stdNormalCDF, stdNormalPDF };
 
 export function computeBlackScholesPrice(
   spot: number,
@@ -107,18 +94,19 @@ export function computeBlackScholesPrice(
   dteDays: number,
   iv: number,
   isCall: boolean,
-  r = 0.05
+  r = 0.05,
+  q = 0 // continuous dividend yield (0 = backward-compatible)
 ): number {
   const T = Math.max(0.0001, dteDays / 365);
   const sigma = Math.max(0.01, iv);
-  const d1 = (Math.log(spot / strike) + (r + (sigma * sigma) / 2) * T) / (sigma * Math.sqrt(T));
+  const d1 = (Math.log(spot / strike) + (r - q + (sigma * sigma) / 2) * T) / (sigma * Math.sqrt(T));
   const d2 = d1 - sigma * Math.sqrt(T);
 
   if (isCall) {
-    const price = spot * stdNormalCDF(d1) - strike * Math.exp(-r * T) * stdNormalCDF(d2);
+    const price = spot * Math.exp(-q * T) * stdNormalCDF(d1) - strike * Math.exp(-r * T) * stdNormalCDF(d2);
     return Math.max(0.05, price);
   } else {
-    const price = strike * Math.exp(-r * T) * stdNormalCDF(-d2) - spot * stdNormalCDF(-d1);
+    const price = strike * Math.exp(-r * T) * stdNormalCDF(-d2) - spot * Math.exp(-q * T) * stdNormalCDF(-d1);
     return Math.max(0.05, price);
   }
 }
@@ -129,40 +117,45 @@ export function calculateAnalyticGreeks(
   dteDays: number,
   iv: number,
   isCall: boolean,
-  r = 0.05
+  r = 0.05,
+  q = 0 // continuous dividend yield (0 = backward-compatible; reduces to the prior formulas)
 ) {
   const T = Math.max(0.0001, dteDays / 365);
   const sigma = Math.max(0.01, iv);
-  const d1 = (Math.log(spot / strike) + (r + (sigma * sigma) / 2) * T) / (sigma * Math.sqrt(T));
-  const d2 = d1 - sigma * Math.sqrt(T);
+  const sqrtT = Math.sqrt(T);
+  const d1 = (Math.log(spot / strike) + (r - q + (sigma * sigma) / 2) * T) / (sigma * sqrtT);
+  const d2 = d1 - sigma * sqrtT;
 
   const nd1 = stdNormalPDF(d1);
   const Nd1 = stdNormalCDF(d1);
   const Nd2 = stdNormalCDF(d2);
+  const eqT = Math.exp(-q * T); // dividend discount factor
 
   let delta = 0;
-  let gamma = nd1 / (spot * sigma * Math.sqrt(T));
-  let vega = spot * Math.sqrt(T) * nd1;
+  let gamma = (eqT * nd1) / (spot * sigma * sqrtT);
+  let vega = spot * eqT * sqrtT * nd1;
   let theta = 0;
 
   if (isCall) {
-    delta = Nd1;
-    theta = -(spot * nd1 * sigma) / (2 * Math.sqrt(T)) - r * strike * Math.exp(-r * T) * Nd2;
+    delta = eqT * Nd1;
+    theta = -(spot * eqT * nd1 * sigma) / (2 * sqrtT) + q * spot * eqT * Nd1 - r * strike * Math.exp(-r * T) * Nd2;
   } else {
-    delta = Nd1 - 1;
-    theta = -(spot * nd1 * sigma) / (2 * Math.sqrt(T)) + r * strike * Math.exp(-r * T) * stdNormalCDF(-d2);
+    delta = eqT * (Nd1 - 1);
+    theta = -(spot * eqT * nd1 * sigma) / (2 * sqrtT) - q * spot * eqT * stdNormalCDF(-d1) + r * strike * Math.exp(-r * T) * stdNormalCDF(-d2);
   }
 
   // Convert theta to daily (÷365) to represent standard options daily decay rate
   const dailyTheta = theta / 365;
 
-  // Cross-sensitivities (Vanna and Charm)
-  // Correct Vanna: nd1 * sqrt(T) * (1 - d1 / (sigma * sqrt(T)))
-  const vanna = nd1 * Math.sqrt(T) * (1 - d1 / (sigma * Math.sqrt(T)));
-  // Correct Charm: put charm equals call charm in dividend-free BSM
-  const charm = -nd1 * (r / (sigma * Math.sqrt(T)) - d2 / (2 * Math.max(0.0001, T)));
-  // Speed (∂³V/∂S³) — V5.1 §3.4. Third derivative of value wrt spot.
-  const speed = -(gamma / Math.max(spot, 1e-9)) * (d1 / (sigma * Math.sqrt(T)) + 1);
+  // Cross-sensitivities (Vanna and Charm), dividend-aware.
+  // Vanna = ∂Δ/∂σ = -e^{-qT}·φ(d1)·d2/σ  (≡ √T·φ(d1)(1 - d1/(σ√T)) when q = 0).
+  const vanna = -eqT * nd1 * (d2 / sigma);
+  // Charm = -∂Δ/∂τ (per year). With dividends, call and put differ by the ±q·N(±d1) term.
+  const charm = isCall
+    ? q * eqT * Nd1 - eqT * nd1 * ((r - q) / (sigma * sqrtT) - d2 / (2 * Math.max(0.0001, T)))
+    : -q * eqT * stdNormalCDF(-d1) - eqT * nd1 * ((r - q) / (sigma * sqrtT) - d2 / (2 * Math.max(0.0001, T)));
+  // Speed (∂³V/∂S³) — third derivative of value wrt spot.
+  const speed = -(gamma / Math.max(spot, 1e-9)) * (d1 / (sigma * sqrtT) + 1);
 
   return { delta, gamma, vega, theta: dailyTheta, vanna, charm, speed };
 }

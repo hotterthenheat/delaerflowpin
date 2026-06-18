@@ -4,6 +4,7 @@
  */
 
 import { SeededRandom } from './v11Math';
+import { stdNormalCDF, stdNormalPDF } from './normalDist';
 
 // ==========================================
 // MODEL 1: ROBUST BLACK-SCHOLES-MERTON ENGINE WITH HIGHER-ORDER GREEKS
@@ -20,30 +21,9 @@ export interface BSMGreeks {
   color: number;
 }
 
-/**
- * Standard Normal Probability Density Function (PDF)
- */
-export function stdNormalPDF(x: number): number {
-  return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
-}
-
-/**
- * Standard Normal Cumulative Distribution Function (CDF) using highly accurate approximation
- */
-export function stdNormalCDF(x: number): number {
-  const a1 = 0.254829592;
-  const a2 = -0.284496736;
-  const a3 = 1.421413741;
-  const a4 = -1.453152027;
-  const a5 = 1.061405429;
-  const p = 0.3275911;
-
-  const sign = x < 0 ? -1 : 1;
-  const absX = Math.abs(x);
-  const t = 1.0 / (1.0 + p * absX);
-  const y = 1.0 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
-  return 0.5 * (1.0 + sign * y);
-}
+// High-accuracy standard-normal CDF/PDF (Hart/West, ~1e-15) now live in
+// ./normalDist; re-exported so existing `from './pinpointEngine'` imports keep working.
+export { stdNormalCDF, stdNormalPDF };
 
 /**
  * Calculates option prix and analytical greeks including 1st, 2nd, and 3rd order.
@@ -273,11 +253,15 @@ export class DupireLocalVolSolver {
     const dw_dk = b * (rho + distance / sqrtTerm);
     const d2w_dk2 = (b * sigma * sigma) / (sqrtTerm * sqrtTerm * sqrtTerm);
 
-    // 3. Dupire continuous denominator solver operating on log-moneyness
-    const den_term1_base = 1.0 - (k * dw_dk) / (2.0 * wBounded);
-    const den_term1 = den_term1_base * den_term1_base;
-    
-    const den_term2 = (dw_dk * dw_dk / 4.0) * (-1.0 / wBounded - 0.25 + (k * k) / (wBounded * wBounded));
+    // 3. Dupire continuous denominator solver operating on log-moneyness.
+    // Canonical Gatheral local-vol-in-total-variance denominator:
+    //   D = 1 − (k/w)·w' + (1/4)(−1/4 − 1/w + k²/w²)·(w')² + (1/2)·w''
+    // (the first term is LINEAR, not the squared Durrleman (1 − k·w'/2w)² used for
+    // the butterfly g(k) test — squaring it injects a spurious +k²w'²/4w² term that
+    // biases local vol away from the money. Verified against price-space Dupire.)
+    const den_term1 = 1.0 - (k * dw_dk) / wBounded;
+
+    const den_term2 = (dw_dk * dw_dk / 4.0) * (-0.25 - 1.0 / wBounded + (k * k) / (wBounded * wBounded));
     const den_term3 = d2w_dk2 / 2.0;
 
     const denominator = den_term1 + den_term2 + den_term3;
@@ -415,9 +399,13 @@ export class PhysicsCascadeEngine {
       
       const exponential = Math.exp(-(distance * distance) / (2.0 * variance));
       
-      // Force contribution is the negative gradient of potential: -dU_gex/dS = G * d/v * exp(-d^2 / 2v)
-      // Positive G acts as gravity pull (attracts if S > K, negative force to pull down; if S < K, positive force to pull up)
-      gexForce += G * (distance / variance) * exponential;
+      // Force is the negative gradient of the Gaussian potential well
+      // U_gex = −G·exp(−d²/2v):  F = −dU/dS = −G·(d/v)·exp(−d²/2v).
+      // Positive G is an attractive pin (S > K ⇒ negative force pulling down toward K;
+      // S < K ⇒ positive force pulling up), matching the LOB/MR terms' −∇U sign and the
+      // long-gamma pinning convention. (The prior code dropped this leading minus, making
+      // positive GEX repel — backwards from the documented model.)
+      gexForce -= G * (distance / variance) * exponential;
     }
 
     // 2. Limit Order Book Force (Logarithmic potential wells)

@@ -3,30 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/**
- * Standard Normal Probability Density Function (norm.pdf approximation)
- */
-export function normPdf(x: number): number {
-  return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
-}
+import { stdNormalCDF, stdNormalPDF } from './normalDist';
 
 /**
- * Standard Normal Cumulative Distribution Function (norm.cdf approximation)
- * Uses high-accuracy rational approximation (erf function representation)
+ * Standard Normal PDF/CDF. These thin wrappers delegate to the shared
+ * machine-precision implementations in ./normalDist (Hart/West CDF, ~1e-15)
+ * instead of the former Abramowitz & Stegun 7.1.26 CDF approximation (~1.5e-7,
+ * worse in the tails). Kept as named exports so existing importers don't break.
  */
+export function normPdf(x: number): number {
+  return stdNormalPDF(x);
+}
+
 export function normCdf(x: number): number {
-  const t = 1 / (1 + 0.2316419 * Math.abs(x));
-  const d = 0.39894228 * Math.exp(-x * x / 2);
-  const prob = d * t * (
-    0.31938153 + t * (
-      -0.356563782 + t * (
-        1.781477937 + t * (
-          -1.821255978 + t * 1.330274429
-        )
-      )
-    )
-  );
-  return x >= 0 ? 1 - prob : prob;
+  return stdNormalCDF(x);
 }
 
 export interface OptionGreeks {
@@ -104,7 +94,13 @@ export class DealerFlowPhysics {
 
     // Third-Order: Speed, Color
     const speed = -(gamma / S) * (1 + (d1 / (sigBounded * Math.sqrt(tBounded))));
-    const color = -(Math.exp(-q * tBounded) * n_prime_d1 / (2 * S * tBounded * sigBounded * Math.sqrt(tBounded))) * (1 + d1 * ((r - q) / (sigBounded * Math.sqrt(tBounded)) - d2 / (2 * tBounded)));
+    // Color = ∂Γ/∂t (gamma decay per unit calendar time). Canonical Gatheral form:
+    //   +[e^{−qτ}φ(d1) / (2Sτσ√τ)] · [2qτ + 1 + d1·(2(r−q)τ − d2·σ√τ)/(σ√τ)]
+    // The prior expression dropped the 2qτ term, mis-grouped the d1 factor, and had
+    // the wrong overall sign — it disagreed with a finite-difference dΓ/dt even at q=0.
+    const sqrtTauC = Math.sqrt(tBounded);
+    const color = (Math.exp(-q * tBounded) * n_prime_d1 / (2 * S * tBounded * sigBounded * sqrtTauC)) *
+      (2 * q * tBounded + 1 + d1 * (2 * (r - q) * tBounded - d2 * sigBounded * sqrtTauC) / (sigBounded * sqrtTauC));
 
     return { delta, gamma, vanna, charm, speed, color };
   }

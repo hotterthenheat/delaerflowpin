@@ -30,7 +30,10 @@ export function medianTimeToTouch(S: number, B: number, sigma: number, mu = 0, h
   const b = Math.abs(Math.log(B / S));
   if (b < 1e-12) return 0;
   if (Math.abs(mu) < 1e-9) {
-    const t = (b * b) / (0.4549 * sigma * sigma); // 0.4549 = (Φ⁻¹(0.75))²
+    // Driftless median first-passage: P(touch≤t)=2·Φ(−b/(σ√t))=0.5 ⇒ b/(σ√t)=Φ⁻¹(0.75),
+    // so t = b² / ((Φ⁻¹(0.75))²·σ²). Use the full-precision constant (was 0.4549).
+    const PHI_INV_075_SQ = 0.45493642311957; // (Φ⁻¹(0.75))² = 0.6744897501960817²
+    const t = (b * b) / (PHI_INV_075_SQ * sigma * sigma);
     return t <= horizonYears ? t : null;          // null ⇒ "unlikely within horizon", display —
   }
   // With drift: bisection on P(touch ≤ t) = 0.5

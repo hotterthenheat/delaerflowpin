@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useRef, useMemo } from 'react';
+import React, { useState, useEffect, memo, useRef, useMemo, Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useContractStore } from './lib/store';
 import { applyAllPreferences } from './lib/displayPrefs';
@@ -6,22 +6,28 @@ import { withCacheBust } from './lib/format';
 import { ASSET_LIST } from './data';
 import { AssetInfo } from './types';
 
-// Import Workspace Modular Views
-import { SkyVisionView } from './components/SkyVisionView';
-import { PinpointAIView } from './components/PinpointAIView';
-import { QuantAuditView } from './components/QuantAuditView';
+// Import Workspace Modular Views — eager imports are the shell + landing path.
 import { DiscoveryView } from './components/DiscoveryView';
-import { DealerFlowView } from './components/DealerFlowView';
 import SlayerIntro from './components/SlayerIntro';
 import { SkyseyeAlertHub } from './components/SkyseyeAlertHub';
-import ArborCapital from './components/ArborCapital';
 import TierGuard from './components/TierGuard';
 import { ClerkGate } from './components/ClerkGate';
-import { SettingsPanel } from './components/SettingsPanel';
-import { SubscriptionPricing } from './components/SubscriptionPricing';
 import { CelebrationOverlay } from './components/CelebrationOverlay';
-import { AdminOverseerPanel } from './components/AdminOverseerPanel';
-import { WorkspaceView } from './components/WorkspaceView';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { CommandPalette } from './components/CommandPalette';
+import { AskSlayerPanel } from './components/AskSlayerPanel';
+
+// Heavy secondary views are code-split (lazy) to keep the initial bundle small;
+// they load on demand inside the <Suspense> boundary in the main workspace.
+const SkyVisionView = lazy(() => import('./components/SkyVisionView').then(m => ({ default: m.SkyVisionView })));
+const PinpointAIView = lazy(() => import('./components/PinpointAIView').then(m => ({ default: m.PinpointAIView })));
+const QuantAuditView = lazy(() => import('./components/QuantAuditView').then(m => ({ default: m.QuantAuditView })));
+const DealerFlowView = lazy(() => import('./components/DealerFlowView').then(m => ({ default: m.DealerFlowView })));
+const ArborCapital = lazy(() => import('./components/ArborCapital'));
+const SettingsPanel = lazy(() => import('./components/SettingsPanel').then(m => ({ default: m.SettingsPanel })));
+const SubscriptionPricing = lazy(() => import('./components/SubscriptionPricing').then(m => ({ default: m.SubscriptionPricing })));
+const AdminOverseerPanel = lazy(() => import('./components/AdminOverseerPanel').then(m => ({ default: m.AdminOverseerPanel })));
+const WorkspaceView = lazy(() => import('./components/WorkspaceView').then(m => ({ default: m.WorkspaceView })));
 
 import { BrandHeader } from './components/BrandLogo';
 import {
@@ -1161,6 +1167,8 @@ export default function App() {
  
        {/* Main workspace frame */}
        <main className="flex-1 p-4 md:p-6 flex flex-col gap-6 w-full max-w-full justify-start">
+        <ErrorBoundary label="Workspace">
+        <Suspense fallback={<div className="w-full min-h-[300px] flex items-center justify-center text-zinc-600 font-mono text-[11px] uppercase tracking-[0.25em] animate-pulse">Loading module…</div>}>
         {/* TAB 1: HOME */}
         {activeTab === 'home' && (
           <div className="animate-fadeIn">
@@ -1274,14 +1282,22 @@ export default function App() {
 
         {activeTab === 'admin' && (
           <AdminOverseerPanel
-            session={session} 
-            onSimulateTier={handleSimulateTier} 
+            session={session}
+            onSimulateTier={handleSimulateTier}
           />
         )}
+        </Suspense>
+        </ErrorBoundary>
       </main>
 
+      {/* Command palette (⌘K) — keyboard-driven navigation */}
+      <CommandPalette />
+
+      {/* Ask Slayer — AI research panel grounded in live metrics */}
+      <AskSlayerPanel />
+
       {/* Subscription Tier Upgrade Celebration Overlay */}
-      <CelebrationOverlay 
+      <CelebrationOverlay
         purchasedTier={welcomeCelebrationTier}
         isOpen={showWelcomeCelebration}
         onComplete={() => {
