@@ -540,7 +540,10 @@ export async function fetchTradierCandles(ticker: string, tf: string, count = 12
         const l = Number(item.low) || Number(item.l) || 0;
         const c = Number(item.close) || Number(item.c) || 0;
         const v = Number(item.volume) || Number(item.v) || 0;
-        const ts = item.timestamp ? Number(item.timestamp) * 1000 : (item.date ? new Date(item.date).getTime() : Date.now());
+        // Guard against NaN timestamps: an unparseable date would later throw in
+        // annotateCandles' Date#toISOString and silently discard the whole batch.
+        let ts = item.timestamp ? Number(item.timestamp) * 1000 : (item.date ? new Date(item.date).getTime() : Date.now());
+        if (!Number.isFinite(ts)) ts = Date.now();
         return {
           timestamp: ts,
           open: o,
