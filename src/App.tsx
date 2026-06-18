@@ -15,6 +15,7 @@ import { ClerkGate } from './components/ClerkGate';
 import { CelebrationOverlay } from './components/CelebrationOverlay';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { CommandPalette } from './components/CommandPalette';
+import { AskSlayerPanel } from './components/AskSlayerPanel';
 
 // Heavy secondary views are code-split (lazy) to keep the initial bundle small;
 // they load on demand inside the <Suspense> boundary in the main workspace.
@@ -1291,6 +1292,9 @@ export default function App() {
 
       {/* Command palette (⌘K) — keyboard-driven navigation */}
       <CommandPalette />
+
+      {/* Ask Slayer — AI research panel grounded in live metrics */}
+      <AskSlayerPanel />
 
       {/* Subscription Tier Upgrade Celebration Overlay */}
       <CelebrationOverlay

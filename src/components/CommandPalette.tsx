@@ -70,7 +70,10 @@ export function CommandPalette() {
       keywords: a.ticker + ' ' + a.name,
       run: () => { setSelectedAsset(a); setActiveTab('skyvision'); close(); },
     }));
-    return [...nav, ...actions, ...symbols];
+    const ai: Command[] = [
+      { id: 'act-ask', title: 'Ask Slayer AI…', hint: 'AI', keywords: 'ai research chat question analyst gemini', run: () => { window.dispatchEvent(new CustomEvent('slayer:ask-open')); close(); } },
+    ];
+    return [...ai, ...nav, ...actions, ...symbols];
   }, [setActiveTab, setSelectedAsset, setSelectedOptionType, setIsGlobalSearchOpen, close]);
 
   const filtered = useMemo(() => {

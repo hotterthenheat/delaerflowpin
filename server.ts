@@ -3579,6 +3579,56 @@ Do NOT output any markdown headers, conversational filler, or self-praise. Just 
   }
 });
 
+// "Ask Slayer" — grounded AI research Q&A over the CURRENT ticker's live metrics.
+// The client passes a compact `context` snapshot (score, dealer metrics, expected
+// move, etc.); the model is instructed to answer ONLY from that data. Degrades
+// gracefully (200 + isFallback) when no GEMINI_API_KEY is configured.
+app.post('/api/gemini/ask', express.json({ limit: '256kb' }), async (req, res) => {
+  const session = await getSessionFromCookies(req.headers.cookie);
+  if (!session || !session.email) return res.status(401).json({ error: 'Unauthorized' });
+
+  const question = String(req.body?.question || '').trim().slice(0, 600);
+  const context = (req.body?.context && typeof req.body.context === 'object') ? req.body.context : {};
+  if (!question) return res.status(400).json({ error: 'A question is required.' });
+
+  try {
+    const ai = getGeminiClient();
+    if (!ai) {
+      return res.json({
+        success: true,
+        isFallback: true,
+        answer:
+          `AI research isn't fully configured on this deployment yet, so here's a direct read of the live data` +
+          ` for ${context.ticker || 'this ticker'}:\n\n` +
+          `• Spot ${context.spot ?? 'n/a'} · Slayer Score ${context.slayerScore ?? 'n/a'}\n` +
+          `• Dealer metrics and expected move are in the panels to the left.\n\n` +
+          `Set GEMINI_API_KEY on the host to enable full natural-language analysis. ` +
+          `Educational information only — not financial advice.`
+      });
+    }
+
+    const prompt = `You are "Slayer", the AI options-flow analyst inside Slayer Terminal.
+Answer the user's question using ONLY the live market metrics provided below. Be concise, specific and quantitative; cite the actual numbers. If the data does not contain the answer, say so plainly — never invent numbers or prices. Keep it to a few tight sentences or short bullets. This is educational analysis only, NOT financial advice; never tell the user to buy or sell.
+
+LIVE METRICS (JSON):
+${JSON.stringify(context).slice(0, 8000)}
+
+USER QUESTION: ${question}`;
+
+    const response = await ai.models.generateContent({ model: 'gemini-2.0-flash', contents: prompt });
+    const answer = (response.text || '').trim();
+    if (!answer) throw new Error('Empty response from model');
+    res.json({ success: true, isFallback: false, answer });
+  } catch (error: any) {
+    console.error('[GEMINI ASK ERROR]', error?.message || error);
+    res.status(200).json({
+      success: false,
+      isFallback: true,
+      answer: 'The AI analyst is temporarily unavailable — the live metric panels still have the raw numbers. (Educational analysis only, not financial advice.)'
+    });
+  }
+});
+
 // ============================================================
 // WORKSPACE LAYOUT PERSISTENCE (resizable grid engine — spec Group 4/5)
 // Stores the user's pane layout JSON. New users hydrate Template A on the
