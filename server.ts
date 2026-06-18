@@ -1619,7 +1619,7 @@ const constructPayload = (params: {
 
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-import { db as pgDb } from './src/db/index.ts';
+import { db as pgDb, ensureSchema } from './src/db/index.ts';
 import { users } from './src/db/schema.ts';
 import { eq, sql } from 'drizzle-orm';
 
@@ -4333,6 +4333,9 @@ app.post('/api/admin/impersonate/:email', requireAdmin(['super_admin']), async (
 });
 
 async function startServer() {
+  // Bootstrap the DB schema (idempotent) so a fresh Postgres works on first deploy.
+  await ensureSchema();
+
   // Unmatched API routes -> JSON 404 (registered before the SPA/Vite catch-all).
   app.use('/api', (req, res) => res.status(404).json({ error: 'API route not found.' }));
 
