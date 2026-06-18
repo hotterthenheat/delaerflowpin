@@ -2073,8 +2073,14 @@ app.post('/api/auth/clerk-signup', express.json(), async (req, res) => {
     return res.status(409).json({ error: 'Database Constraint Error: Referral code collision registered.' });
   }
 
-  // Save to database map
-  await dbSetUser(userEmail, newUser);
+  // Save to database map. A DB write failure here must return a 500, not reject this
+  // async handler (which Express 4 surfaces as an unhandledRejection / process crash).
+  try {
+    await dbSetUser(userEmail, newUser);
+  } catch (dbErr) {
+    console.error('clerk-signup persist failed for', userEmail, dbErr);
+    return res.status(500).json({ error: 'Could not create account. Please retry.' });
+  }
 
   // Credit referrer automatically upon successful registration for passive tracking (A)
   let referralCreditApplied = false;
@@ -2172,7 +2178,12 @@ app.post('/api/auth/clerk-login', express.json(), async (req, res) => {
       profile_visibility: 'public',
       block_search_indexing: false
     };
-    await dbSetUser(userEmail, user, user.version);
+    try {
+      await dbSetUser(userEmail, user, user.version);
+    } catch (dbErr) {
+      console.error('clerk-login reconstruct persist failed for', userEmail, dbErr);
+      return res.status(500).json({ error: 'Could not establish account. Please retry.' });
+    }
   } else if (password && !user.passwordHash) {
     // Auto-setup password if the account has no password yet but one was typed
     const passwordErr = validatePasswordStrength(password);
@@ -2225,7 +2236,12 @@ app.get('/api/auth/callback', async (req, res) => {
       username: generateDefaultUsername(userEmail),
       cover_photo: ''
     };
-    await dbSetUser(userEmail, user, user.version);
+    try {
+      await dbSetUser(userEmail, user, user.version);
+    } catch (dbErr) {
+      console.error('auth/callback persist failed for', userEmail, dbErr);
+      return res.status(500).send('Could not establish account. Please retry.');
+    }
   }
 
   const userSession = {
@@ -2280,9 +2296,14 @@ app.get('/api/auth/session', async (req, res) => {
         username: generateDefaultUsername(userEmail),
         cover_photo: ''
       };
-      await dbSetUser(userEmail, user, user.version);
+      try {
+        await dbSetUser(userEmail, user, user.version);
+      } catch (dbErr) {
+        console.error('session reconstruct persist failed for', userEmail, dbErr);
+        return res.status(500).json({ error: 'Could not establish session account. Please retry.' });
+      }
     }
-    
+
     fillDefaultPrivacySettings(user);
     
     res.json({
@@ -2405,17 +2426,27 @@ function verifyTOTP(secretBase32: string, token: string): boolean {
 }
 
 // GDPR Soft Delete Background Worker cleanup job (runs every 5 minutes)
+// Guard the whole body: an unhandled rejection inside an async setInterval callback
+// (e.g. the DB being briefly unavailable) would otherwise crash the process.
 setInterval(async () => {
-  const thirtyDaysAgo = Date.now() - 30 * 24 * 3600 * 1000;
-  let count = 0;
-  for (const [email, user] of (await dbGetAllUsers()).map((u: any) => [u.email, u])) {
-    if (user.deleted_at && new Date(user.deleted_at).getTime() < thirtyDaysAgo) {
-      await dbDeleteUser(email);
-      count++;
+  try {
+    const thirtyDaysAgo = Date.now() - 30 * 24 * 3600 * 1000;
+    let count = 0;
+    for (const [email, user] of (await dbGetAllUsers()).map((u: any) => [u.email, u])) {
+      if (user.deleted_at && new Date(user.deleted_at).getTime() < thirtyDaysAgo) {
+        try {
+          await dbDeleteUser(email);
+          count++;
+        } catch (delErr) {
+          console.error('[GDPR BACKGROUND CLEANER] Failed to purge', email, delErr);
+        }
+      }
     }
-  }
-  if (count > 0) {
-    console.log(`[GDPR BACKGROUND CLEANER] Purged ${count} soft-deleted account(s) after compliance storage limits expired.`);
+    if (count > 0) {
+      console.log(`[GDPR BACKGROUND CLEANER] Purged ${count} soft-deleted account(s) after compliance storage limits expired.`);
+    }
+  } catch (err) {
+    console.error('[GDPR BACKGROUND CLEANER] Cleanup cycle error', err);
   }
 }, 5 * 60 * 1000);
 
@@ -2689,13 +2720,20 @@ app.post('/api/auth/verify-email-update', express.json(), async (req, res) => {
     return res.status(400).json({ error: 'The email destination is already taken.' });
   }
 
-  // Update records
-  await dbDeleteUser(oldEmail);
+  // Update records. Write the NEW row before deleting the old one so a DB failure
+  // can't destroy the account and leave it unrecoverable; a thrown error returns a
+  // 500 rather than crashing the process (unhandled rejection under Express 4).
   user.email = newEmail;
   user.temp_new_email = undefined;
   user.email_otp = undefined;
   user.email_otp_expiry = undefined;
-  await dbSetUser(newEmail, user);
+  try {
+    await dbSetUser(newEmail, user);
+    await dbDeleteUser(oldEmail);
+  } catch (dbErr) {
+    console.error('verify-email-update DB error for', oldEmail, '->', newEmail, dbErr);
+    return res.status(500).json({ error: 'Could not update email. Please retry.' });
+  }
 
   // Sync session structures
   for (const [sessId, s] of activeSessionsDb.entries()) {
@@ -3231,7 +3269,12 @@ app.post('/api/billing/process', express.json(), async (req, res) => {
       active_ip: null,
       avatar: session.avatar || ''
     };
-    await dbSetUser(userEmail, user, user.version);
+    try {
+      await dbSetUser(userEmail, user, user.version);
+    } catch (dbErr) {
+      console.error('billing/subscribe reconstruct persist failed for', userEmail, dbErr);
+      return res.status(500).json({ error: 'Could not establish account for billing. Please retry.' });
+    }
   }
 
   // Set Stripe Elements / Braintree Drop-in tokenised parameters.
@@ -3266,7 +3309,7 @@ app.post('/api/billing/process', express.json(), async (req, res) => {
     // Locate the referrer having this custom_referral_code
     let referrerMatch: UserAccount | null = null;
     for (const [email, acc] of (await dbGetAllUsers()).map(u => [u.email, u])) {
-      if (acc.custom_referral_code.toUpperCase() === referralCode.trim().toUpperCase() && acc.email !== user.email) {
+      if (acc.custom_referral_code && acc.custom_referral_code.toUpperCase() === referralCode.trim().toUpperCase() && acc.email !== user.email) {
         referrerMatch = acc;
         break;
       }
@@ -3486,7 +3529,7 @@ Structure your response as a professional commentary with 4 distinct, punchy bul
 Do NOT output any markdown headers, conversational filler, or self-praise. Just output 4 elegant, clean lines representing the points, starting with a '●' bullet.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-2.0-flash",
       contents: prompt,
     });
 
@@ -3590,7 +3633,12 @@ app.patch('/api/users/preferences', express.json({ limit: '50mb' }), async (req,
       username: generateDefaultUsername(userEmail),
       cover_photo: ''
     };
-    await dbSetUser(userEmail, user, user.version);
+    try {
+      await dbSetUser(userEmail, user, user.version);
+    } catch (dbErr) {
+      console.error('preferences reconstruct persist failed for', userEmail, dbErr);
+      return res.status(500).json({ error: 'Could not save settings. Please retry.' });
+    }
   }
 
   fillDefaultPrivacySettings(user);
@@ -3675,7 +3723,8 @@ app.patch('/api/users/preferences', express.json({ limit: '50mb' }), async (req,
     username: user.username,
     cover_photo: user.cover_photo
   };
-  await persistUser(userEmail, user);
+  const prefsSaved = await persistUser(userEmail, user);
+  if (!prefsSaved) return res.status(500).json({ error: 'Could not save settings. Please retry.' });
   await setSessionCookie(res, userSession, req);
 
   res.json({
