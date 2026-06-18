@@ -9,6 +9,7 @@ import {
   modulateDecision,
   DEFAULT_DEALER_COUPLING,
 } from './dealerSignals';
+import { stdNormalCDF, stdNormalPDF } from './normalDist';
 
 // ==========================================
 // TIER 0: SEEDED PRNG FOR DETERMINISTIC REPLICABILITY
@@ -83,23 +84,9 @@ export function computeNetOptionPnL(
 // ==========================================
 // TIER 2: MARKET-STATE SUB-SCORES (Part 2)
 // ==========================================
-export function stdNormalCDF(x: number): number {
-  const a1 = 0.254829592;
-  const a2 = -0.284496736;
-  const a3 = 1.421413741;
-  const a4 = -1.453152027;
-  const a5 = 1.061405429;
-  const p = 0.3275911;
-
-  const sign = x < 0 ? -1 : 1;
-  const t = 1.0 / (1.0 + p * Math.abs(x));
-  const y = 1.0 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-  return 0.5 * (1.0 + sign * y);
-}
-
-export function stdNormalPDF(x: number): number {
-  return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
-}
+// High-accuracy standard-normal CDF/PDF (Hart/West, ~1e-15) now live in
+// ./normalDist; re-exported here so existing `from './v11Math'` imports keep working.
+export { stdNormalCDF, stdNormalPDF };
 
 export function computeBlackScholesPrice(
   spot: number,
